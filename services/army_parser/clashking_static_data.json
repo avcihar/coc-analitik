@@ -1,0 +1,1596 @@
+{
+  "source": "https://raw.githubusercontent.com/ClashKingInc/ClashKingAssets/main/assets/static_data.json",
+  "troops": [
+    {
+      "_id": 4000000,
+      "id": 0,
+      "name": "Barbarian",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000001,
+      "id": 1,
+      "name": "Archer",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000002,
+      "id": 2,
+      "name": "Goblin",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000003,
+      "id": 3,
+      "name": "Giant",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 5,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000004,
+      "id": 4,
+      "name": "Wall Breaker",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 2,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000005,
+      "id": 5,
+      "name": "Balloon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 5,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000006,
+      "id": 6,
+      "name": "Wizard",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000007,
+      "id": 7,
+      "name": "Healer",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 14,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000008,
+      "id": 8,
+      "name": "Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 20,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000009,
+      "id": 9,
+      "name": "P.E.K.K.A",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 25,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000010,
+      "id": 10,
+      "name": "Minion",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 2,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000011,
+      "id": 11,
+      "name": "Hog Rider",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 5,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000012,
+      "id": 12,
+      "name": "Valkyrie",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 8,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000013,
+      "id": 13,
+      "name": "Golem",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 30,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000015,
+      "id": 15,
+      "name": "Witch",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000017,
+      "id": 17,
+      "name": "Lava Hound",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 30,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000022,
+      "id": 22,
+      "name": "Bowler",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 6,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000023,
+      "id": 23,
+      "name": "Baby Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000024,
+      "id": 24,
+      "name": "Miner",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 6,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000026,
+      "id": 26,
+      "name": "Super Barbarian",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 5,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000000,
+        "original_min_level": 7
+      }
+    },
+    {
+      "_id": 4000027,
+      "id": 27,
+      "name": "Super Archer",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000001,
+        "original_min_level": 7
+      }
+    },
+    {
+      "_id": 4000028,
+      "id": 28,
+      "name": "Super Wall Breaker",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 8,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000004,
+        "original_min_level": 6
+      }
+    },
+    {
+      "_id": 4000029,
+      "id": 29,
+      "name": "Super Giant",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000003,
+        "original_min_level": 8
+      }
+    },
+    {
+      "_id": 4000030,
+      "id": 30,
+      "name": "Ice Wizard",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000031,
+      "id": 31,
+      "name": "Raged Barbarian",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000032,
+      "id": 32,
+      "name": "Sneaky Archer",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 3,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000033,
+      "id": 33,
+      "name": "Beta Minion",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 3,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000034,
+      "id": 34,
+      "name": "Boxer Giant",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 18,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000035,
+      "id": 35,
+      "name": "Bomber",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000036,
+      "id": 36,
+      "name": "Power P.E.K.K.A",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 22,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000037,
+      "id": 37,
+      "name": "Cannon Cart",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 16,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000038,
+      "id": 38,
+      "name": "Drop Ship",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 15,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000041,
+      "id": 41,
+      "name": "Baby Dragon",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 12,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000042,
+      "id": 42,
+      "name": "Night Witch",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 14,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000045,
+      "id": 45,
+      "name": "Battle Ram",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000047,
+      "id": 47,
+      "name": "Royal Ghost",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 8,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000048,
+      "id": 48,
+      "name": "Pumpkin Barbarian",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000050,
+      "id": 50,
+      "name": "Giant Skeleton",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 20,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000051,
+      "id": 51,
+      "name": "Wall Wrecker",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000052,
+      "id": 52,
+      "name": "Battle Blimp",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000053,
+      "id": 53,
+      "name": "Yeti",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 18,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000055,
+      "id": 55,
+      "name": "Sneaky Goblin",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 3,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000002,
+        "original_min_level": 6
+      }
+    },
+    {
+      "_id": 4000056,
+      "id": 56,
+      "name": "Super Miner",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 24,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000024,
+        "original_min_level": 6
+      }
+    },
+    {
+      "_id": 4000057,
+      "id": 57,
+      "name": "Rocket Balloon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 8,
+      "is_flying": true,
+      "super_troop": {
+        "original_id": 4000005,
+        "original_min_level": 7
+      }
+    },
+    {
+      "_id": 4000058,
+      "id": 58,
+      "name": "Ice Golem",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 15,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000059,
+      "id": 59,
+      "name": "Electro Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 30,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000061,
+      "id": 61,
+      "name": "Skeleton Barrel",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 5,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000062,
+      "id": 62,
+      "name": "Stone Slammer",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000063,
+      "id": 63,
+      "name": "Inferno Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 15,
+      "is_flying": true,
+      "super_troop": {
+        "original_id": 4000023,
+        "original_min_level": 5
+      }
+    },
+    {
+      "_id": 4000064,
+      "id": 64,
+      "name": "Super Valkyrie",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 20,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000012,
+        "original_min_level": 6
+      }
+    },
+    {
+      "_id": 4000065,
+      "id": 65,
+      "name": "Dragon Rider",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 25,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000066,
+      "id": 66,
+      "name": "Super Witch",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 40,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000015,
+        "original_min_level": 4
+      }
+    },
+    {
+      "_id": 4000067,
+      "id": 67,
+      "name": "M.E.C.H.A",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000070,
+      "id": 70,
+      "name": "Hog Glider",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 12,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000072,
+      "id": 72,
+      "name": "Party Wizard",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000075,
+      "id": 75,
+      "name": "Siege Barracks",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000076,
+      "id": 76,
+      "name": "Ice Hound",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 40,
+      "is_flying": true,
+      "super_troop": {
+        "original_id": 4000017,
+        "original_min_level": 4
+      }
+    },
+    {
+      "_id": 4000080,
+      "id": 80,
+      "name": "Super Bowler",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 30,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000022,
+        "original_min_level": 3
+      }
+    },
+    {
+      "_id": 4000081,
+      "id": 81,
+      "name": "Super Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 40,
+      "is_flying": true,
+      "super_troop": {
+        "original_id": 4000008,
+        "original_min_level": 6
+      }
+    },
+    {
+      "_id": 4000082,
+      "id": 82,
+      "name": "Headhunter",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 6,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000083,
+      "id": 83,
+      "name": "Super Wizard",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000006,
+        "original_min_level": 8
+      }
+    },
+    {
+      "_id": 4000084,
+      "id": 84,
+      "name": "Super Minion",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 12,
+      "is_flying": true,
+      "super_troop": {
+        "original_id": 4000010,
+        "original_min_level": 7
+      }
+    },
+    {
+      "_id": 4000087,
+      "id": 87,
+      "name": "Log Launcher",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000091,
+      "id": 91,
+      "name": "Flame Flinger",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000092,
+      "id": 92,
+      "name": "Battle Drill",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000094,
+      "id": 94,
+      "name": "Ram Rider",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000095,
+      "id": 95,
+      "name": "Electro Titan",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 32,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000097,
+      "id": 97,
+      "name": "Apprentice Warden",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 20,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000098,
+      "id": 98,
+      "name": "Super Hog Rider",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000011,
+        "original_min_level": 9
+      }
+    },
+    {
+      "_id": 4000101,
+      "id": 101,
+      "name": "Barcher",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 3,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000102,
+      "id": 102,
+      "name": "Witch Golem",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 41,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000103,
+      "id": 103,
+      "name": "Hog Wizard",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 7,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000104,
+      "id": 104,
+      "name": "Lavaloon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 21,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000106,
+      "id": 106,
+      "name": "Electrofire Wizard",
+      "village": "builderBase",
+      "production_building": "Builder Barracks",
+      "housing_space": 14,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000109,
+      "id": 109,
+      "name": "Ruin Witch",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 26,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000110,
+      "id": 110,
+      "name": "Root Rider",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 20,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000118,
+      "id": 118,
+      "name": "C.O.O.K.I.E",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000119,
+      "id": 119,
+      "name": "Firecracker",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 10,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000120,
+      "id": 120,
+      "name": "Azure Dragon",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 40,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000121,
+      "id": 121,
+      "name": "Barbarian Kicker",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 12,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000122,
+      "id": 122,
+      "name": "Giant Thrower",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 15,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000123,
+      "id": 123,
+      "name": "Druid",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 16,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000125,
+      "id": 125,
+      "name": "Broom Witch",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 20,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000130,
+      "id": 130,
+      "name": "Ice Minion",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000132,
+      "id": 132,
+      "name": "Thrower",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 16,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000135,
+      "id": 135,
+      "name": "Troop Launcher",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000136,
+      "id": 136,
+      "name": "Debt Collector",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 4,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000142,
+      "id": 142,
+      "name": "Snake Barrel",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 8,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000147,
+      "id": 147,
+      "name": "Super Yeti",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 35,
+      "is_flying": false,
+      "super_troop": {
+        "original_id": 4000053,
+        "original_min_level": 2
+      }
+    },
+    {
+      "_id": 4000150,
+      "id": 150,
+      "name": "Furnace",
+      "village": "home",
+      "production_building": "Dark Barracks",
+      "housing_space": 18,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000156,
+      "id": 156,
+      "name": "Giant Giant",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 50,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000157,
+      "id": 157,
+      "name": "K.A.N.E",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 75,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000158,
+      "id": 158,
+      "name": "The Disarmer",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 60,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000159,
+      "id": 159,
+      "name": "YEETer",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 45,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000167,
+      "id": 167,
+      "name": "Meteor Golem",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 40,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000177,
+      "id": 177,
+      "name": "Meteor Golem",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 40,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000185,
+      "id": 185,
+      "name": "Elephant Rider",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 24,
+      "is_flying": false,
+      "super_troop": null
+    },
+    {
+      "_id": 4000188,
+      "id": 188,
+      "name": "Sky Wagon",
+      "village": "home",
+      "production_building": "Workshop",
+      "housing_space": 1,
+      "is_flying": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000190,
+      "id": 190,
+      "name": "Yeti Undertaker",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 80,
+      "is_flying": false,
+      "super_troop": null
+    }
+  ],
+  "spells": [
+    {
+      "_id": 26000000,
+      "id": 0,
+      "name": "Lightning Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000001,
+      "id": 1,
+      "name": "Healing Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000002,
+      "id": 2,
+      "name": "Rage Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000003,
+      "id": 3,
+      "name": "Jump Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000005,
+      "id": 5,
+      "name": "Freeze Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000006,
+      "id": 6,
+      "name": "Santa's Surprise",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000009,
+      "id": 9,
+      "name": "Poison Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000010,
+      "id": 10,
+      "name": "Earthquake Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000011,
+      "id": 11,
+      "name": "Haste Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000016,
+      "id": 16,
+      "name": "Clone Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 3
+    },
+    {
+      "_id": 26000017,
+      "id": 17,
+      "name": "Skeleton Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000028,
+      "id": 28,
+      "name": "Bat Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000035,
+      "id": 35,
+      "name": "Invisibility Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000053,
+      "id": 53,
+      "name": "Recall Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000070,
+      "id": 70,
+      "name": "Overgrowth Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000073,
+      "id": 73,
+      "name": "Bag of Frostmites",
+      "production_building": "Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000098,
+      "id": 98,
+      "name": "Revive Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
+    },
+    {
+      "_id": 26000109,
+      "id": 109,
+      "name": "Ice Block Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000120,
+      "id": 120,
+      "name": "Totem Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 1
+    },
+    {
+      "_id": 26000123,
+      "id": 123,
+      "name": "Angry Spell",
+      "production_building": "Dark Spell Factory",
+      "housing_space": 1
+    }
+  ],
+  "heroes": [
+    {
+      "_id": 28000000,
+      "id": 0,
+      "name": "Barbarian King",
+      "village": "home"
+    },
+    {
+      "_id": 28000001,
+      "id": 1,
+      "name": "Archer Queen",
+      "village": "home"
+    },
+    {
+      "_id": 28000002,
+      "id": 2,
+      "name": "Grand Warden",
+      "village": "home"
+    },
+    {
+      "_id": 28000003,
+      "id": 3,
+      "name": "Battle Machine",
+      "village": "builderBase"
+    },
+    {
+      "_id": 28000004,
+      "id": 4,
+      "name": "Royal Champion",
+      "village": "home"
+    },
+    {
+      "_id": 28000005,
+      "id": 5,
+      "name": "Battle Copter",
+      "village": "builderBase"
+    },
+    {
+      "_id": 28000006,
+      "id": 6,
+      "name": "Minion Prince",
+      "village": "home"
+    },
+    {
+      "_id": 28000007,
+      "id": 7,
+      "name": "Dragon Duke",
+      "village": "home"
+    }
+  ],
+  "pets": [
+    {
+      "_id": 73000000,
+      "id": 0,
+      "name": "L.A.S.S.I"
+    },
+    {
+      "_id": 73000001,
+      "id": 1,
+      "name": "Mighty Yak"
+    },
+    {
+      "_id": 73000002,
+      "id": 2,
+      "name": "Electro Owl"
+    },
+    {
+      "_id": 73000003,
+      "id": 3,
+      "name": "Unicorn"
+    },
+    {
+      "_id": 73000004,
+      "id": 4,
+      "name": "Phoenix"
+    },
+    {
+      "_id": 73000007,
+      "id": 7,
+      "name": "Poison Lizard"
+    },
+    {
+      "_id": 73000008,
+      "id": 8,
+      "name": "Diggy"
+    },
+    {
+      "_id": 73000009,
+      "id": 9,
+      "name": "Frosty"
+    },
+    {
+      "_id": 73000010,
+      "id": 10,
+      "name": "Spirit Fox"
+    },
+    {
+      "_id": 73000011,
+      "id": 11,
+      "name": "Angry Jelly"
+    },
+    {
+      "_id": 73000016,
+      "id": 16,
+      "name": "Sneezy"
+    },
+    {
+      "_id": 73000017,
+      "id": 17,
+      "name": "Greedy Raven"
+    }
+  ],
+  "equipment": [
+    {
+      "_id": 90000000,
+      "id": 0,
+      "name": "Barbarian Puppet",
+      "rarity": "Common",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000001,
+      "id": 1,
+      "name": "Rage Vial",
+      "rarity": "Common",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000002,
+      "id": 2,
+      "name": "Archer Puppet",
+      "rarity": "Common",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000003,
+      "id": 3,
+      "name": "Invisibility Vial",
+      "rarity": "Common",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000004,
+      "id": 4,
+      "name": "Eternal Tome",
+      "rarity": "Common",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000005,
+      "id": 5,
+      "name": "Life Gem",
+      "rarity": "Common",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000006,
+      "id": 6,
+      "name": "Seeking Shield",
+      "rarity": "Common",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000007,
+      "id": 7,
+      "name": "Royal Gem",
+      "rarity": "Common",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000008,
+      "id": 8,
+      "name": "Earthquake Boots",
+      "rarity": "Common",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000009,
+      "id": 9,
+      "name": "Hog Rider Puppet",
+      "rarity": "Common",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000010,
+      "id": 10,
+      "name": "Giant Gauntlet",
+      "rarity": "Epic",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000011,
+      "id": 11,
+      "name": "Vampstache",
+      "rarity": "Common",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000012,
+      "id": 12,
+      "name": "Haste Vial",
+      "rarity": "Common",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000013,
+      "id": 13,
+      "name": "Rocket Spear",
+      "rarity": "Epic",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000014,
+      "id": 14,
+      "name": "Spiky Ball",
+      "rarity": "Epic",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000015,
+      "id": 15,
+      "name": "Frozen Arrow",
+      "rarity": "Epic",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000016,
+      "id": 16,
+      "name": "Monolith Arrow",
+      "rarity": "Epic",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000017,
+      "id": 17,
+      "name": "Giant Arrow",
+      "rarity": "Common",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000019,
+      "id": 19,
+      "name": "Heroic Torch",
+      "rarity": "Epic",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000020,
+      "id": 20,
+      "name": "Healer Puppet",
+      "rarity": "Common",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000022,
+      "id": 22,
+      "name": "Fireball",
+      "rarity": "Epic",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000024,
+      "id": 24,
+      "name": "Rage Gem",
+      "rarity": "Common",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000032,
+      "id": 32,
+      "name": "Snake Bracelet",
+      "rarity": "Epic",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000034,
+      "id": 34,
+      "name": "Healing Tome",
+      "rarity": "Common",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000035,
+      "id": 35,
+      "name": "Dark Crown",
+      "rarity": "Epic",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000039,
+      "id": 39,
+      "name": "Magic Mirror",
+      "rarity": "Epic",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000040,
+      "id": 40,
+      "name": "Electro Boots",
+      "rarity": "Epic",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000041,
+      "id": 41,
+      "name": "Lavaloon Puppet",
+      "rarity": "Epic",
+      "hero": "Grand Warden"
+    },
+    {
+      "_id": 90000042,
+      "id": 42,
+      "name": "Henchmen Puppet",
+      "rarity": "Common",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000043,
+      "id": 43,
+      "name": "Dark Orb",
+      "rarity": "Common",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000044,
+      "id": 44,
+      "name": "Metal Pants",
+      "rarity": "Common",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000047,
+      "id": 47,
+      "name": "Noble Iron",
+      "rarity": "Common",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000048,
+      "id": 48,
+      "name": "Action Figure",
+      "rarity": "Epic",
+      "hero": "Archer Queen"
+    },
+    {
+      "_id": 90000049,
+      "id": 49,
+      "name": "Meteor Staff",
+      "rarity": "Epic",
+      "hero": "Minion Prince"
+    },
+    {
+      "_id": 90000050,
+      "id": 50,
+      "name": "Frost Flake",
+      "rarity": "Epic",
+      "hero": "Royal Champion"
+    },
+    {
+      "_id": 90000051,
+      "id": 51,
+      "name": "Stick Horse",
+      "rarity": "Epic",
+      "hero": "Barbarian King"
+    },
+    {
+      "_id": 90000052,
+      "id": 52,
+      "name": "Fire Heart",
+      "rarity": "Common",
+      "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000053,
+      "id": 53,
+      "name": "Rocket Backpack",
+      "rarity": "Epic",
+      "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000056,
+      "id": 56,
+      "name": "Stun Blaster",
+      "rarity": "Common",
+      "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000057,
+      "id": 57,
+      "name": "Flame Blower",
+      "rarity": "Common",
+      "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000059,
+      "id": 59,
+      "name": "Electro Fangs",
+      "rarity": "Common",
+      "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000060,
+      "id": 60,
+      "name": "Revenge Deck",
+      "rarity": "Epic",
+      "hero": "Dragon Duke"
+    }
+  ]
+}

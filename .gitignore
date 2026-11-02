@@ -1,0 +1,31 @@
+# Ortam Değişkenleri ve Gizli Anahtarlar
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python & Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+
+# Node & Next.js Build
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Loglar ve Geçici Dosyalar
+*.log
+scratch/
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: coc-analytics
+    env: python
+    plan: free
+    region: frankfurt
+    buildCommand: "./build.sh"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: "/health"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: COC_API_BASE
+        value: https://api.clashofclans.com/v1
+      - key: COC_API_TOKEN
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: "*"
+
