@@ -15,6 +15,7 @@ import {
   Clock,
   Flame,
   Activity,
+  PenTool,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -27,7 +28,7 @@ function cn(...inputs: ClassValue[]) {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 interface HomeHubViewProps {
-  onNavigate: (tab: "search" | "ore" | "cwl" | "meta", subAction?: string) => void;
+  onNavigate: (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string) => void;
   onSearchQuery?: (mode: "player" | "clanTag" | "clanName", query: string) => void;
 }
 
@@ -267,46 +268,69 @@ export default function HomeHubView({ onNavigate, onSearchQuery }: HomeHubViewPr
         {/* Section 3: Araçlar */}
         <div className="space-y-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-            <Layers size={14} className="text-emerald-500" /> Analiz Araçları
+            <Layers size={14} className="text-emerald-500" /> Analiz & Köy Araçları
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div
               onClick={() => onNavigate("ore")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-emerald-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex items-start gap-4"
+              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-emerald-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 group-hover:scale-105 transition-transform">
-                <TrendingUp size={22} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-app-text group-hover:text-emerald-400 transition-colors">
-                    Cevher Analizi & Demirci Fulleme
-                  </h3>
-                  <ArrowRight size={16} className="text-app-muted group-hover:text-emerald-400 group-hover:translate-x-1 transition-all" />
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform">
+                  <TrendingUp size={22} />
                 </div>
+                <h3 className="text-base font-bold text-app-text group-hover:text-emerald-400 transition-colors">
+                  Cevher Analizi
+                </h3>
                 <p className="text-xs text-app-muted mt-1 leading-relaxed">
                   37 resmi lig kademesi, savaş ve baskın gelirleriyle demircinizi fulleme gününü ve darboğaz cevherini kesin hesaplayın.
                 </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-emerald-400">
+                <span>Demirciyi Hesapla</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
 
             <div
               onClick={() => onNavigate("cwl")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-amber-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex items-start gap-4"
+              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-amber-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
             >
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Swords size={22} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-app-text group-hover:text-amber-400 transition-colors">
-                    CWL Keşif Kartı
-                  </h3>
-                  <ArrowRight size={16} className="text-app-muted group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
+                  <Swords size={22} />
                 </div>
+                <h3 className="text-base font-bold text-app-text group-hover:text-amber-400 transition-colors">
+                  CWL Keşif Kartı
+                </h3>
                 <p className="text-xs text-app-muted mt-1 leading-relaxed">
                   CWL rakibinizin 15/30 kişilik kadrosunu, ranked battle log saldırılarını, tahmin edilen ordularını ve yedek taktiklerini keşfedin.
                 </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-amber-400">
+                <span>Rakibi Keşfet</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+
+            <div
+              onClick={() => onNavigate("wall")}
+              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-blue-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
+            >
+              <div>
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-105 transition-transform">
+                  <PenTool size={22} />
+                </div>
+                <h3 className="text-base font-bold text-app-text group-hover:text-blue-400 transition-colors">
+                  Duvar Yazısı
+                </h3>
+                <p className="text-xs text-app-muted mt-1 leading-relaxed">
+                  44x44 ana köy ızgarasında duvarlarla metin yaz; 2D/3D izometrik önizle, bütçe kısıtlı ve satır satır koordinat planı indir.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-blue-400">
+                <span>Duvar Yazısı Yaz</span>
+                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
           </div>

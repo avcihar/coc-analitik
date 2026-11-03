@@ -8,6 +8,7 @@ import PlayerClanSearchView, {
 import MetaDashboardView from "@/components/meta/MetaDashboardView";
 import ScoutedArmyCard from "@/components/cwl/ScoutedArmyCard";
 import OreCalculatorView from "@/components/ore/OreCalculatorView";
+import WallArtView from "@/components/wall/WallArtView";
 import { useTheme } from "@/components/theme/ThemeProvider";
 import {
   LayoutGrid,
@@ -22,6 +23,7 @@ import {
   X,
   ChevronRight,
   Shield,
+  PenTool,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -30,7 +32,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type TabKey = "home" | "search" | "meta" | "cwl" | "ore";
+type TabKey = "home" | "search" | "meta" | "cwl" | "ore" | "wall";
 
 const HASH_TO_TAB: Record<string, TabKey> = {
   "#/": "home",
@@ -41,6 +43,9 @@ const HASH_TO_TAB: Record<string, TabKey> = {
   "#/ordu": "meta",
   "#/cwl": "cwl",
   "#/cevher": "ore",
+  "#/duvar": "wall",
+  "#/duvaryazisi": "wall",
+  "#/wall": "wall",
 };
 
 const TAB_TO_HASH: Record<TabKey, string> = {
@@ -49,6 +54,7 @@ const TAB_TO_HASH: Record<TabKey, string> = {
   meta: "#/meta",
   cwl: "#/cwl",
   ore: "#/cevher",
+  wall: "#/duvar",
 };
 
 const TAB_BREADCRUMBS: Record<TabKey, string> = {
@@ -57,6 +63,7 @@ const TAB_BREADCRUMBS: Record<TabKey, string> = {
   meta: "Meta & Ordu Tavsiyesi",
   cwl: "CWL Keşif Kartı",
   ore: "Cevher Analizi & Fulleme",
+  wall: "Duvar Yazısı",
 };
 
 export default function Home() {
@@ -91,7 +98,7 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleHubNavigate = (tab: "search" | "ore" | "cwl" | "meta", _subAction?: string) => {
+  const handleHubNavigate = (tab: "search" | "ore" | "cwl" | "meta" | "wall", _subAction?: string) => {
     switchTab(tab);
   };
 
@@ -117,6 +124,7 @@ export default function Home() {
     { key: "meta", label: "Meta & Ordu", icon: <Award size={16} /> },
     { key: "cwl", label: "CWL Keşif", icon: <Swords size={16} /> },
     { key: "ore", label: "Cevher Analizi", icon: <Sparkles size={16} /> },
+    { key: "wall", label: "Duvar Yazısı", icon: <PenTool size={16} /> },
   ];
 
   return (
@@ -255,16 +263,19 @@ export default function Home() {
             onClearImportedPlayer={() => setImportedPlayer(null)}
           />
         )}
+
+        {activeTab === "wall" && <WallArtView />}
       </main>
 
-      {/* 3. Mobile Fixed Bottom Navigation Bar (4 most used tabs) */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-md border-t border-app-border py-2 px-2 flex justify-around items-center lg:hidden shadow-lg">
+      {/* 3. Mobile Fixed Bottom Navigation Bar (most used tabs) */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-app-card/95 backdrop-blur-md border-t border-app-border py-2 px-1 flex justify-around items-center lg:hidden shadow-lg overflow-x-auto">
         {[
-          { key: "home" as TabKey, label: "Ana Sayfa", icon: <LayoutGrid size={18} /> },
-          { key: "search" as TabKey, label: "Oyuncu", icon: <Search size={18} /> },
-          { key: "meta" as TabKey, label: "Meta Ordu", icon: <Award size={18} /> },
-          { key: "cwl" as TabKey, label: "CWL", icon: <Swords size={18} /> },
-          { key: "ore" as TabKey, label: "Cevher", icon: <Sparkles size={18} /> },
+          { key: "home" as TabKey, label: "Ana Sayfa", icon: <LayoutGrid size={17} /> },
+          { key: "search" as TabKey, label: "Oyuncu", icon: <Search size={17} /> },
+          { key: "meta" as TabKey, label: "Meta", icon: <Award size={17} /> },
+          { key: "cwl" as TabKey, label: "CWL", icon: <Swords size={17} /> },
+          { key: "ore" as TabKey, label: "Cevher", icon: <Sparkles size={17} /> },
+          { key: "wall" as TabKey, label: "Duvar", icon: <PenTool size={17} /> },
         ].map((tab) => {
           const isActive = activeTab === tab.key;
           return (

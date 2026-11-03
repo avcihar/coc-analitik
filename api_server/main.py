@@ -809,6 +809,13 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     if icons_dir.exists():
         application.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons_static")
 
+    # Always mount /fonts if available (from out/fonts or public/fonts)
+    fonts_dir = frontend_out / "fonts"
+    if not fonts_dir.exists():
+        fonts_dir = frontend_public / "fonts"
+    if fonts_dir.exists():
+        application.mount("/fonts", StaticFiles(directory=str(fonts_dir)), name="fonts_static")
+
     if frontend_out.exists() and (frontend_out / "index.html").exists():
         next_dir = frontend_out / "_next"
         if next_dir.exists():
@@ -826,7 +833,7 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
                 or clean.startswith("openapi.json")
             ):
                 return JSONResponse(status_code=404, content={"detail": f"API rotası bulunamadı: /{clean}"})
-            if clean.startswith("icons/"):
+            if clean.startswith("icons/") or clean.startswith("fonts/"):
                 return Response(status_code=404)
             file_on_disk = frontend_out / full_path
             if full_path and file_on_disk.is_file():
