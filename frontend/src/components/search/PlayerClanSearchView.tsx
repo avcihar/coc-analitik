@@ -982,6 +982,7 @@ export default function PlayerClanSearchView({
                         <UnitIcon
                           key={bh.name}
                           name={bh.name}
+                          village="builderBase"
                           level={bh.level}
                           maxLevel={bh.maxLevel}
                           size="sm"
@@ -1005,6 +1006,7 @@ export default function PlayerClanSearchView({
                         <UnitIcon
                           key={bt.name}
                           name={bt.name}
+                          village="builderBase"
                           level={bt.level}
                           maxLevel={bt.maxLevel}
                           size="xs"

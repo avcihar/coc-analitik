@@ -26,6 +26,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { buildCopyArmyLink } from "@/lib/armyLink";
 import { safeFetchJson } from "@/lib/apiClient";
+import UnitIcon from "@/components/common/UnitIcon";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -224,9 +225,7 @@ const UnitCard = ({
   return (
     <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-blue-500/50 transition-all">
       <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-lg bg-app-card border border-app-border flex items-center justify-center font-black text-xs text-app-text">
-          {unit.name.substring(0, 2).toUpperCase()}
-        </div>
+        <UnitIcon name={unit.name} size="xs" />
         <div>
           <div className="text-xs font-bold text-app-text">{unit.name}</div>
           {unit.housingSpace && (
@@ -484,8 +483,9 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-3">
-                      <div className="font-extrabold text-sm text-app-text">
-                        {hero.name}
+                      <div className="flex items-center gap-2 font-extrabold text-sm text-app-text">
+                        <UnitIcon name={hero.name} size="xs" />
+                        <span>{hero.name}</span>
                       </div>
                       {hero.level !== undefined && (
                         <span className="px-2 py-0.5 rounded bg-blue-600 text-white text-xs font-black">
@@ -497,8 +497,8 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                     {hero.pet && (
                       <div className="mb-3 p-2 rounded-lg bg-app-card border border-app-border flex items-center justify-between text-xs font-bold text-app-text">
                         <span className="text-app-muted flex items-center gap-1.5">
-                          <Sparkles size={13} className="text-cyan-500" />{" "}
-                          {hero.pet.name}
+                          <UnitIcon name={hero.pet.name} size="xs" />
+                          <span>{hero.pet.name}</span>
                         </span>
                         {hero.pet.level !== undefined && (
                           <span className="text-[11px] font-extrabold text-cyan-600 dark:text-cyan-400">
@@ -523,11 +523,14 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                           key={i}
                           className="flex items-center justify-between text-xs py-1 px-2 rounded bg-app-card border border-app-border font-bold text-app-text"
                         >
-                          <span className="truncate pr-2">{eq.name}</span>
+                          <div className="flex items-center gap-1.5 truncate pr-2">
+                            <UnitIcon name={eq.name} size="xs" isEpic={eq.isEpic || eq.rarity === "Epic"} />
+                            <span className="truncate">{eq.name}</span>
+                          </div>
                           {eq.level !== undefined && (
                             <span
                               className={cn(
-                                "text-[10px] px-1.5 py-0.5 rounded font-black",
+                                "text-[10px] px-1.5 py-0.5 rounded font-black shrink-0",
                                 eq.isEpic || eq.rarity === "Epic"
                                   ? "bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/30"
                                   : "bg-app-cardSubtle text-app-muted"
@@ -584,20 +587,25 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                       className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 space-y-1.5"
                     >
                       <div className="flex items-center justify-between text-xs font-black text-app-text">
-                        <span>{h.name}</span>
+                        <div className="flex items-center gap-1.5">
+                          <UnitIcon name={h.name} size="xs" />
+                          <span>{h.name}</span>
+                        </div>
                         {h.pet && (
-                          <span className="text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
-                            Pet: {h.pet.name}
-                          </span>
+                          <div className="flex items-center gap-1 text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                            <UnitIcon name={h.pet.name} size="xs" />
+                            <span>{h.pet.name}</span>
+                          </div>
                         )}
                       </div>
                       <div className="space-y-1">
                         {h.equipment.map((eq) => (
                           <div
                             key={eq.id}
-                            className="text-xs font-bold px-2 py-1 rounded bg-app-card border border-app-border text-app-text"
+                            className="text-xs font-bold px-2 py-1 rounded bg-app-card border border-app-border text-app-text flex items-center gap-1.5"
                           >
-                            {eq.name}
+                            <UnitIcon name={eq.name} size="xs" isEpic={eq.rarity === "Epic"} />
+                            <span>{eq.name}</span>
                           </div>
                         ))}
                       </div>

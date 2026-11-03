@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { getIconPath } from "@/lib/iconManifest";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -37,10 +38,11 @@ function getInitials(name: string): string {
 
 export interface UnitIconProps {
   name: string;
+  village?: string;
   level?: number;
   maxLevel?: number;
   count?: number;
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   iconUrl?: string | null;
   isSuper?: boolean;
   isEpic?: boolean;
@@ -50,6 +52,7 @@ export interface UnitIconProps {
 
 export default function UnitIcon({
   name,
+  village,
   level,
   maxLevel,
   count,
@@ -60,6 +63,15 @@ export default function UnitIcon({
   className,
   showNameBelow = false,
 }: UnitIconProps) {
+  const [imgError, setImgError] = useState(false);
+
+  const resolvedIcon = iconUrl || getIconPath(name, village);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [resolvedIcon]);
+
+  const displayIcon = !imgError && resolvedIcon ? resolvedIcon : null;
   const isMax =
     level !== undefined && maxLevel !== undefined && level >= maxLevel && maxLevel > 0;
   const initials = getInitials(name);
@@ -70,6 +82,15 @@ export default function UnitIcon({
     sm: "w-10 h-10 text-xs",
     md: "w-12 h-12 text-sm",
     lg: "w-14 h-14 text-base",
+    xl: "w-16 h-16 text-lg",
+  }[size];
+
+  const pixelDimensions = {
+    xs: 32,
+    sm: 40,
+    md: 48,
+    lg: 56,
+    xl: 64,
   }[size];
 
   const tooltipText = [
@@ -88,31 +109,30 @@ export default function UnitIcon({
     >
       <div
         className={cn(
-          "relative rounded-xl border-2 flex items-center justify-center font-black overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-gradient-to-br",
+          "relative rounded-xl border-2 flex items-center justify-center font-black overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-slate-900/60",
           sizeClasses,
           colorClasses,
           isEpic && "ring-1 ring-purple-500/50",
           isSuper && "ring-1 ring-rose-500/50"
         )}
       >
-        {iconUrl ? (
+        {displayIcon ? (
           <img
-            src={iconUrl}
+            src={displayIcon}
             alt={name}
-            className="w-full h-full object-cover"
+            width={pixelDimensions}
+            height={pixelDimensions}
             loading="lazy"
-            onError={(e) => {
-              // Hide broken image and fallback to monogram
-              (e.currentTarget as HTMLElement).style.display = "none";
-            }}
+            className="w-full h-full object-contain p-0.5 drop-shadow-sm"
+            onError={() => setImgError(true)}
           />
         ) : (
           <span className="tracking-tighter font-extrabold">{initials}</span>
         )}
 
-        {/* Quantity Badge (Top-Left or Top-Right) */}
+        {/* Quantity Badge (Top-Left) */}
         {count !== undefined && count > 0 && (
-          <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded-md bg-black/80 text-white text-[9px] font-black leading-tight border border-white/20">
+          <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded-md bg-black/85 text-white text-[9px] font-black leading-tight border border-white/20 z-10 shadow-sm">
             x{count}
           </span>
         )}
@@ -121,7 +141,7 @@ export default function UnitIcon({
         {level !== undefined && (
           <span
             className={cn(
-              "absolute bottom-0 right-0 px-1 py-0.2 rounded-tl-md text-[9px] font-black leading-tight shadow-sm",
+              "absolute bottom-0 right-0 px-1 py-0.2 rounded-tl-md text-[9px] font-black leading-tight shadow-sm z-10",
               isMax
                 ? "bg-amber-400 text-slate-950 font-black border-t border-l border-amber-300"
                 : "bg-slate-900/90 text-slate-200 border-t border-l border-slate-700"
@@ -140,4 +160,3 @@ export default function UnitIcon({
     </div>
   );
 }
-

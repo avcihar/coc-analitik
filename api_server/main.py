@@ -16,8 +16,11 @@ from __future__ import annotations
 import asyncio
 from contextlib import asynccontextmanager
 import logging
+import mimetypes
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
+mimetypes.add_type("image/webp", ".webp")
 
 import redis.asyncio as aioredis
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
@@ -795,7 +798,17 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         return dashboard
 
     # ── Static Files & SPA Routing ───────────────────────────────────────────
-    frontend_out = Path(__file__).resolve().parent.parent / "frontend" / "out"
+    project_root = Path(__file__).resolve().parent.parent
+    frontend_out = project_root / "frontend" / "out"
+    frontend_public = project_root / "frontend" / "public"
+
+    # Always mount /icons if available (from out/icons or public/icons)
+    icons_dir = frontend_out / "icons"
+    if not icons_dir.exists():
+        icons_dir = frontend_public / "icons"
+    if icons_dir.exists():
+        application.mount("/icons", StaticFiles(directory=str(icons_dir)), name="icons_static")
+
     if frontend_out.exists() and (frontend_out / "index.html").exists():
         next_dir = frontend_out / "_next"
         if next_dir.exists():
@@ -813,6 +826,8 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
                 or clean.startswith("openapi.json")
             ):
                 return JSONResponse(status_code=404, content={"detail": f"API rotası bulunamadı: /{clean}"})
+            if clean.startswith("icons/"):
+                return Response(status_code=404)
             file_on_disk = frontend_out / full_path
             if full_path and file_on_disk.is_file():
                 return FileResponse(file_on_disk)

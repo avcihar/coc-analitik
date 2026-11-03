@@ -26,6 +26,7 @@ import { motion } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { ImportedPlayerForOre } from "@/components/search/PlayerClanSearchView";
+import UnitIcon from "@/components/common/UnitIcon";
 import {
   detectEquipmentRarity,
   computeEquipmentUpgradeCost,
@@ -892,9 +893,12 @@ export default function OreCalculatorView({
                 className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 flex flex-col justify-between gap-2"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-app-text truncate pr-1">
-                    {item.name}
-                  </span>
+                  <div className="flex items-center gap-1.5 truncate pr-1">
+                    <UnitIcon name={item.name} size="xs" isEpic={item.isEpic} />
+                    <span className="text-xs font-black text-app-text truncate">
+                      {item.name}
+                    </span>
+                  </div>
                   <span
                     className={cn(
                       "text-[10px] px-1.5 py-0.5 rounded font-black",
