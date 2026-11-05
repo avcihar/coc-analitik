@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node ../scripts/build_bitmap_fonts.mjs",
+    "build-fonts": "node ../scripts/build_bitmap_fonts.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

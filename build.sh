@@ -6,7 +6,10 @@ echo "=== 1. Python Paketleri Yükleniyor ==="
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "=== 2. Next.js Frontend Static Build (Export) ==="
+echo "=== 2. Bitmap Fontlar Derleniyor ==="
+node scripts/build_bitmap_fonts.mjs
+
+echo "=== 3. Next.js Frontend Static Build (Export) ==="
 cd frontend
 if [ -f package-lock.json ]; then
   npm ci

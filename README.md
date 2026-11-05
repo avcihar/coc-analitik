@@ -26,6 +26,14 @@ FastAPI (Python) arka yüzü ve Next.js (TypeScript & TailwindCSS) ön yüzü, *
 
 ---
 
+## 🔤 Duvar Yazısı: Yeni Font Nasıl Eklenir?
+1. Yeni fontunuzu JSON formatında (`{"A": [[0,1,...]], ...}`) hazırlayın (ince font için daha az hücreli glifler tasarlayın).
+2. Dosyayı `Fonts/<font_adi>.json` olarak projeye ekleyin.
+3. Terminalde `npm run build-fonts --prefix frontend` (veya `node scripts/build_bitmap_fonts.mjs`) çalıştırın.
+4. Font otomatik olarak doğrulanıp "Duvar Yazısı" sayfasında listelenir.
+
+---
+
 ## 🚀 Render'a Tek Web Servisi Olarak Deploy Rehberi (Ücretsiz Plan)
 
 Bu proje, frontend'i Next.js static export olarak derleyip FastAPI üzerinden sunar; tek bir Render Web Service ile hem ön yüz hem arka yüz birlikte çalışır.
