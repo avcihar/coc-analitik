@@ -52,8 +52,11 @@ function runTests() {
   if (!crossStitch || !tangoStitch) {
     throw new Error("cross_stitch or tango_stitch missing from GENERATED_BITMAP_FONTS");
   }
-  if (crossStitch.height !== 12 || tangoStitch.height !== 16) {
+  if (crossStitch.height !== 13 || tangoStitch.height !== 16) {
     throw new Error(`Heights mismatch: cross=${crossStitch.height}, tango=${tangoStitch.height}`);
+  }
+  if (crossStitch.baseline !== 11 || tangoStitch.baseline !== 15) {
+    throw new Error(`Baseline mismatch: cross=${crossStitch.baseline}, tango=${tangoStitch.baseline}`);
   }
   console.log("✓ Test 4: Both cross_stitch and tango_stitch are loaded and verified in generated registry.");
 

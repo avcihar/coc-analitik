@@ -32,15 +32,27 @@ def validate_and_normalize(raw_json, file_id: str, filename: str):
         return None, [f"{filename}: Geçersiz JSON yapısı (kök eleman bir nesne olmalı)"]
 
     record = raw_json
-    meta_name = record.get("name") if isinstance(record.get("name"), str) else None
-    meta_author = record.get("author") if isinstance(record.get("author"), str) else None
-    meta_license = record.get("license") if isinstance(record.get("license"), str) else None
+    meta_obj = (
+        record.get("_meta") if isinstance(record.get("_meta"), dict)
+        else record.get("meta") if isinstance(record.get("meta"), dict)
+        else record
+    )
+
+    meta_name = meta_obj.get("name") if isinstance(meta_obj.get("name"), str) else None
+    meta_author = meta_obj.get("author") if isinstance(meta_obj.get("author"), str) else None
+    meta_license = meta_obj.get("license") if isinstance(meta_obj.get("license"), str) else None
+
+    baselines = {}
+    if isinstance(meta_obj.get("baselines"), dict):
+        for k, v in meta_obj["baselines"].items():
+            if isinstance(v, (int, float)):
+                baselines[k] = int(v)
 
     if "glyphs" in record and isinstance(record["glyphs"], dict):
         raw_glyphs = record["glyphs"]
     else:
-        meta_keys = {"name", "author", "license", "description", "version", "id", "height", "width", "size", "glyphs", "metadata"}
-        raw_glyphs = {k: v for k, v in record.items() if k not in meta_keys}
+        meta_keys = {"_meta", "meta", "name", "author", "license", "description", "version", "id", "height", "width", "size", "glyphs", "metadata", "baselines"}
+        raw_glyphs = {k: v for k, v in record.items() if not k.startswith("_") and k not in meta_keys}
 
     glyph_keys = list(raw_glyphs.keys())
     if not glyph_keys:
@@ -108,13 +120,36 @@ def validate_and_normalize(raw_json, file_id: str, filename: str):
     if not normalized_glyphs or errors:
         return None, errors
 
-    max_height = max(glyph_heights)
+    unique_heights = set(glyph_heights)
+    if len(unique_heights) > 1 and not baselines:
+        print(f"⚠ {filename}: glif yükseklikleri farklı ({', '.join(map(str, sorted(unique_heights)))} satır), baselines tanımlamayı düşünün")
+
+    glyph_ascent = {}
+    glyph_descent = {}
 
     for char, matrix in normalized_glyphs.items():
-        if len(matrix) < max_height:
-            w = len(matrix[0]) if matrix else 0
-            pad_count = max_height - len(matrix)
-            for _ in range(pad_count):
+        raw_height = len(matrix)
+        base_index = baselines[char] if char in baselines else raw_height - 1
+        ascent = base_index
+        descent = max(0, raw_height - 1 - base_index)
+        glyph_ascent[char] = ascent
+        glyph_descent[char] = descent
+
+    max_ascent = max(glyph_ascent.values())
+    max_descent = max(glyph_descent.values())
+    total_height = max_ascent + 1 + max_descent
+    uniform_baseline = max_ascent
+
+    for char, matrix in normalized_glyphs.items():
+        w = len(matrix[0]) if matrix else 0
+        pad_top = max_ascent - glyph_ascent[char]
+        pad_bottom = max_descent - glyph_descent[char]
+
+        if pad_top > 0:
+            for _ in range(pad_top):
+                matrix.insert(0, [0] * w)
+        if pad_bottom > 0:
+            for _ in range(pad_bottom):
                 matrix.append([0] * w)
 
     supported_chars = sorted(normalized_glyphs.keys())
@@ -135,7 +170,8 @@ def validate_and_normalize(raw_json, file_id: str, filename: str):
     font = {
         "id": file_id,
         "name": meta_name or id_to_title(file_id),
-        "height": max_height,
+        "height": total_height,
+        "baseline": uniform_baseline,
         "author": meta_author,
         "license": meta_license,
         "supportedChars": supported_chars,

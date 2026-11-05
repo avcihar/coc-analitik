@@ -73,11 +73,29 @@ function validateAndNormalizeFont(rawJson, fileId, filename) {
   }
 
   const record = rawJson;
-  const metaName = typeof record.name === "string" ? record.name.trim() : undefined;
-  const metaAuthor =
-    typeof record.author === "string" ? record.author.trim() : undefined;
-  const metaLicense =
-    typeof record.license === "string" ? record.license.trim() : undefined;
+  const metaObj =
+    typeof record._meta === "object" && record._meta !== null && !Array.isArray(record._meta)
+      ? record._meta
+      : typeof record.meta === "object" && record.meta !== null && !Array.isArray(record.meta)
+      ? record.meta
+      : record;
+
+  const metaName = typeof metaObj.name === "string" ? metaObj.name.trim() : undefined;
+  const metaAuthor = typeof metaObj.author === "string" ? metaObj.author.trim() : undefined;
+  const metaLicense = typeof metaObj.license === "string" ? metaObj.license.trim() : undefined;
+
+  const baselines = {};
+  if (
+    metaObj.baselines &&
+    typeof metaObj.baselines === "object" &&
+    !Array.isArray(metaObj.baselines)
+  ) {
+    for (const [k, v] of Object.entries(metaObj.baselines)) {
+      if (typeof v === "number") {
+        baselines[k] = v;
+      }
+    }
+  }
 
   let rawGlyphs = {};
   if (
@@ -88,6 +106,8 @@ function validateAndNormalizeFont(rawJson, fileId, filename) {
     rawGlyphs = record.glyphs;
   } else {
     const metaKeySet = new Set([
+      "_meta",
+      "meta",
       "name",
       "author",
       "license",
@@ -99,9 +119,10 @@ function validateAndNormalizeFont(rawJson, fileId, filename) {
       "size",
       "glyphs",
       "metadata",
+      "baselines",
     ]);
     for (const [key, value] of Object.entries(record)) {
-      if (!metaKeySet.has(key)) {
+      if (!key.startsWith("_") && !metaKeySet.has(key)) {
         rawGlyphs[key] = value;
       }
     }
@@ -207,16 +228,49 @@ function validateAndNormalizeFont(rawJson, fileId, filename) {
     };
   }
 
-  const maxHeight = Math.max(...glyphHeights);
+  const uniqueHeights = new Set(glyphHeights);
+  if (uniqueHeights.size > 1 && Object.keys(baselines).length === 0) {
+    console.warn(
+      `⚠ ${filename}: glif yükseklikleri farklı (${Array.from(uniqueHeights).join(
+        ", "
+      )} satır), baselines tanımlamayı düşünün`
+    );
+  }
 
-  // Normalize glyphs to uniform font maxHeight by padding bottom with zeros (for descenders like Q, y, g)
+  const glyphAscent = {};
+  const glyphDescent = {};
+
   for (const [char, matrix] of Object.entries(normalizedGlyphs)) {
-    if (matrix.length < maxHeight) {
-      const width = matrix[0]?.length || 0;
-      const padCount = maxHeight - matrix.length;
-      for (let p = 0; p < padCount; p++) {
-        matrix.push(new Array(width).fill(0));
-      }
+    const rawHeight = matrix.length;
+    const baseIndex =
+      baselines[char] !== undefined ? baselines[char] : rawHeight - 1;
+    const ascent = baseIndex;
+    const descent = Math.max(0, rawHeight - 1 - baseIndex);
+    glyphAscent[char] = ascent;
+    glyphDescent[char] = descent;
+  }
+
+  const maxAscent = Math.max(...Object.values(glyphAscent));
+  const maxDescent = Math.max(...Object.values(glyphDescent));
+  const totalHeight = maxAscent + 1 + maxDescent;
+  const uniformBaseline = maxAscent;
+
+  for (const [char, matrix] of Object.entries(normalizedGlyphs)) {
+    const width = matrix[0]?.length || 0;
+    const padTop = maxAscent - glyphAscent[char];
+    const padBottom = maxDescent - glyphDescent[char];
+
+    if (padTop > 0) {
+      const topRows = Array.from({ length: padTop }, () =>
+        new Array(width).fill(0)
+      );
+      matrix.unshift(...topRows);
+    }
+    if (padBottom > 0) {
+      const bottomRows = Array.from({ length: padBottom }, () =>
+        new Array(width).fill(0)
+      );
+      matrix.push(...bottomRows);
     }
   }
 
@@ -238,7 +292,8 @@ function validateAndNormalizeFont(rawJson, fileId, filename) {
   const font = {
     id: fileId,
     name: metaName || idToTitle(fileId),
-    height: maxHeight,
+    height: totalHeight,
+    baseline: uniformBaseline,
     author: metaAuthor,
     license: metaLicense,
     supportedChars,

@@ -1,101 +1,18 @@
-/**
- * CoC Wall Art (Duvar Yazısı) Grid & Thinning Engine
- * ===================================================
- * - Official Clash of Clans Home Village buildable grid size: 44x44 tiles.
- * - Standard max walls (TH17/18): 325 pieces.
- * - Supports Zhang-Suen binary thinning (1-cell stroke skeleton), contour extraction,
- *   binary search downscaling to fit within wall budget, and isometric 3D projection.
- */
+import type { BitmapFont } from "./bitmapFonts";
+import { getBitmapFont } from "./bitmapFonts";
 
 export const COC_GRID_SIZE = 44;
 export const DEFAULT_MAX_WALLS = 325; // TH17 / TH18 Wall limit
+export const MAX_BITMAP_SCALE = 4;
 
-export interface WallFont {
-  id: string;
-  name: string;
-  family: string;
-  style: string;
-  license: string;
-  filename: string;
-  supportsTurkish: boolean;
-}
-
-export const WALL_FONTS: WallFont[] = [
-  {
-    id: "roboto",
-    name: "Roboto",
-    family: "Roboto",
-    style: "Modern Sans",
-    license: "Apache 2.0",
-    filename: "Roboto-Regular.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "montserrat",
-    name: "Montserrat",
-    family: "Montserrat",
-    style: "Geometrik Kalın",
-    license: "SIL OFL 1.1",
-    filename: "Montserrat-Bold.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "oswald",
-    name: "Oswald",
-    family: "Oswald",
-    style: "Sıkışık Gotik",
-    license: "SIL OFL 1.1",
-    filename: "Oswald-Bold.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "bebas-neue",
-    name: "Bebas Neue",
-    family: "Bebas Neue",
-    style: "Manşet / Afiş",
-    license: "SIL OFL 1.1",
-    filename: "BebasNeue-Regular.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "anton",
-    name: "Anton",
-    family: "Anton",
-    style: "Ağır Blok",
-    license: "SIL OFL 1.1",
-    filename: "Anton-Regular.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "russo-one",
-    name: "Russo One",
-    family: "Russo One",
-    style: "Oyun / Mekanik",
-    license: "SIL OFL 1.1",
-    filename: "RussoOne-Regular.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "cinzel",
-    name: "Cinzel",
-    family: "Cinzel",
-    style: "Klan / Ortaçağ",
-    license: "SIL OFL 1.1",
-    filename: "Cinzel-Bold.ttf",
-    supportsTurkish: true,
-  },
-  {
-    id: "vt323",
-    name: "VT323",
-    family: "VT323",
-    style: "Retro Piksel",
-    license: "SIL OFL 1.1",
-    filename: "VT323-Regular.ttf",
-    supportsTurkish: true,
-  },
-];
-
-export type WallArtMode = "skeleton" | "contour" | "filled";
+export const TURKISH_TO_ASCII: Record<string, string> = {
+  "Ç": "C", "ç": "c",
+  "Ğ": "G", "ğ": "g",
+  "İ": "I", "ı": "i",
+  "Ö": "O", "ö": "o",
+  "Ş": "S", "ş": "s",
+  "Ü": "U", "ü": "u",
+};
 
 export interface RowBuildSegment {
   fromCol: number;
@@ -111,306 +28,398 @@ export interface RowBuildGuide {
 
 export interface WallArtResult {
   grid: number[][]; // 44x44 binary matrix (0 = empty, 1 = wall)
-  usedWalls: number;
+  wallCount: number;
   maxWalls: number;
+  isOverBudget: boolean;
+  maxFittingChars: number;
   effectiveScale: number;
-  wasScaledDown: boolean;
   originalScale: number;
-  minCol: number;
-  maxCol: number;
+  wasScaledDown: boolean;
+  lineCount: number;
+  linesInfo: string;
+  warnings: string[];
+  convertedChars: string[];
+  missingChars: string[];
+  buildGuide: RowBuildGuide[];
   minRow: number;
   maxRow: number;
-  buildGuide: RowBuildGuide[];
-  missingChars: string[];
+  minCol: number;
+  maxCol: number;
 }
 
-const TURKISH_CHARS = "çğıöşüÇĞİÖŞÜ";
-
-/**
- * Checks if the text contains any unsupported characters
- */
-export function checkTextSupport(text: string, font: WallFont): string[] {
-  if (font.supportsTurkish) return [];
-  const missing: string[] = [];
-  for (const ch of text) {
-    if (TURKISH_CHARS.includes(ch) && !missing.includes(ch)) {
-      missing.push(ch);
-    }
-  }
-  return missing;
+export interface CharResolveResult {
+  glyph: number[][] | null;
+  isSpace: boolean;
+  resolvedChar: string | null;
+  warning?: string;
+  converted?: string;
+  width: number;
 }
 
 /**
- * Zhang-Suen Thinning Algorithm
- * Thins arbitrary binary shapes down to 1-pixel thickness while preserving 8-connectivity.
+ * Resolves a character against the font without Turkish locale pitfalls.
  */
-export function zhangSuenThinning(grid: number[][]): number[][] {
-  const rows = grid.length;
-  if (rows === 0) return [];
-  const cols = grid[0].length;
+export function resolveChar(
+  rawChar: string,
+  font: BitmapFont,
+  convertTurkishToAscii: boolean
+): CharResolveResult {
+  let charToUse = rawChar;
+  let converted: string | undefined;
 
-  // Add 1-pixel border of 0s to prevent edge indexing issues
-  const paddedRows = rows + 2;
-  const paddedCols = cols + 2;
-  const img: number[][] = Array.from({ length: paddedRows }, (_, r) =>
-    Array.from({ length: paddedCols }, (_, c) => {
-      if (r === 0 || r === paddedRows - 1 || c === 0 || c === paddedCols - 1) return 0;
-      return grid[r - 1][c - 1];
-    })
-  );
-
-  let hasChanged = true;
-  let iterations = 0;
-  const maxIterations = 100; // Safeguard
-
-  while (hasChanged && iterations < maxIterations) {
-    hasChanged = false;
-    iterations++;
-
-    // Sub-iteration 1
-    const del1: [number, number][] = [];
-    for (let r = 1; r < paddedRows - 1; r++) {
-      for (let c = 1; c < paddedCols - 1; c++) {
-        if (img[r][c] !== 1) continue;
-
-        const p2 = img[r - 1][c];
-        const p3 = img[r - 1][c + 1];
-        const p4 = img[r][c + 1];
-        const p5 = img[r + 1][c + 1];
-        const p6 = img[r + 1][c];
-        const p7 = img[r + 1][c - 1];
-        const p8 = img[r][c - 1];
-        const p9 = img[r - 1][c - 1];
-
-        const B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
-        if (B < 2 || B > 6) continue;
-
-        const nbrs = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
-        let A = 0;
-        for (let i = 0; i < 8; i++) {
-          if (nbrs[i] === 0 && nbrs[i + 1] === 1) A++;
-        }
-        if (A !== 1) continue;
-
-        if (p2 * p4 * p6 !== 0) continue;
-        if (p4 * p6 * p8 !== 0) continue;
-
-        del1.push([r, c]);
-      }
-    }
-
-    if (del1.length > 0) {
-      hasChanged = true;
-      for (const [r, c] of del1) {
-        img[r][c] = 0;
-      }
-    }
-
-    // Sub-iteration 2
-    const del2: [number, number][] = [];
-    for (let r = 1; r < paddedRows - 1; r++) {
-      for (let c = 1; c < paddedCols - 1; c++) {
-        if (img[r][c] !== 1) continue;
-
-        const p2 = img[r - 1][c];
-        const p3 = img[r - 1][c + 1];
-        const p4 = img[r][c + 1];
-        const p5 = img[r + 1][c + 1];
-        const p6 = img[r + 1][c];
-        const p7 = img[r + 1][c - 1];
-        const p8 = img[r][c - 1];
-        const p9 = img[r - 1][c - 1];
-
-        const B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
-        if (B < 2 || B > 6) continue;
-
-        const nbrs = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
-        let A = 0;
-        for (let i = 0; i < 8; i++) {
-          if (nbrs[i] === 0 && nbrs[i + 1] === 1) A++;
-        }
-        if (A !== 1) continue;
-
-        if (p2 * p4 * p8 !== 0) continue;
-        if (p2 * p6 * p8 !== 0) continue;
-
-        del2.push([r, c]);
-      }
-    }
-
-    if (del2.length > 0) {
-      hasChanged = true;
-      for (const [r, c] of del2) {
-        img[r][c] = 0;
-      }
-    }
+  if (convertTurkishToAscii && TURKISH_TO_ASCII[rawChar]) {
+    const asciiEq = TURKISH_TO_ASCII[rawChar];
+    converted = `${rawChar} → ${asciiEq}`;
+    charToUse = asciiEq;
   }
 
-  // Unpad to original size
-  const result: number[][] = Array.from({ length: rows }, (_, r) =>
-    Array.from({ length: cols }, (_, c) => img[r + 1][c + 1])
-  );
-
-  return result;
-}
-
-/**
- * 4-neighborhood contour extraction (hollow outline)
- */
-export function extractContour(grid: number[][]): number[][] {
-  const rows = grid.length;
-  const cols = grid[0].length;
-  const result = Array.from({ length: rows }, () => Array(cols).fill(0));
-
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] !== 1) continue;
-
-      const isBorder =
-        r === 0 ||
-        r === rows - 1 ||
-        c === 0 ||
-        c === cols - 1 ||
-        grid[r - 1][c] === 0 ||
-        grid[r + 1][c] === 0 ||
-        grid[r][c - 1] === 0 ||
-        grid[r][c + 1] === 0;
-
-      if (isBorder) {
-        result[r][c] = 1;
-      }
-    }
+  // Handle Space
+  if (charToUse === " ") {
+    // Word spacing: default 4 unscaled columns
+    const spaceWidth = Math.max(3, Math.round(font.height * 0.3));
+    return {
+      glyph: null,
+      isSpace: true,
+      resolvedChar: " ",
+      converted,
+      width: spaceWidth,
+    };
   }
-  return result;
+
+  // Exact match in glyphs
+  if (font.glyphs[charToUse]) {
+    const g = font.glyphs[charToUse];
+    return {
+      glyph: g,
+      isSpace: false,
+      resolvedChar: charToUse,
+      converted,
+      width: g[0]?.length || 0,
+    };
+  }
+
+  // Case fallback (e.g. font only has uppercase A-Z and user entered lowercase a-z)
+  const upper = charToUse.toUpperCase();
+  if (font.glyphs[upper]) {
+    const g = font.glyphs[upper];
+    return {
+      glyph: g,
+      isSpace: false,
+      resolvedChar: upper,
+      converted,
+      width: g[0]?.length || 0,
+    };
+  }
+
+  // Character is missing in font
+  return {
+    glyph: null,
+    isSpace: false,
+    resolvedChar: null,
+    converted,
+    warning: `"${rawChar}" karakteri bu fontta yok`,
+    width: 0,
+  };
+}
+
+export interface LaidOutLine {
+  items: {
+    char: string;
+    glyph: number[][] | null;
+    isSpace: boolean;
+    width: number;
+  }[];
+  lineWidth: number;
 }
 
 /**
- * Rasterizes text into a binary 44x44 grid using an HTML Canvas.
+ * Performs word wrapping and line breaking to fit 44 unscaled grid cells.
  */
-export function rasterizeTextToGrid(
+export function layoutLines(
   text: string,
-  fontFamily: string,
-  scalePct: number,
-  rotationDeg: number,
-  mode: WallArtMode = "skeleton"
-): number[][] {
-  if (!text || text.trim().length === 0) {
-    return Array.from({ length: COC_GRID_SIZE }, () => Array(COC_GRID_SIZE).fill(0));
-  }
-
-  // Use a canvas buffer
-  let canvas: HTMLCanvasElement;
-  if (typeof document !== "undefined") {
-    canvas = document.createElement("canvas");
-  } else {
-    // SSR / Node fallback if needed
-    return Array.from({ length: COC_GRID_SIZE }, () => Array(COC_GRID_SIZE).fill(0));
-  }
-
-  canvas.width = COC_GRID_SIZE;
-  canvas.height = COC_GRID_SIZE;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return Array.from({ length: COC_GRID_SIZE }, () => Array(COC_GRID_SIZE).fill(0));
-
-  ctx.clearRect(0, 0, COC_GRID_SIZE, COC_GRID_SIZE);
-
-  // Base font size scaled by scalePct
-  // At 100% scale, choose a font size proportional to text length and grid size
-  const textLen = Math.max(1, text.length);
-  const autoBaseSize = Math.max(8, Math.min(28, Math.round((COC_GRID_SIZE * 0.8) / Math.sqrt(textLen))));
-  const calculatedFontSize = Math.max(6, Math.round(autoBaseSize * (scalePct / 100)));
-
-  ctx.save();
-  ctx.translate(COC_GRID_SIZE / 2, COC_GRID_SIZE / 2);
-  ctx.rotate((rotationDeg * Math.PI) / 180);
-
-  ctx.font = `bold ${calculatedFontSize}px "${fontFamily}", sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#FFFFFF";
-
-  // Handle multi-line text (if contains \n)
-  const lines = text.split("\n");
-  const lineHeight = calculatedFontSize * 1.15;
-  const totalHeight = (lines.length - 1) * lineHeight;
-  const startY = -totalHeight / 2;
-
-  lines.forEach((line, idx) => {
-    ctx.fillText(line, 0, startY + idx * lineHeight);
-  });
-
-  ctx.restore();
-
-  // Read pixels and threshold
-  const imgData = ctx.getImageData(0, 0, COC_GRID_SIZE, COC_GRID_SIZE);
-  const data = imgData.data;
-
-  const rawGrid: number[][] = Array.from({ length: COC_GRID_SIZE }, () =>
-    Array(COC_GRID_SIZE).fill(0)
-  );
-
-  for (let r = 0; r < COC_GRID_SIZE; r++) {
-    for (let c = 0; c < COC_GRID_SIZE; c++) {
-      const idx = (r * COC_GRID_SIZE + c) * 4;
-      const alpha = data[idx + 3];
-      // Threshold at 90 alpha
-      if (alpha > 90) {
-        rawGrid[r][c] = 1;
-      }
-    }
-  }
-
-  // Apply selected thinning / contour mode
-  if (mode === "skeleton") {
-    return zhangSuenThinning(rawGrid);
-  } else if (mode === "contour") {
-    return extractContour(rawGrid);
-  } else {
-    return rawGrid;
-  }
-}
-
-/**
- * Counts filled walls and gets bounding box
- */
-export function analyzeGrid(grid: number[][]): {
-  count: number;
-  minR: number;
-  maxR: number;
-  minC: number;
-  maxC: number;
+  font: BitmapFont,
+  scale: number,
+  letterSpacing: number,
+  convertTurkishToAscii: boolean
+): {
+  lines: LaidOutLine[];
+  warnings: string[];
+  convertedChars: string[];
+  missingChars: string[];
 } {
-  const rows = grid.length;
-  if (rows === 0) return { count: 0, minR: 0, maxR: 0, minC: 0, maxC: 0 };
-  const cols = grid[0].length;
+  const maxUnscaledWidth = Math.max(1, Math.floor(COC_GRID_SIZE / scale));
+  const warnings: string[] = [];
+  const convertedSet = new Set<string>();
+  const missingSet = new Set<string>();
 
-  let count = 0;
-  let minR = rows;
-  let maxR = -1;
-  let minC = cols;
-  let maxC = -1;
+  // Split input into paragraphs by explicit newline
+  const paragraphs = text.split(/\r?\n/);
+  const allLines: LaidOutLine[] = [];
 
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      if (grid[r][c] === 1) {
-        count++;
-        if (r < minR) minR = r;
-        if (r > maxR) maxR = r;
-        if (c < minC) minC = c;
-        if (c > maxC) maxC = c;
+  for (const para of paragraphs) {
+    if (para.length === 0) {
+      allLines.push({ items: [], lineWidth: 0 });
+      continue;
+    }
+
+    // Tokenize paragraph into words and spaces
+    const tokens: CharResolveResult[] = [];
+    for (const ch of para) {
+      const res = resolveChar(ch, font, convertTurkishToAscii);
+      if (res.converted) convertedSet.add(res.converted);
+      if (res.warning) {
+        warnings.push(res.warning);
+        missingSet.add(ch);
+      }
+      if (res.isSpace || res.glyph) {
+        tokens.push(res);
+      }
+    }
+
+    if (tokens.length === 0) {
+      continue;
+    }
+
+    // Group into words separated by space tokens
+    const words: CharResolveResult[][] = [];
+    let currentWord: CharResolveResult[] = [];
+
+    for (const t of tokens) {
+      if (t.isSpace) {
+        if (currentWord.length > 0) {
+          words.push(currentWord);
+          currentWord = [];
+        }
+        words.push([t]);
+      } else {
+        currentWord.push(t);
+      }
+    }
+    if (currentWord.length > 0) {
+      words.push(currentWord);
+    }
+
+    // Flow words into lines
+    let currentLine: LaidOutLine = { items: [], lineWidth: 0 };
+
+    for (const word of words) {
+      const isSpaceToken = word.length === 1 && word[0].isSpace;
+
+      let wordWidth = 0;
+      if (isSpaceToken) {
+        wordWidth = word[0].width;
+      } else {
+        for (let i = 0; i < word.length; i++) {
+          wordWidth += word[i].width + (i > 0 ? letterSpacing : 0);
+        }
+      }
+
+      const neededSpace = currentLine.items.length > 0 ? (isSpaceToken ? 0 : letterSpacing) : 0;
+
+      if (currentLine.lineWidth + neededSpace + wordWidth <= maxUnscaledWidth) {
+        if (currentLine.items.length > 0 && !isSpaceToken && !currentLine.items[currentLine.items.length - 1].isSpace) {
+          currentLine.lineWidth += letterSpacing;
+        }
+        for (const ch of word) {
+          currentLine.items.push({
+            char: ch.resolvedChar || " ",
+            glyph: ch.glyph,
+            isSpace: ch.isSpace,
+            width: ch.width,
+          });
+        }
+        currentLine.lineWidth += isSpaceToken ? wordWidth : word.reduce((acc, c, idx) => acc + c.width + (idx > 0 ? letterSpacing : 0), 0);
+      } else {
+        if (isSpaceToken) {
+          continue;
+        }
+
+        if (currentLine.items.length > 0) {
+          allLines.push(currentLine);
+          currentLine = { items: [], lineWidth: 0 };
+        }
+
+        if (wordWidth <= maxUnscaledWidth) {
+          for (const ch of word) {
+            currentLine.items.push({
+              char: ch.resolvedChar || " ",
+              glyph: ch.glyph,
+              isSpace: ch.isSpace,
+              width: ch.width,
+            });
+          }
+          currentLine.lineWidth = wordWidth;
+        } else {
+          // Single word exceeds line width: break by character at boundary
+          for (let i = 0; i < word.length; i++) {
+            const ch = word[i];
+            const chNeeded = currentLine.items.length > 0 ? letterSpacing + ch.width : ch.width;
+            if (currentLine.lineWidth + chNeeded <= maxUnscaledWidth || currentLine.items.length === 0) {
+              if (currentLine.items.length > 0) {
+                currentLine.lineWidth += letterSpacing;
+              }
+              currentLine.items.push({
+                char: ch.resolvedChar || " ",
+                glyph: ch.glyph,
+                isSpace: ch.isSpace,
+                width: ch.width,
+              });
+              currentLine.lineWidth += ch.width;
+            } else {
+              allLines.push(currentLine);
+              currentLine = {
+                items: [
+                  {
+                    char: ch.resolvedChar || " ",
+                    glyph: ch.glyph,
+                    isSpace: ch.isSpace,
+                    width: ch.width,
+                  },
+                ],
+                lineWidth: ch.width,
+              };
+            }
+          }
+        }
+      }
+    }
+
+    if (currentLine.items.length > 0) {
+      allLines.push(currentLine);
+    }
+  }
+
+  return {
+    lines: allLines.filter((l) => l.items.length > 0),
+    warnings: Array.from(new Set(warnings)),
+    convertedChars: Array.from(convertedSet),
+    missingChars: Array.from(missingSet),
+  };
+}
+
+/**
+ * Rotates a 44x44 grid. 90, 180, 270 use exact discrete coordinate swaps.
+ */
+export function rotateGrid(grid: number[][], rotationDeg: number): number[][] {
+  const norm = ((rotationDeg % 360) + 360) % 360;
+  if (norm === 0) return grid;
+
+  const N = COC_GRID_SIZE;
+  const out = Array.from({ length: N }, () => new Array(N).fill(0));
+
+  if (norm === 90) {
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        if (grid[r][c]) out[c][N - 1 - r] = 1;
+      }
+    }
+    return out;
+  }
+  if (norm === 180) {
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        if (grid[r][c]) out[N - 1 - r][N - 1 - c] = 1;
+      }
+    }
+    return out;
+  }
+  if (norm === 270) {
+    for (let r = 0; r < N; r++) {
+      for (let c = 0; c < N; c++) {
+        if (grid[r][c]) out[N - 1 - c][r] = 1;
+      }
+    }
+    return out;
+  }
+
+  // General angle (e.g. 45°): inverse nearest-neighbor rotation around grid center (21.5, 21.5)
+  const rad = (-norm * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const cx = (N - 1) / 2;
+  const cy = (N - 1) / 2;
+
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const srcX = Math.round(cos * (c - cx) - sin * (r - cy) + cx);
+      const srcY = Math.round(sin * (c - cx) + cos * (r - cy) + cy);
+      if (srcX >= 0 && srcX < N && srcY >= 0 && srcY < N) {
+        if (grid[srcY][srcX] === 1) {
+          out[r][c] = 1;
+        }
       }
     }
   }
 
-  if (count === 0) {
-    return { count: 0, minR: 0, maxR: 0, minC: 0, maxC: 0 };
-  }
-
-  return { count, minR, maxR, minC, maxC };
+  return out;
 }
 
 /**
- * Generates the row-by-row build guide with contiguous wall segments.
+ * Builds the 44x44 grid from laid out lines at given scale and letterSpacing.
+ */
+export function renderLinesToGrid(
+  lines: LaidOutLine[],
+  font: BitmapFont,
+  scale: number,
+  letterSpacing: number
+): { grid: number[][]; verticalOverflow: boolean } {
+  const N = COC_GRID_SIZE;
+  const grid = Array.from({ length: N }, () => new Array(N).fill(0));
+
+  if (lines.length === 0) {
+    return { grid, verticalOverflow: false };
+  }
+
+  const lineScaledHeight = font.height * scale;
+  const lineGap = Math.max(1, Math.round(scale * 1));
+  const totalHeight = lines.length * lineScaledHeight + (lines.length - 1) * lineGap;
+  const verticalOverflow = totalHeight > N;
+
+  const startRow = Math.max(0, Math.floor((N - totalHeight) / 2));
+
+  for (let lIdx = 0; lIdx < lines.length; lIdx++) {
+    const line = lines[lIdx];
+    const lineRow = startRow + lIdx * (lineScaledHeight + lineGap);
+    const lineScaledWidth = line.lineWidth * scale;
+    const startCol = Math.max(0, Math.floor((N - lineScaledWidth) / 2));
+
+    let curCol = startCol;
+
+    for (let i = 0; i < line.items.length; i++) {
+      const item = line.items[i];
+      if (i > 0) {
+        curCol += letterSpacing * scale;
+      }
+
+      if (item.glyph) {
+        const g = item.glyph;
+        for (let r = 0; r < g.length; r++) {
+          for (let c = 0; c < g[r].length; c++) {
+            if (g[r][c] === 1) {
+              for (let dr = 0; dr < scale; dr++) {
+                for (let dc = 0; dc < scale; dc++) {
+                  const targetR = lineRow + r * scale + dr;
+                  const targetC = curCol + c * scale + dc;
+                  if (targetR >= 0 && targetR < N && targetC >= 0 && targetC < N) {
+                    grid[targetR][targetC] = 1;
+                  }
+                }
+              }
+            }
+          }
+        }
+        curCol += item.width * scale;
+      } else if (item.isSpace) {
+        curCol += item.width * scale;
+      }
+    }
+  }
+
+  return { grid, verticalOverflow };
+}
+
+/**
+ * Generates row-by-row build guide with contiguous wall segments.
  */
 export function generateBuildGuide(grid: number[][]): RowBuildGuide[] {
   const guide: RowBuildGuide[] = [];
@@ -431,8 +440,8 @@ export function generateBuildGuide(grid: number[][]): RowBuildGuide[] {
       } else {
         if (inSegment) {
           rowSegments.push({
-            fromCol: segStart + 1, // 1-indexed for players
-            toCol: c,             // 1-indexed
+            fromCol: segStart + 1,
+            toCol: c,
             count: c - segStart,
           });
           inSegment = false;
@@ -450,7 +459,7 @@ export function generateBuildGuide(grid: number[][]): RowBuildGuide[] {
 
     if (rowWalls > 0) {
       guide.push({
-        row: r + 1, // 1-indexed
+        row: r + 1,
         wallCount: rowWalls,
         segments: rowSegments,
       });
@@ -461,105 +470,178 @@ export function generateBuildGuide(grid: number[][]): RowBuildGuide[] {
 }
 
 /**
- * Computes Wall Art with Binary Search Auto-Scaling if wall budget is exceeded.
+ * Analyzes wall count and bounding box.
  */
-export function computeWallArt(
-  text: string,
-  font: WallFont,
-  scalePct: number,
-  rotationDeg: number,
-  maxWalls: number,
-  mode: WallArtMode = "skeleton"
-): WallArtResult {
-  const missingChars = checkTextSupport(text, font);
+export function analyzeGrid(grid: number[][]): {
+  count: number;
+  minR: number;
+  maxR: number;
+  minC: number;
+  maxC: number;
+} {
+  let count = 0;
+  let minR = COC_GRID_SIZE;
+  let maxR = -1;
+  let minC = COC_GRID_SIZE;
+  let maxC = -1;
 
-  // If text is empty
-  if (!text.trim()) {
-    return {
-      grid: Array.from({ length: COC_GRID_SIZE }, () => Array(COC_GRID_SIZE).fill(0)),
-      usedWalls: 0,
-      maxWalls,
-      effectiveScale: scalePct,
-      wasScaledDown: false,
-      originalScale: scalePct,
-      minCol: 0,
-      maxCol: 0,
-      minRow: 0,
-      maxRow: 0,
-      buildGuide: [],
-      missingChars,
-    };
-  }
-
-  // 1. Initial attempt at user's desired scale
-  let currentGrid = rasterizeTextToGrid(text, font.family, scalePct, rotationDeg, mode);
-  let analysis = analyzeGrid(currentGrid);
-
-  // If within budget and fits in bounds, return immediately
-  if (analysis.count <= maxWalls && analysis.count > 0) {
-    return {
-      grid: currentGrid,
-      usedWalls: analysis.count,
-      maxWalls,
-      effectiveScale: scalePct,
-      wasScaledDown: false,
-      originalScale: scalePct,
-      minCol: analysis.minC + 1,
-      maxCol: analysis.maxC + 1,
-      minRow: analysis.minR + 1,
-      maxRow: analysis.maxR + 1,
-      buildGuide: generateBuildGuide(currentGrid),
-      missingChars,
-    };
-  }
-
-  // 2. Binary search to downscale until walls <= maxWalls
-  let low = 10;
-  let high = scalePct;
-  let bestScale = low;
-  let bestGrid = currentGrid;
-  let bestAnalysis = analysis;
-
-  for (let iter = 0; iter < 12; iter++) {
-    const mid = Math.round((low + high) / 2);
-    const candidateGrid = rasterizeTextToGrid(text, font.family, mid, rotationDeg, mode);
-    const candidateAnalysis = analyzeGrid(candidateGrid);
-
-    if (candidateAnalysis.count <= maxWalls && candidateAnalysis.count > 0) {
-      bestScale = mid;
-      bestGrid = candidateGrid;
-      bestAnalysis = candidateAnalysis;
-      low = mid + 1; // Try to get as close to maxWalls as possible without exceeding
-    } else {
-      high = mid - 1; // Exceeded budget or empty, shrink
+  for (let r = 0; r < COC_GRID_SIZE; r++) {
+    for (let c = 0; c < COC_GRID_SIZE; c++) {
+      if (grid[r][c] === 1) {
+        count++;
+        if (r < minR) minR = r;
+        if (r > maxR) maxR = r;
+        if (c < minC) minC = c;
+        if (c > maxC) maxC = c;
+      }
     }
   }
 
+  return { count, minR, maxR, minC, maxC };
+}
+
+/**
+ * Computes wall count for prefixes of the string to find max fitting chars.
+ */
+export function computeMaxFittingChars(
+  text: string,
+  font: BitmapFont,
+  scale: number,
+  letterSpacing: number,
+  convertTurkishToAscii: boolean,
+  rotationDeg: number,
+  maxWalls: number
+): number {
+  if (!text || text.length === 0) return 0;
+
+  let left = 1;
+  let right = text.length;
+  let best = 0;
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    const sub = text.slice(0, mid);
+    const { lines } = layoutLines(sub, font, scale, letterSpacing, convertTurkishToAscii);
+    const { grid } = renderLinesToGrid(lines, font, scale, letterSpacing);
+    const rotated = rotateGrid(grid, rotationDeg);
+    const { count } = analyzeGrid(rotated);
+
+    if (count <= maxWalls) {
+      best = mid;
+      left = mid + 1;
+    } else {
+      right = mid - 1;
+    }
+  }
+
+  return best;
+}
+
+/**
+ * Primary computation function for Wall Art.
+ */
+export function computeWallArt(
+  text: string,
+  font: BitmapFont,
+  scale: number = 1,
+  rotationDeg: number = 0,
+  maxWalls: number = DEFAULT_MAX_WALLS,
+  letterSpacing: number = 1,
+  convertTurkishToAscii: boolean = false,
+  autoFit: boolean = true
+): WallArtResult {
+  const cleanScale = Math.max(1, Math.min(MAX_BITMAP_SCALE, Math.round(scale)));
+  let currentScale = cleanScale;
+  let wasScaledDown = false;
+
+  let layoutRes = layoutLines(text, font, currentScale, letterSpacing, convertTurkishToAscii);
+  let renderRes = renderLinesToGrid(layoutRes.lines, font, currentScale, letterSpacing);
+  let rotatedGrid = rotateGrid(renderRes.grid, rotationDeg);
+  let analysis = analyzeGrid(rotatedGrid);
+
+  // If over budget or vertical overflow, and autoFit is enabled, try decreasing scale
+  if (autoFit && (analysis.count > maxWalls || renderRes.verticalOverflow) && currentScale > 1) {
+    while (currentScale > 1) {
+      currentScale--;
+      const nextLayout = layoutLines(text, font, currentScale, letterSpacing, convertTurkishToAscii);
+      const nextRender = renderLinesToGrid(nextLayout.lines, font, currentScale, letterSpacing);
+      const nextRotated = rotateGrid(nextRender.grid, rotationDeg);
+      const nextAnalysis = analyzeGrid(nextRotated);
+
+      if (nextAnalysis.count <= maxWalls && !nextRender.verticalOverflow) {
+        layoutRes = nextLayout;
+        renderRes = nextRender;
+        rotatedGrid = nextRotated;
+        analysis = nextAnalysis;
+        wasScaledDown = true;
+        break;
+      }
+    }
+  }
+
+  const allWarnings = [...layoutRes.warnings];
+
+  if (renderRes.verticalOverflow) {
+    allWarnings.push("Metin ızgaraya sığmıyor (dikey taşma). Ölçeği küçültün veya metni kısaltın.");
+  }
+
+  const normRot = ((rotationDeg % 360) + 360) % 360;
+  if (normRot !== 0 && normRot !== 90 && normRot !== 180 && normRot !== 270) {
+    allWarnings.push("Döndürme (90° katları dışı) piksel harflerini bozabilir.");
+  }
+
+  const isOverBudget = analysis.count > maxWalls;
+  let maxFittingChars = text.length;
+
+  if (isOverBudget) {
+    maxFittingChars = computeMaxFittingChars(
+      text,
+      font,
+      currentScale,
+      letterSpacing,
+      convertTurkishToAscii,
+      rotationDeg,
+      maxWalls
+    );
+    allWarnings.push(
+      `Duvar bütçesi (${maxWalls}) aşıldı! En fazla ${maxFittingChars} harf sığıyor. Ölçeği düşürün veya metni kısaltın.`
+    );
+  }
+
+  const lineCount = layoutRes.lines.length;
+  const linesInfo = lineCount > 1 ? `${lineCount} satıra bölündü` : "Tek satır";
+
   return {
-    grid: bestGrid,
-    usedWalls: bestAnalysis.count,
+    grid: rotatedGrid,
+    wallCount: analysis.count,
     maxWalls,
-    effectiveScale: bestScale,
-    wasScaledDown: bestScale < scalePct,
-    originalScale: scalePct,
-    minCol: bestAnalysis.minC + 1,
-    maxCol: bestAnalysis.maxC + 1,
-    minRow: bestAnalysis.minR + 1,
-    maxRow: bestAnalysis.maxR + 1,
-    buildGuide: generateBuildGuide(bestGrid),
-    missingChars,
+    isOverBudget,
+    maxFittingChars,
+    effectiveScale: currentScale,
+    originalScale: cleanScale,
+    wasScaledDown,
+    lineCount,
+    linesInfo,
+    warnings: Array.from(new Set(allWarnings)),
+    convertedChars: layoutRes.convertedChars,
+    missingChars: layoutRes.missingChars,
+    buildGuide: generateBuildGuide(rotatedGrid),
+    minRow: analysis.minR,
+    maxRow: analysis.maxR,
+    minCol: analysis.minC,
+    maxCol: analysis.maxC,
   };
 }
 
 /**
- * Generates high-resolution PNG data URL with full 44x44 coordinate labels & blueprint.
+ * Generates high-resolution PNG blueprint image for download.
  */
 export function exportPlanPng(
   grid: number[][],
   meta: {
     text: string;
     fontName: string;
-    usedWalls: number;
+    wallCount: number;
     maxWalls: number;
     scale: number;
     rotation: number;
@@ -568,9 +650,9 @@ export function exportPlanPng(
   if (typeof document === "undefined") return "";
 
   const canvas = document.createElement("canvas");
-  const cellSize = 24; // 24px per tile
-  const marginX = 80;  // Room for row numbers on left
-  const marginY = 160; // Room for title & stats on top
+  const cellSize = 24;
+  const marginX = 80;
+  const marginY = 160;
   const paddingBottom = 60;
   const paddingRight = 60;
 
@@ -580,7 +662,7 @@ export function exportPlanPng(
   const ctx = canvas.getContext("2d");
   if (!ctx) return "";
 
-  // 1. Blueprint Dark Background
+  // 1. Dark Blueprint Background
   ctx.fillStyle = "#0B111E";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -592,23 +674,22 @@ export function exportPlanPng(
   ctx.fillStyle = "#94A3B8";
   ctx.font = "bold 14px -apple-system, sans-serif";
   ctx.fillText(
-    `Metin: "${meta.text}"   •   Font: ${meta.fontName}   •   Duvar: ${meta.usedWalls} / ${meta.maxWalls}   •   Izgara: 44x44 Ana Köy`,
+    `Metin: "${meta.text}"   •   Font: ${meta.fontName}   •   Duvar: ${meta.wallCount} / ${meta.maxWalls}   •   Izgara: 44x44`,
     marginX,
     80
   );
   ctx.fillText(
-    `Ölçek: %${meta.scale}   •   Açı: ${meta.rotation}°   •   Her kare = 1x1 Duvar Segmenti`,
+    `Ölçek: ${meta.scale}x   •   Açı: ${meta.rotation}°   •   Her kare = 1x1 Duvar Segmenti`,
     marginX,
     105
   );
 
-  // 3. Grid Axes Numbers
+  // 3. Coordinate Labels
   ctx.font = "bold 10px monospace";
   ctx.fillStyle = "#64748B";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
-  // Top column numbers (1..44)
   for (let c = 0; c < COC_GRID_SIZE; c++) {
     const x = marginX + c * cellSize + cellSize / 2;
     const isMajor = (c + 1) % 5 === 0 || c === 0 || c === COC_GRID_SIZE - 1;
@@ -616,7 +697,6 @@ export function exportPlanPng(
     ctx.fillText(`${c + 1}`, x, marginY - 14);
   }
 
-  // Left row numbers (1..44)
   ctx.textAlign = "right";
   for (let r = 0; r < COC_GRID_SIZE; r++) {
     const y = marginY + r * cellSize + cellSize / 2;
@@ -625,23 +705,20 @@ export function exportPlanPng(
     ctx.fillText(`${r + 1}`, marginX - 12, y);
   }
 
-  // 4. Draw Grid Board & Cells
+  // 4. Draw Grid Board & Wall Cells
   for (let r = 0; r < COC_GRID_SIZE; r++) {
     for (let c = 0; c < COC_GRID_SIZE; c++) {
       const x = marginX + c * cellSize;
       const y = marginY + r * cellSize;
       const isWall = grid[r][c] === 1;
 
-      // Cell border / background
       ctx.fillStyle = isWall ? "#F59E0B" : "#151E30";
       ctx.fillRect(x, y, cellSize, cellSize);
 
-      // Cell border
       ctx.strokeStyle = isWall ? "#FDE68A" : "#1E293B";
       ctx.lineWidth = 1;
       ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
 
-      // 3D bevel effect for walls
       if (isWall) {
         ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
         ctx.fillRect(x + 2, y + 2, cellSize - 4, 3);
@@ -651,33 +728,31 @@ export function exportPlanPng(
     }
   }
 
-  // 5. Village Center Guide Lines (between 22 and 23)
+  // 5. Village Center Guide Lines
   const midX = marginX + 22 * cellSize;
   const midY = marginY + 22 * cellSize;
-  ctx.strokeStyle = "rgba(239, 68, 68, 0.45)"; // Soft red
+  ctx.strokeStyle = "rgba(239, 68, 68, 0.45)";
   ctx.lineWidth = 1.5;
   ctx.setLineDash([4, 4]);
 
-  // Center vertical line
   ctx.beginPath();
   ctx.moveTo(midX, marginY);
   ctx.lineTo(midX, marginY + COC_GRID_SIZE * cellSize);
   ctx.stroke();
 
-  // Center horizontal line
   ctx.beginPath();
   ctx.moveTo(marginX, midY);
   ctx.lineTo(marginX + COC_GRID_SIZE * cellSize, midY);
   ctx.stroke();
 
-  ctx.setLineDash([]); // Reset dash
+  ctx.setLineDash([]);
 
   // 6. Footer Note
   ctx.fillStyle = "#64748B";
   ctx.font = "11px -apple-system, sans-serif";
   ctx.textAlign = "left";
   ctx.fillText(
-    "Supercell Hayran İçeriği Politikası • Bu görsel ticari değildir. CoC Analitik (TH18 Meta Platformu)",
+    "Supercell Hayran İçeriği Politikası • Bu görsel ticari değildir. CoC Analitik",
     marginX,
     canvas.height - 24
   );

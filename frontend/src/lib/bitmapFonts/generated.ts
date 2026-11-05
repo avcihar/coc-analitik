@@ -7,7 +7,8 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
   {
     "id": "cross_stitch",
     "name": "Cross Stitch",
-    "height": 12,
+    "height": 13,
+    "baseline": 11,
     "supportedChars": [
       "A",
       "B",
@@ -115,6 +116,20 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
     },
     "glyphs": {
       "A": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           0,
@@ -288,6 +303,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         [
           0,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
           1,
           1,
           1,
@@ -435,6 +462,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
           0,
           0,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
           1,
           1,
           1,
@@ -565,6 +603,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "D": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -699,6 +748,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "E": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           1,
@@ -847,6 +908,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
       "F": [
         [
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
           1,
           1,
           1,
@@ -982,6 +1054,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         [
           0,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
           1,
           1,
           1,
@@ -1113,6 +1196,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "H": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           1,
@@ -1260,6 +1355,13 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
       ],
       "I": [
         [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
           1,
           1,
           1,
@@ -1345,6 +1447,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "J": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           0,
@@ -1479,6 +1592,19 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "K": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -1638,6 +1764,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
       ],
       "L": [
         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
           1,
           1,
           1,
@@ -1771,6 +1908,19 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "M": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -1929,6 +2079,19 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "N": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           1,
@@ -2090,6 +2253,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         [
           0,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
           1,
           1,
           1,
@@ -2233,6 +2408,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "P": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           1,
@@ -2379,6 +2566,19 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "Q": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           0,
@@ -2539,6 +2739,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
       "R": [
         [
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
           1,
           1,
           1,
@@ -2686,6 +2898,17 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         [
           0,
           0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
           1,
           1,
           1,
@@ -2817,6 +3040,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "T": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -2964,6 +3199,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
       ],
       "U": [
         [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
           1,
           1,
           1,
@@ -3109,6 +3356,18 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
         ]
       ],
       "V": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -3434,9 +3693,37 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
           1,
           0,
           0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ],
       "X": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           0,
           1,
@@ -3750,9 +4037,34 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
           0,
           0,
           0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
         ]
       ],
       "Z": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
         [
           1,
           1,
@@ -3904,6 +4216,7 @@ export const GENERATED_BITMAP_FONTS: BitmapFont[] = [
     "id": "tango_stitch",
     "name": "Tango Stitch",
     "height": 16,
+    "baseline": 15,
     "supportedChars": [
       "0",
       "1",

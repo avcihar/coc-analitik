@@ -14,35 +14,121 @@ import {
   Box,
   Sliders,
   Info,
-  HelpCircle,
   Copy,
   Check,
+  Type,
+  Space,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
   COC_GRID_SIZE,
   DEFAULT_MAX_WALLS,
-  WALL_FONTS,
-  WallFont,
-  WallArtMode,
+  MAX_BITMAP_SCALE,
   computeWallArt,
   exportPlanPng,
-  RowBuildGuide,
+  resolveChar,
 } from "@/lib/wallArtEngine";
+import { getAllBitmapFonts, getBitmapFont, BitmapFont } from "@/lib/bitmapFonts";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Renders a crisp miniature bitmap canvas preview of the text for font cards.
+ */
+function BitmapFontPreview({
+  font,
+  text,
+  convertTurkish,
+}: {
+  font: BitmapFont;
+  text: string;
+  convertTurkish: boolean;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const sample = text.trim() || "COC";
+
+    // Layout characters in a single line for card preview
+    const glyphsToDraw: { glyph: number[][]; width: number }[] = [];
+    for (const ch of sample) {
+      const res = resolveChar(ch, font, convertTurkish);
+      if (res.glyph) {
+        glyphsToDraw.push({ glyph: res.glyph, width: res.width });
+      } else if (res.isSpace) {
+        glyphsToDraw.push({ glyph: [], width: Math.max(2, Math.round(font.height * 0.25)) });
+      }
+    }
+
+    if (glyphsToDraw.length === 0) return;
+
+    const totalW = glyphsToDraw.reduce(
+      (acc, g, idx) => acc + g.width + (idx > 0 ? 1 : 0),
+      0
+    );
+
+    // Compute integer or fit scale
+    const scale = Math.max(
+      1,
+      Math.min(2, Math.floor((canvas.width - 8) / (totalW || 1)))
+    );
+
+    const startX = Math.max(4, Math.floor((canvas.width - totalW * scale) / 2));
+    const startY = Math.max(2, Math.floor((canvas.height - font.height * scale) / 2));
+
+    ctx.fillStyle = "#F59E0B"; // Amber 500
+    let curX = startX;
+
+    for (let i = 0; i < glyphsToDraw.length; i++) {
+      if (i > 0) curX += 1 * scale;
+      const item = glyphsToDraw[i];
+
+      if (item.glyph && item.glyph.length > 0) {
+        for (let r = 0; r < item.glyph.length; r++) {
+          for (let c = 0; c < item.glyph[r].length; c++) {
+            if (item.glyph[r][c] === 1) {
+              ctx.fillRect(curX + c * scale, startY + r * scale, scale, scale);
+            }
+          }
+        }
+      }
+      curX += item.width * scale;
+    }
+  }, [font, text, convertTurkish]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={180}
+      height={36}
+      className="w-full h-9 rounded bg-slate-950/70 border border-app-border/40"
+    />
+  );
+}
+
 export default function WallArtView() {
-  // Input Controls State
+  const allFonts = useMemo(() => getAllBitmapFonts(), []);
+
+  // Controls State
   const [text, setText] = useState<string>("COC");
-  const [selectedFontId, setSelectedFontId] = useState<string>("montserrat");
-  const [scale, setScale] = useState<number>(100);
+  const [selectedFontId, setSelectedFontId] = useState<string>(
+    allFonts[0]?.id || "cross_stitch"
+  );
+  const [scale, setScale] = useState<number>(1);
+  const [letterSpacing, setLetterSpacing] = useState<number>(1);
   const [rotation, setRotation] = useState<number>(0);
   const [maxWalls, setMaxWalls] = useState<number>(DEFAULT_MAX_WALLS);
-  const [mode, setMode] = useState<WallArtMode>("skeleton");
+  const [convertTurkish, setConvertTurkish] = useState<boolean>(false);
+  const [autoFit, setAutoFit] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
 
   // Interaction State
@@ -56,13 +142,45 @@ export default function WallArtView() {
 
   // Selected Font Object
   const currentFont = useMemo(() => {
-    return WALL_FONTS.find((f) => f.id === selectedFontId) || WALL_FONTS[0];
-  }, [selectedFontId]);
+    return getBitmapFont(selectedFontId) || allFonts[0];
+  }, [selectedFontId, allFonts]);
 
-  // Compute Wall Art Result (with binary search budget fallback)
+  // Compute Wall Art Result
   const result = useMemo(() => {
-    return computeWallArt(text, currentFont, scale, rotation, maxWalls, mode);
-  }, [text, currentFont, scale, rotation, maxWalls, mode]);
+    if (!currentFont) {
+      return {
+        grid: Array.from({ length: COC_GRID_SIZE }, () => new Array(COC_GRID_SIZE).fill(0)),
+        wallCount: 0,
+        maxWalls,
+        isOverBudget: false,
+        maxFittingChars: 0,
+        effectiveScale: 1,
+        originalScale: scale,
+        wasScaledDown: false,
+        lineCount: 0,
+        linesInfo: "Font bulunamadı",
+        warnings: ["Hiç geçerli bitmap font bulunamadı."],
+        convertedChars: [],
+        missingChars: [],
+        buildGuide: [],
+        minRow: 0,
+        maxRow: 0,
+        minCol: 0,
+        maxCol: 0,
+      };
+    }
+
+    return computeWallArt(
+      text,
+      currentFont,
+      scale,
+      rotation,
+      maxWalls,
+      letterSpacing,
+      convertTurkish,
+      autoFit
+    );
+  }, [text, currentFont, scale, rotation, maxWalls, letterSpacing, convertTurkish, autoFit]);
 
   // ── Render 2D Grid Canvas ───────────────────────────────────────────────────
   useEffect(() => {
@@ -80,44 +198,37 @@ export default function WallArtView() {
     ctx.fillStyle = "#0F172A"; // Slate 900
     ctx.fillRect(0, 0, size, size);
 
-    // Draw grid cells
+    // Draw Floor Grid
     for (let r = 0; r < COC_GRID_SIZE; r++) {
       for (let c = 0; c < COC_GRID_SIZE; c++) {
         const x = c * cellSize;
         const y = r * cellSize;
         const isWall = result.grid[r][c] === 1;
-        const isHovered = hoveredCell && hoveredCell.r === r && hoveredCell.c === c;
 
         if (isWall) {
-          // Wall Cell (Amber / Gold block with 3D bevel)
-          ctx.fillStyle = isHovered ? "#FBBF24" : "#F59E0B";
-          ctx.fillRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
-
-          // Top/Left bevel highlight
-          ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-          ctx.fillRect(x + 1, y + 1, cellSize - 2, 1.5);
-          ctx.fillRect(x + 1, y + 1, 1.5, cellSize - 2);
-
-          // Bottom/Right bevel shadow
-          ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-          ctx.fillRect(x + 1, y + cellSize - 2.5, cellSize - 2, 1.5);
-          ctx.fillRect(x + cellSize - 2.5, y + 1, 1.5, cellSize - 2);
-        } else {
-          // Empty tile
-          ctx.fillStyle = isHovered ? "#1E293B" : (r + c) % 2 === 0 ? "#131C2E" : "#0F172A";
+          // Wall Cell
+          ctx.fillStyle = "#F59E0B"; // Amber 500
           ctx.fillRect(x, y, cellSize, cellSize);
 
-          // Subtle grid line
-          ctx.strokeStyle = "#1E293B";
+          // Wall bevel
+          ctx.strokeStyle = "#FDE68A"; // Amber 200
+          ctx.lineWidth = 1;
+          ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+        } else {
+          // Grass tile checkerboard
+          ctx.fillStyle = (r + c) % 2 === 0 ? "#141E33" : "#101828";
+          ctx.fillRect(x, y, cellSize, cellSize);
+
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
           ctx.lineWidth = 0.5;
           ctx.strokeRect(x, y, cellSize, cellSize);
         }
       }
     }
 
-    // Center Guide Lines (between 22 and 23)
+    // Center Crosslines (between cell 22 and 23)
     const mid = 22 * cellSize;
-    ctx.strokeStyle = "rgba(239, 68, 68, 0.35)";
+    ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
 
@@ -132,9 +243,9 @@ export default function WallArtView() {
     ctx.stroke();
 
     ctx.setLineDash([]);
-  }, [result, hoveredCell]);
+  }, [result]);
 
-  // ── Render 3D Isometric View Canvas ─────────────────────────────────────────
+  // ── Render 3D Isometric Canvas ──────────────────────────────────────────────
   useEffect(() => {
     if (viewMode !== "3d") return;
     const canvas = canvas3dRef.current;
@@ -147,18 +258,15 @@ export default function WallArtView() {
     canvas.width = width;
     canvas.height = height;
 
-    // Dark isometric background
     ctx.fillStyle = "#0B111E";
     ctx.fillRect(0, 0, width, height);
 
-    // Isometric projection math
     const tileW = 14;
     const tileH = 7;
     const wallHeight = 9;
     const originX = width / 2;
     const originY = 60;
 
-    // Helper to get isometric coordinates
     const toIso = (r: number, c: number) => {
       return {
         x: originX + (c - r) * (tileW / 2),
@@ -166,7 +274,7 @@ export default function WallArtView() {
       };
     };
 
-    // Draw Village Floor Grid (back to front)
+    // Draw Floor Grid (back to front)
     ctx.strokeStyle = "rgba(59, 130, 246, 0.12)";
     ctx.lineWidth = 0.5;
 
@@ -187,18 +295,16 @@ export default function WallArtView() {
       }
     }
 
-    // Draw Walls in depth order (r then c)
+    // Draw Walls in depth order
     for (let r = 0; r < COC_GRID_SIZE; r++) {
       for (let c = 0; c < COC_GRID_SIZE; c++) {
         if (result.grid[r][c] !== 1) continue;
 
         const { x, y } = toIso(r, c);
-
-        // Wall Height coordinates
         const topY = y - wallHeight;
 
-        // 1. Left Face (darker shade)
-        ctx.fillStyle = "#B45309"; // Amber 700
+        // Left Face
+        ctx.fillStyle = "#B45309";
         ctx.beginPath();
         ctx.moveTo(x - tileW / 2, y + tileH / 2);
         ctx.lineTo(x, y + tileH);
@@ -209,8 +315,8 @@ export default function WallArtView() {
         ctx.strokeStyle = "#92400E";
         ctx.stroke();
 
-        // 2. Right Face (medium shade)
-        ctx.fillStyle = "#D97706"; // Amber 600
+        // Right Face
+        ctx.fillStyle = "#D97706";
         ctx.beginPath();
         ctx.moveTo(x, y + tileH);
         ctx.lineTo(x + tileW / 2, y + tileH / 2);
@@ -221,8 +327,8 @@ export default function WallArtView() {
         ctx.strokeStyle = "#B45309";
         ctx.stroke();
 
-        // 3. Top Face (brightest gold shade)
-        ctx.fillStyle = "#FBBF24"; // Amber 400
+        // Top Face
+        ctx.fillStyle = "#FBBF24";
         ctx.beginPath();
         ctx.moveTo(x, topY);
         ctx.lineTo(x + tileW / 2, topY + tileH / 2);
@@ -233,7 +339,7 @@ export default function WallArtView() {
         ctx.strokeStyle = "#FDE68A";
         ctx.stroke();
 
-        // Top highlight crest
+        // Highlight crest
         ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
         ctx.beginPath();
         ctx.arc(x, topY + tileH / 2, 1.5, 0, Math.PI * 2);
@@ -262,14 +368,15 @@ export default function WallArtView() {
     }
   };
 
-  // Download High-Resolution Plan PNG
+  // Download Blueprint PNG
   const handleDownloadPng = useCallback(() => {
+    if (!currentFont) return;
     setIsExporting(true);
     try {
       const dataUrl = exportPlanPng(result.grid, {
         text,
         fontName: currentFont.name,
-        usedWalls: result.usedWalls,
+        wallCount: result.wallCount,
         maxWalls: result.maxWalls,
         scale: result.effectiveScale,
         rotation,
@@ -291,13 +398,14 @@ export default function WallArtView() {
     const lines = result.buildGuide.map(
       (g) =>
         `Satır ${g.row}: ${g.wallCount} duvar [${g.segments
-          .map((s) => (s.fromCol === s.toCol ? `Sütun ${s.fromCol}` : `Sütun ${s.fromCol}-${s.toCol} (${s.count} adet)`))
+          .map((s) => (s.fromCol === s.toCol ? `Sütun ${s.fromCol}` : `Sütun ${s.fromCol}–${s.toCol} (${s.count} adet)`))
           .join(", ")}]`
     );
     const fullText = [
       `=== CoC Duvar Yazısı İnşa Rehberi ===`,
       `Metin: "${text}"`,
-      `Toplam Duvar: ${result.usedWalls} / ${result.maxWalls}`,
+      `Font: ${currentFont?.name || "Bilinmiyor"} (Ölçek: ${result.effectiveScale}x, Açı: ${rotation}°)`,
+      `Toplam Duvar: ${result.wallCount} / ${result.maxWalls}`,
       `Izgara: 44x44 Ana Köy`,
       `------------------------------------`,
       ...lines,
@@ -308,7 +416,7 @@ export default function WallArtView() {
     setTimeout(() => setCopiedGuide(false), 2000);
   };
 
-  const usagePct = Math.min(100, (result.usedWalls / maxWalls) * 100);
+  const usagePct = Math.min(100, (result.wallCount / maxWalls) * 100);
 
   return (
     <div className="space-y-6 animate-fadeIn pb-12">
@@ -328,7 +436,7 @@ export default function WallArtView() {
                   </span>
                 </h1>
                 <p className="text-xs text-app-muted">
-                  Köyündeki duvarlarla metin yaz; 2D ve 3D izometrik önizle, satır satır inşa rehberi ve koordinatlı planı indir.
+                  Köyündeki duvarlarla bitmap font kullanarak metin yaz; 2D ve 3D izometrik önizle, satır satır inşa rehberi ve koordinatlı planı indir.
                 </p>
               </div>
             </div>
@@ -337,7 +445,7 @@ export default function WallArtView() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleDownloadPng}
-              disabled={isExporting || result.usedWalls === 0}
+              disabled={isExporting || result.wallCount === 0}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-slate-950 text-xs font-black transition-all shadow-sm cursor-pointer"
             >
               <Download size={15} />
@@ -347,7 +455,7 @@ export default function WallArtView() {
         </div>
       </div>
 
-      {/* 2. Main Workspace: Left Controls + Right Canvas & Visualizer */}
+      {/* 2. Main Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* LEFT COLUMN: Controls & Settings (5 Cols) */}
         <div className="lg:col-span-5 space-y-5">
@@ -356,125 +464,177 @@ export default function WallArtView() {
             <div className="space-y-1.5">
               <label className="text-xs font-black uppercase tracking-wider text-app-muted flex items-center justify-between">
                 <span>Yazılacak Metin</span>
-                <span className="text-[10px] font-bold text-app-muted">Maks. 25 Karakter</span>
+                <span className="text-[10px] font-bold text-app-muted">Maks. 35 Karakter</span>
               </label>
               <input
                 type="text"
                 value={text}
-                maxLength={25}
+                maxLength={35}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Örn: KALE, CLAN, TH18..."
+                placeholder="Örn: KALE, HARUN, COC..."
                 className="w-full px-3.5 py-2.5 rounded-xl bg-app-cardSubtle border border-app-border text-sm font-bold text-app-text focus:outline-none focus:border-amber-500 transition-colors"
               />
             </div>
 
-            {/* Turkish Character Warning Banner (if font missing chars) */}
-            {result.missingChars.length > 0 && (
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-300">
-                <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold">Türkçe Karakter Uyarısı:</span>
-                  <p className="text-[11px] text-amber-200/80 mt-0.5">
-                    Seçilen font şu karakterleri içermeyebilir:{" "}
-                    <strong>{result.missingChars.join(", ")}</strong>.
-                  </p>
+            {/* Turkish ASCII Conversion Switch */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-app-cardSubtle border border-app-border">
+              <div className="space-y-0.5 pr-2">
+                <div className="text-xs font-bold text-app-text">
+                  Türkçe harfleri ASCII karşılığıyla yaz
                 </div>
+                <div className="text-[10px] text-app-muted">
+                  Ç→C, Ğ→G, İ→I, Ö→O, Ş→S, Ü→U
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={convertTurkish}
+                onChange={(e) => setConvertTurkish(e.target.checked)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 bg-app-card border-app-border cursor-pointer"
+              />
+            </div>
+
+            {/* Converted Characters Badge */}
+            {result.convertedChars.length > 0 && (
+              <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-[11px] font-bold text-blue-300 flex items-center gap-2">
+                <Info size={14} className="shrink-0 text-blue-400" />
+                <span>Dönüştürülen harfler: {result.convertedChars.join(", ")}</span>
               </div>
             )}
 
-            {/* Font Picker */}
-            <div className="space-y-2">
+            {/* Missing Character Warning Banner */}
+            {result.missingChars.length > 0 && (
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1 text-xs text-amber-300">
+                <div className="flex items-center gap-2 font-black">
+                  <AlertTriangle size={15} className="text-amber-400 shrink-0" />
+                  <span>Karakter Uyarısı:</span>
+                </div>
+                <p className="text-[11px] text-amber-200/80">
+                  Şu karakterler seçili fontta olmadığı için atlandı:{" "}
+                  <strong>{result.missingChars.join(", ")}</strong>.
+                </p>
+                {!convertTurkish &&
+                  result.missingChars.some((c) => "çğıöşüÇĞİÖŞÜ".includes(c)) && (
+                    <p className="text-[10px] text-amber-300 underline font-semibold mt-1">
+                      İpucu: Yukarıdaki &quot;Türkçe harfleri ASCII karşılığıyla yaz&quot; seçeneğini açabilirsiniz.
+                    </p>
+                  )}
+              </div>
+            )}
+
+            {/* Bitmap Font Picker Cards */}
+            <div className="space-y-2 pt-2 border-t border-app-border">
               <label className="text-xs font-black uppercase tracking-wider text-app-muted flex items-center justify-between">
-                <span>Font Seçici</span>
-                <span className="text-[10px] text-app-muted font-bold">8 Yerel Font</span>
+                <span>Bitmap Font Seçici</span>
+                <span className="text-[10px] text-app-muted font-bold">
+                  {allFonts.length} Modüler Font
+                </span>
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                {WALL_FONTS.map((font) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {allFonts.map((font) => {
                   const isSelected = selectedFontId === font.id;
+                  const hasLower = font.missingSummary.hasLowercase;
+                  const hasDigits = font.missingSummary.hasDigits;
+
                   return (
                     <button
                       key={font.id}
                       onClick={() => setSelectedFontId(font.id)}
                       className={cn(
-                        "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1",
+                        "p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2",
                         isSelected
                           ? "bg-amber-500/10 border-amber-500/50 shadow-sm"
                           : "bg-app-cardSubtle border-app-border hover:border-app-borderStrong"
                       )}
                     >
                       <div className="flex items-center justify-between">
-                        <span
-                          className="text-sm font-bold truncate text-app-text"
-                          style={{ fontFamily: font.family }}
-                        >
+                        <span className="text-sm font-bold text-app-text truncate">
                           {font.name}
                         </span>
-                        {isSelected && <CheckCircle2 size={13} className="text-amber-400 shrink-0" />}
+                        {isSelected && <CheckCircle2 size={14} className="text-amber-400 shrink-0" />}
                       </div>
-                      <div className="flex items-center justify-between text-[10px] text-app-muted">
-                        <span>{font.style}</span>
-                        <span className="text-[9px] font-mono opacity-70">{font.license}</span>
+
+                      {/* Miniature bitmap preview */}
+                      <BitmapFontPreview
+                        font={font}
+                        text={text}
+                        convertTurkish={convertTurkish}
+                      />
+
+                      <div className="flex items-center justify-between text-[10px] text-app-muted font-semibold pt-1 border-t border-app-border/30">
+                        <span>{font.height} Satır Yükseklik</span>
+                        <span>
+                          {font.supportedChars.length} Glif {hasLower && hasDigits ? "(A-Z, a-z, 0-9)" : "(A-Z)"}
+                        </span>
                       </div>
                     </button>
                   );
                 })}
               </div>
             </div>
-
-            {/* Thickness / Algorithm Mode */}
-            <div className="space-y-1.5 pt-2 border-t border-app-border">
-              <label className="text-xs font-black uppercase tracking-wider text-app-muted">
-                Çizim Algoritması
-              </label>
-              <div className="grid grid-cols-3 gap-1.5 p-1 rounded-xl bg-app-cardSubtle border border-app-border text-xs font-bold">
-                {[
-                  { key: "skeleton" as WallArtMode, label: "İskelet", desc: "Tek Duvar" },
-                  { key: "contour" as WallArtMode, label: "Kontur", desc: "Dış Çerçeve" },
-                  { key: "filled" as WallArtMode, label: "Dolu", desc: "Blok Kalın" },
-                ].map((item) => (
-                  <button
-                    key={item.key}
-                    onClick={() => setMode(item.key)}
-                    className={cn(
-                      "py-2 px-2 rounded-lg text-center transition-all cursor-pointer",
-                      mode === item.key
-                        ? "bg-amber-500 text-slate-950 font-black shadow-sm"
-                        : "text-app-muted hover:text-app-text"
-                    )}
-                  >
-                    <div>{item.label}</div>
-                    <div className="text-[9px] opacity-75">{item.desc}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Sliders & Wall Budget Card */}
           <div className="bg-app-card border border-app-border rounded-2xl p-5 shadow-sm space-y-4">
-            {/* 1. Scale Slider */}
+            {/* 1. Scale Slider (Integer Steps) */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-app-muted flex items-center gap-1.5">
-                  <Maximize2 size={14} className="text-blue-400" /> Metin Ölçeği
+                  <Maximize2 size={14} className="text-blue-400" /> Glif Ölçeği (Hücre Çarpanı)
                 </span>
                 <span className="text-app-text font-black">
-                  %{scale} {result.wasScaledDown && <span className="text-amber-400 text-[10px]">(Uygulanan: %{result.effectiveScale})</span>}
+                  {scale}x {result.wasScaledDown && (
+                    <span className="text-amber-400 text-[10px] font-bold">
+                      (Uygulanan: {result.effectiveScale}x)
+                    </span>
+                  )}
                 </span>
               </div>
               <input
                 type="range"
-                min={30}
-                max={200}
-                step={5}
+                min={1}
+                max={MAX_BITMAP_SCALE}
+                step={1}
                 value={scale}
                 onChange={(e) => setScale(Number(e.target.value))}
                 className="w-full accent-amber-500 cursor-pointer"
               />
+              <div className="flex justify-between text-[10px] text-app-muted font-mono px-0.5">
+                <span>1x (1 hücre)</span>
+                <span>2x (2x2)</span>
+                <span>3x (3x3)</span>
+                <span>4x (4x4)</span>
+              </div>
             </div>
 
-            {/* 2. Rotation Slider */}
-            <div className="space-y-1.5">
+            {/* 2. Letter Spacing Slider */}
+            <div className="space-y-1.5 pt-2 border-t border-app-border">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-app-muted flex items-center gap-1.5">
+                  <Space size={14} className="text-cyan-400" /> Harf Aralığı
+                </span>
+                <span className="text-app-text font-black">{letterSpacing} hücre</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={4}
+                step={1}
+                value={letterSpacing}
+                onChange={(e) => setLetterSpacing(Number(e.target.value))}
+                className="w-full accent-cyan-500 cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-app-muted font-mono px-0.5">
+                <span>0</span>
+                <span>1</span>
+                <span>2</span>
+                <span>3</span>
+                <span>4 hücre</span>
+              </div>
+            </div>
+
+            {/* 3. Rotation Slider */}
+            <div className="space-y-1.5 pt-2 border-t border-app-border">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-app-muted flex items-center gap-1.5">
                   <RotateCw size={14} className="text-purple-400" /> Döndürme Açısı
@@ -495,14 +655,35 @@ export default function WallArtView() {
                 type="range"
                 min={-180}
                 max={180}
-                step={5}
+                step={15}
                 value={rotation}
                 onChange={(e) => setRotation(Number(e.target.value))}
                 className="w-full accent-purple-500 cursor-pointer"
               />
+              <div className="flex gap-1.5 pt-1">
+                {[0, 90, 180, 270].map((deg) => (
+                  <button
+                    key={deg}
+                    onClick={() => setRotation(deg)}
+                    className={cn(
+                      "flex-1 py-1 rounded text-[10px] font-bold border transition-colors cursor-pointer",
+                      rotation === deg
+                        ? "bg-purple-500/20 text-purple-400 border-purple-500/40"
+                        : "bg-app-cardSubtle text-app-muted border-app-border hover:text-app-text"
+                    )}
+                  >
+                    {deg}°
+                  </button>
+                ))}
+              </div>
+              {rotation % 90 !== 0 && (
+                <div className="text-[10px] text-amber-400/90 font-medium pt-0.5">
+                  ⚠ Döndürme (90° katları dışı) piksel harflerini bozabilir.
+                </div>
+              )}
             </div>
 
-            {/* 3. Wall Count Budget (Number input + Slider) */}
+            {/* 4. Wall Count Budget */}
             <div className="space-y-2 pt-2 border-t border-app-border">
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-app-muted flex items-center gap-1.5">
@@ -528,7 +709,6 @@ export default function WallArtView() {
                 className="w-full accent-amber-500 cursor-pointer"
               />
 
-              {/* Quick Preset Buttons */}
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {[
                   { label: "TH17/18 (325)", count: 325 },
@@ -552,6 +732,17 @@ export default function WallArtView() {
               </div>
             </div>
 
+            {/* 5. Auto Fit Switch */}
+            <div className="flex items-center justify-between p-2.5 rounded-xl bg-app-cardSubtle border border-app-border">
+              <span className="text-xs font-bold text-app-text">Bütçeye Otomatik Sığdır</span>
+              <input
+                type="checkbox"
+                checked={autoFit}
+                onChange={(e) => setAutoFit(e.target.checked)}
+                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 bg-app-card border-app-border cursor-pointer"
+              />
+            </div>
+
             {/* Usage Progress Bar */}
             <div className="pt-2 border-t border-app-border space-y-1.5">
               <div className="flex items-center justify-between text-xs font-bold">
@@ -559,17 +750,23 @@ export default function WallArtView() {
                 <span
                   className={cn(
                     "font-black",
-                    result.wasScaledDown ? "text-amber-400" : "text-emerald-400"
+                    result.isOverBudget
+                      ? "text-rose-400"
+                      : result.wasScaledDown
+                      ? "text-amber-400"
+                      : "text-emerald-400"
                   )}
                 >
-                  {result.usedWalls} / {maxWalls} duvar (%{usagePct.toFixed(1)})
+                  {result.wallCount} / {maxWalls} duvar (%{usagePct.toFixed(1)})
                 </span>
               </div>
               <div className="h-2 w-full bg-app-cardSubtle rounded-full overflow-hidden border border-app-border/40">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-300",
-                    result.wasScaledDown
+                    result.isOverBudget
+                      ? "bg-rose-500"
+                      : result.wasScaledDown
                       ? "bg-amber-500"
                       : "bg-gradient-to-r from-blue-500 to-emerald-400"
                   )}
@@ -577,11 +774,24 @@ export default function WallArtView() {
                 />
               </div>
 
+              {/* Over Budget Alert */}
+              {result.isOverBudget && (
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 space-y-1">
+                  <div className="font-black flex items-center gap-1.5">
+                    <AlertTriangle size={15} className="text-rose-400 shrink-0" />
+                    <span>Duvar Bütçesi Aşıldı!</span>
+                  </div>
+                  <p className="text-[11px] text-rose-200/90">
+                    Bütçeye <strong>en fazla {result.maxFittingChars} harf</strong> sığıyor. Ölçeği düşürmeyi veya metni kısaltmayı deneyin.
+                  </p>
+                </div>
+              )}
+
               {result.wasScaledDown && (
                 <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[11px] font-semibold text-amber-300 flex items-center gap-2">
                   <Info size={14} className="shrink-0 text-amber-400" />
                   <span>
-                    Duvar bütçesine sığdırmak için ölçek otomatik küçültüldü: %{result.originalScale} → %{result.effectiveScale}.
+                    Bütçeye sığdırmak için ölçek otomatik küçültüldü: {result.originalScale}x → {result.effectiveScale}x.
                   </span>
                 </div>
               )}
@@ -593,11 +803,14 @@ export default function WallArtView() {
         <div className="lg:col-span-7 space-y-5">
           {/* Visualizer Card */}
           <div className="bg-app-card border border-app-border rounded-2xl p-5 shadow-sm space-y-4">
-            {/* View Mode Segmented Control */}
-            <div className="flex items-center justify-between border-b border-app-border pb-3">
+            {/* View Mode Segmented Control & Status Badges */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border pb-3">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-black uppercase tracking-wider text-app-muted flex items-center gap-1.5">
                   <Grid size={15} className="text-amber-400" /> Önizleme Tahtası
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                  {result.linesInfo}
                 </span>
                 {hoveredCell && viewMode === "2d" && (
                   <span className="text-[11px] font-mono text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/40 border border-cyan-800">
@@ -635,11 +848,10 @@ export default function WallArtView() {
               </div>
             </div>
 
-            {/* Canvas Viewport (Scrollable on mobile) */}
+            {/* Canvas Viewport */}
             <div className="overflow-x-auto flex justify-center py-2 bg-app-bg/50 rounded-xl border border-app-border/60">
               {viewMode === "2d" ? (
                 <div className="relative select-none">
-                  {/* Axis indicators */}
                   <div className="absolute -top-5 left-0 right-0 flex justify-between text-[9px] font-mono text-app-muted px-1">
                     <span>Sütun 1</span>
                     <span>22</span>
@@ -676,12 +888,12 @@ export default function WallArtView() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-app-border text-center">
               <div className="p-2.5 rounded-xl bg-app-cardSubtle border border-app-border">
                 <div className="text-[10px] font-bold text-app-muted uppercase">Toplam Duvar</div>
-                <div className="text-base font-black text-amber-400">{result.usedWalls}</div>
+                <div className="text-base font-black text-amber-400">{result.wallCount}</div>
               </div>
               <div className="p-2.5 rounded-xl bg-app-cardSubtle border border-app-border">
                 <div className="text-[10px] font-bold text-app-muted uppercase">Kalan Duvar</div>
                 <div className="text-base font-black text-blue-400">
-                  {Math.max(0, maxWalls - result.usedWalls)}
+                  {Math.max(0, maxWalls - result.wallCount)}
                 </div>
               </div>
               <div className="p-2.5 rounded-xl bg-app-cardSubtle border border-app-border">
@@ -757,7 +969,11 @@ export default function WallArtView() {
           </div>
         </div>
       </div>
+
+      {/* Footer Supercell Disclaimer */}
+      <div className="text-center text-xs text-app-muted pt-4 border-t border-app-border/40">
+        Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+      </div>
     </div>
   );
 }
-

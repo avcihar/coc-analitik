@@ -21,6 +21,7 @@ export interface BitmapFont {
   id: string; // e.g. "cross_stitch"
   name: string; // e.g. "Cross Stitch"
   height: number; // uniform row height
+  baseline: number; // uniform baseline row index (0-based)
   author?: string;
   license?: string;
   supportedChars: string[];

@@ -55,14 +55,35 @@ export function validateAndNormalizeFont(
 
   const record = rawJson as Record<string, unknown>;
 
-  // Extract optional metadata
-  const metaName = typeof record.name === "string" ? record.name.trim() : undefined;
-  const metaAuthor =
-    typeof record.author === "string" ? record.author.trim() : undefined;
-  const metaLicense =
-    typeof record.license === "string" ? record.license.trim() : undefined;
+  // Check for _meta or meta object
+  const metaObj = (
+    typeof record._meta === "object" && record._meta !== null && !Array.isArray(record._meta)
+      ? record._meta
+      : typeof record.meta === "object" && record.meta !== null && !Array.isArray(record.meta)
+      ? record.meta
+      : record
+  ) as Record<string, unknown>;
 
-  // Glyph map: either in record.glyphs or top-level keys
+  // Extract optional metadata
+  const metaName = typeof metaObj.name === "string" ? metaObj.name.trim() : undefined;
+  const metaAuthor = typeof metaObj.author === "string" ? metaObj.author.trim() : undefined;
+  const metaLicense = typeof metaObj.license === "string" ? metaObj.license.trim() : undefined;
+
+  // Extract baselines: { "Q": 10, "R": 10 }
+  const baselines: Record<string, number> = {};
+  if (
+    metaObj.baselines &&
+    typeof metaObj.baselines === "object" &&
+    !Array.isArray(metaObj.baselines)
+  ) {
+    for (const [k, v] of Object.entries(metaObj.baselines as Record<string, unknown>)) {
+      if (typeof v === "number") {
+        baselines[k] = v;
+      }
+    }
+  }
+
+  // Glyph map: either in record.glyphs or top-level keys that don't start with '_' and aren't meta keys
   let rawGlyphs: Record<string, unknown> = {};
   if (
     record.glyphs &&
@@ -72,6 +93,8 @@ export function validateAndNormalizeFont(
     rawGlyphs = record.glyphs as Record<string, unknown>;
   } else {
     const metaKeySet = new Set([
+      "_meta",
+      "meta",
       "name",
       "author",
       "license",
@@ -83,9 +106,10 @@ export function validateAndNormalizeFont(
       "size",
       "glyphs",
       "metadata",
+      "baselines",
     ]);
     for (const [key, value] of Object.entries(record)) {
-      if (!metaKeySet.has(key)) {
+      if (!key.startsWith("_") && !metaKeySet.has(key)) {
         rawGlyphs[key] = value;
       }
     }
@@ -192,16 +216,52 @@ export function validateAndNormalizeFont(
     };
   }
 
-  const maxHeight = Math.max(...glyphHeights);
+  // Check for varying heights warning if no baselines specified
+  const uniqueHeights = new Set(glyphHeights);
+  if (uniqueHeights.size > 1 && Object.keys(baselines).length === 0) {
+    console.warn(
+      `⚠ ${filename}: glif yükseklikleri farklı (${Array.from(uniqueHeights).join(
+        ", "
+      )} satır), baselines tanımlamayı düşünün`
+    );
+  }
 
-  // Normalize glyphs to uniform font maxHeight by padding bottom with zeros (for descenders like Q, y, g)
+  // Calculate ascent and descent relative to baseline for each glyph
+  const glyphAscent: Record<string, number> = {};
+  const glyphDescent: Record<string, number> = {};
+
   for (const [char, matrix] of Object.entries(normalizedGlyphs)) {
-    if (matrix.length < maxHeight) {
-      const width = matrix[0]?.length || 0;
-      const padCount = maxHeight - matrix.length;
-      for (let p = 0; p < padCount; p++) {
-        matrix.push(new Array(width).fill(0));
-      }
+    const rawHeight = matrix.length;
+    const baseIndex =
+      baselines[char] !== undefined ? baselines[char] : rawHeight - 1;
+    const ascent = baseIndex;
+    const descent = Math.max(0, rawHeight - 1 - baseIndex);
+    glyphAscent[char] = ascent;
+    glyphDescent[char] = descent;
+  }
+
+  const maxAscent = Math.max(...Object.values(glyphAscent));
+  const maxDescent = Math.max(...Object.values(glyphDescent));
+  const totalHeight = maxAscent + 1 + maxDescent;
+  const uniformBaseline = maxAscent;
+
+  // Pad each glyph at top and bottom so baselines align precisely at uniformBaseline
+  for (const [char, matrix] of Object.entries(normalizedGlyphs)) {
+    const width = matrix[0]?.length || 0;
+    const padTop = maxAscent - glyphAscent[char];
+    const padBottom = maxDescent - glyphDescent[char];
+
+    if (padTop > 0) {
+      const topRows: number[][] = Array.from({ length: padTop }, () =>
+        new Array(width).fill(0)
+      );
+      matrix.unshift(...topRows);
+    }
+    if (padBottom > 0) {
+      const bottomRows: number[][] = Array.from({ length: padBottom }, () =>
+        new Array(width).fill(0)
+      );
+      matrix.push(...bottomRows);
     }
   }
 
@@ -223,7 +283,8 @@ export function validateAndNormalizeFont(
   const font: BitmapFont = {
     id: fileId,
     name: metaName || idToTitle(fileId),
-    height: maxHeight,
+    height: totalHeight,
+    baseline: uniformBaseline,
     author: metaAuthor,
     license: metaLicense,
     supportedChars,

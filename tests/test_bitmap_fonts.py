@@ -77,8 +77,11 @@ def test_string_matrix_support():
     assert font["glyphs"]["A"] == [[0, 1, 0], [1, 0, 1], [1, 1, 1]]
 
 def test_padding_shorter_glyphs():
-    # If a font has a 4-row glyph and a 5-row glyph, the 4-row glyph should be padded at bottom with zeros
+    # When Q has a descender defined via baselines, A is padded at bottom
     sample = {
+        "_meta": {
+            "baselines": {"Q": 3}
+        },
         "A": [
             [0, 1, 0],
             [1, 0, 1],
@@ -90,15 +93,16 @@ def test_padding_shorter_glyphs():
             [1, 0, 1],
             [1, 1, 1],
             [1, 0, 1],
-            [0, 0, 1], # descender row
+            [0, 0, 1], # descender row (index 4)
         ]
     }
     font, errors = validate_and_normalize(sample, "descender_font", "descender_font.json")
     assert errors == []
     assert font is not None
     assert font["height"] == 5
+    assert font["baseline"] == 3
     assert len(font["glyphs"]["A"]) == 5
-    assert font["glyphs"]["A"][4] == [0, 0, 0] # padded row
+    assert font["glyphs"]["A"][4] == [0, 0, 0] # padded at bottom because Q descends below baseline
 
 def test_real_fonts_pass_validation():
     for f in ["cross_stitch.json", "tango_stitch.json"]:
@@ -109,5 +113,10 @@ def test_real_fonts_pass_validation():
         font, errors = validate_and_normalize(data, file_id, f)
         assert errors == []
         assert font is not None
-        assert font["height"] in (12, 16)
+        if file_id == "cross_stitch":
+            assert font["height"] == 13
+            assert font["baseline"] == 11
+        elif file_id == "tango_stitch":
+            assert font["height"] == 16
+            assert font["baseline"] == 15
 
