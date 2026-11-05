@@ -448,7 +448,7 @@ export function resolveChar(
     };
   }
 
-  // Case fallback (e.g. font only has uppercase A-Z and user entered lowercase a-z)
+  // Case fallback (e.g. font only has uppercase A-Z and user entered lowercase a-z, or vice-versa)
   const upper = charToUse.toUpperCase();
   if (font.glyphs[upper]) {
     const g = font.glyphs[upper];
@@ -457,6 +457,20 @@ export function resolveChar(
       glyph: g,
       isSpace: false,
       resolvedChar: upper,
+      converted,
+      rawWidth: w,
+      width: w,
+    };
+  }
+
+  const lower = charToUse.toLowerCase();
+  if (font.glyphs[lower]) {
+    const g = font.glyphs[lower];
+    const w = g[0]?.length || 0;
+    return {
+      glyph: g,
+      isSpace: false,
+      resolvedChar: lower,
       converted,
       rawWidth: w,
       width: w,

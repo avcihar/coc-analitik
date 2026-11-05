@@ -25,6 +25,8 @@ import {
   ArrowRight,
   Crosshair,
   RotateCcw,
+  Bug,
+  Image as ImageIcon,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -43,6 +45,11 @@ import {
   isHorizontalOnScreen,
 } from "@/lib/wallArtEngine";
 import { getAllBitmapFonts, getBitmapFont, BitmapFont } from "@/lib/bitmapFonts";
+import {
+  ASSETS_CONFIG,
+  mapGridToScenery,
+  mapSceneryToGrid,
+} from "@/lib/assetsConfig";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -145,7 +152,22 @@ export default function WallArtView() {
   const [autoFit, setAutoFit] = useState<boolean>(true);
   const [offsetX, setOffsetX] = useState<number>(0);
   const [offsetY, setOffsetY] = useState<number>(0);
-  const [viewMode, setViewMode] = useState<"2d" | "3d">("2d");
+  const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
+  const [showDebugGrid, setShowDebugGrid] = useState<boolean>(false);
+  const [show2dSceneryBg, setShow2dSceneryBg] = useState<boolean>(false);
+  const [sceneryImg, setSceneryImg] = useState<HTMLImageElement | null>(null);
+  const [wallImg, setWallImg] = useState<HTMLImageElement | null>(null);
+
+  // Preload real scenery background and wall 19 texture
+  useEffect(() => {
+    const s = new Image();
+    s.src = ASSETS_CONFIG.scenery.src;
+    s.onload = () => setSceneryImg(s);
+
+    const w = new Image();
+    w.src = ASSETS_CONFIG.wall.src;
+    w.onload = () => setWallImg(w);
+  }, []);
 
   // Interaction State
   const [hoveredCell, setHoveredCell] = useState<{ r: number; c: number } | null>(null);
@@ -158,6 +180,8 @@ export default function WallArtView() {
     initOffsetX: number;
     initOffsetY: number;
     mode: "2d" | "3d";
+    startGridCol: number;
+    startGridRow: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
@@ -235,8 +259,15 @@ export default function WallArtView() {
     const cellSize = size / COC_GRID_SIZE;
 
     // Background
-    ctx.fillStyle = "#0F172A"; // Slate 900
-    ctx.fillRect(0, 0, size, size);
+    if (show2dSceneryBg && sceneryImg && sceneryImg.complete) {
+      // Draw subtle scenery background
+      ctx.drawImage(sceneryImg, 0, 0, size, size);
+      ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+      ctx.fillRect(0, 0, size, size);
+    } else {
+      ctx.fillStyle = "#0F172A"; // Slate 900
+      ctx.fillRect(0, 0, size, size);
+    }
 
     // Draw Floor Grid
     for (let r = 0; r < COC_GRID_SIZE; r++) {
@@ -256,7 +287,7 @@ export default function WallArtView() {
           ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
         } else {
           // Grass tile checkerboard
-          ctx.fillStyle = (r + c) % 2 === 0 ? "#141E33" : "#101828";
+          ctx.fillStyle = (r + c) % 2 === 0 ? "rgba(20, 30, 51, 0.9)" : "rgba(16, 24, 40, 0.9)";
           ctx.fillRect(x, y, cellSize, cellSize);
 
           ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
@@ -283,9 +314,9 @@ export default function WallArtView() {
     ctx.stroke();
 
     ctx.setLineDash([]);
-  }, [result]);
+  }, [result, show2dSceneryBg, sceneryImg]);
 
-  // ── Render 3D Isometric Canvas ──────────────────────────────────────────────
+  // ── Render 3D Isometric Canvas (Real Village Scenery + Wall 19 Textures) ─────
   useEffect(() => {
     if (viewMode !== "3d") return;
     const canvas = canvas3dRef.current;
@@ -293,100 +324,140 @@ export default function WallArtView() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const width = 640;
-    const height = 480;
+    // Use natural image dimensions for 1:1 pixel precision
+    const width = sceneryImg?.naturalWidth || ASSETS_CONFIG.scenery.naturalWidth;
+    const height = sceneryImg?.naturalHeight || ASSETS_CONFIG.scenery.naturalHeight;
     canvas.width = width;
     canvas.height = height;
 
-    ctx.fillStyle = "#0B111E";
-    ctx.fillRect(0, 0, width, height);
+    const buildArea = ASSETS_CONFIG.scenery.buildArea;
 
-    const tileW = 14;
-    const tileH = 7;
-    const wallHeight = 9;
-    const originX = width / 2;
-    const originY = 60;
+    // 1. Draw Real In-Game Village Scenery
+    if (sceneryImg && sceneryImg.complete) {
+      ctx.drawImage(sceneryImg, 0, 0, width, height);
+    } else {
+      ctx.fillStyle = "#0B111E";
+      ctx.fillRect(0, 0, width, height);
+    }
 
-    const toIso = (r: number, c: number) => {
-      return {
-        x: originX + (c - r) * (tileW / 2),
-        y: originY + (c + r) * (tileH / 2),
+    // 2. Debug Alignment Overlay (when toggled on)
+    if (showDebugGrid) {
+      // 44x44 grid lines
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 2;
+      for (let c = 0; c <= COC_GRID_SIZE; c++) {
+        const p0 = mapGridToScenery(c, 0, buildArea);
+        const p1 = mapGridToScenery(c, COC_GRID_SIZE, buildArea);
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+      for (let r = 0; r <= COC_GRID_SIZE; r++) {
+        const p0 = mapGridToScenery(0, r, buildArea);
+        const p1 = mapGridToScenery(COC_GRID_SIZE, r, buildArea);
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+
+      // Red outer boundary frame
+      ctx.strokeStyle = "#EF4444"; // Red 500
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      const ptTop = mapGridToScenery(0, 0, buildArea);
+      const ptRight = mapGridToScenery(COC_GRID_SIZE, 0, buildArea);
+      const ptBottom = mapGridToScenery(COC_GRID_SIZE, COC_GRID_SIZE, buildArea);
+      const ptLeft = mapGridToScenery(0, COC_GRID_SIZE, buildArea);
+      ctx.moveTo(ptTop.x, ptTop.y);
+      ctx.lineTo(ptRight.x, ptRight.y);
+      ctx.lineTo(ptBottom.x, ptBottom.y);
+      ctx.lineTo(ptLeft.x, ptLeft.y);
+      ctx.closePath();
+      ctx.stroke();
+
+      // Highlight the 4 corner cells in amber: (0,0), (43,0), (43,43), (0,43)
+      const drawCorner = (c: number, r: number, label: string) => {
+        const p0 = mapGridToScenery(c, r, buildArea);
+        const p1 = mapGridToScenery(c + 1, r, buildArea);
+        const p2 = mapGridToScenery(c + 1, r + 1, buildArea);
+        const p3 = mapGridToScenery(c, r + 1, buildArea);
+
+        ctx.fillStyle = "rgba(245, 158, 11, 0.45)"; // amber fill
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "#F59E0B";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        const center = mapGridToScenery(c + 0.5, r + 0.5, buildArea);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 26px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(label, center.x, center.y);
       };
-    };
 
-    // Draw Floor Grid (back to front)
-    ctx.strokeStyle = "rgba(59, 130, 246, 0.12)";
-    ctx.lineWidth = 0.5;
+      drawCorner(0, 0, "(0,0)");
+      drawCorner(43, 0, "(43,0)");
+      drawCorner(43, 43, "(43,43)");
+      drawCorner(0, 43, "(0,43)");
+    }
 
+    // 3. Draw Real Wall 19 Textures in Depth Order (row + col ascending)
+    const filledCells: { r: number; c: number }[] = [];
     for (let r = 0; r < COC_GRID_SIZE; r++) {
       for (let c = 0; c < COC_GRID_SIZE; c++) {
-        const { x, y } = toIso(r, c);
-
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(x + tileW / 2, y + tileH / 2);
-        ctx.lineTo(x, y + tileH);
-        ctx.lineTo(x - tileW / 2, y + tileH / 2);
-        ctx.closePath();
-
-        ctx.fillStyle = (r + c) % 2 === 0 ? "#111A2E" : "#0D1424";
-        ctx.fill();
-        ctx.stroke();
+        if (result.grid[r][c] === 1) {
+          filledCells.push({ r, c });
+        }
       }
     }
 
-    // Draw Walls in depth order
-    for (let r = 0; r < COC_GRID_SIZE; r++) {
-      for (let c = 0; c < COC_GRID_SIZE; c++) {
-        if (result.grid[r][c] !== 1) continue;
+    // Isometric painter's depth sorting (back to front)
+    filledCells.sort((a, b) => a.r + a.c - (b.r + b.c) || a.r - b.r);
 
-        const { x, y } = toIso(r, c);
-        const topY = y - wallHeight;
+    // Compute cell width to scale wall sprite accurately
+    const pL = mapGridToScenery(0, 1, buildArea);
+    const pR = mapGridToScenery(1, 0, buildArea);
+    const cellW = Math.hypot(pR.x - pL.x, pR.y - pL.y);
 
-        // Left Face
-        ctx.fillStyle = "#B45309";
-        ctx.beginPath();
-        ctx.moveTo(x - tileW / 2, y + tileH / 2);
-        ctx.lineTo(x, y + tileH);
-        ctx.lineTo(x, topY + tileH);
-        ctx.lineTo(x - tileW / 2, topY + tileH / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "#92400E";
-        ctx.stroke();
+    if (wallImg && wallImg.complete) {
+      const naturalW = wallImg.naturalWidth || ASSETS_CONFIG.wall.naturalWidth;
+      const naturalH = wallImg.naturalHeight || ASSETS_CONFIG.wall.naturalHeight;
+      const wallScale = (cellW * 1.02) / 54.0;
+      const wallW = naturalW * wallScale;
+      const wallH = naturalH * wallScale;
 
-        // Right Face
-        ctx.fillStyle = "#D97706";
-        ctx.beginPath();
-        ctx.moveTo(x, y + tileH);
-        ctx.lineTo(x + tileW / 2, y + tileH / 2);
-        ctx.lineTo(x + tileW / 2, topY + tileH / 2);
-        ctx.lineTo(x, topY + tileH);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "#B45309";
-        ctx.stroke();
+      const anchorX = wallW / 2.0;
+      const anchorY = wallH * (60.0 / 73.0);
 
-        // Top Face
-        ctx.fillStyle = "#FBBF24";
-        ctx.beginPath();
-        ctx.moveTo(x, topY);
-        ctx.lineTo(x + tileW / 2, topY + tileH / 2);
-        ctx.lineTo(x, topY + tileH);
-        ctx.lineTo(x - tileW / 2, topY + tileH / 2);
-        ctx.closePath();
-        ctx.fill();
-        ctx.strokeStyle = "#FDE68A";
-        ctx.stroke();
-
-        // Highlight crest
-        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.beginPath();
-        ctx.arc(x, topY + tileH / 2, 1.5, 0, Math.PI * 2);
-        ctx.fill();
+      for (const { r, c } of filledCells) {
+        const center = mapGridToScenery(c + 0.5, r + 0.5, buildArea);
+        ctx.drawImage(
+          wallImg,
+          center.x - anchorX,
+          center.y - anchorY,
+          wallW,
+          wallH
+        );
+      }
+    } else {
+      // Fallback cube renderer while image is loading
+      for (const { r, c } of filledCells) {
+        const center = mapGridToScenery(c + 0.5, r + 0.5, buildArea);
+        ctx.fillStyle = "#F59E0B";
+        ctx.fillRect(center.x - 12, center.y - 12, 24, 24);
       }
     }
-  }, [viewMode, result]);
+  }, [viewMode, result, sceneryImg, wallImg, showDebugGrid]);
 
   // ── Canvas Drag-to-Position Handlers (2D and 3D) ───────────────────────────
   const handlePointerDown = (
@@ -402,6 +473,24 @@ export default function WallArtView() {
       // Fallback if browser ignores capture
     }
 
+    const rect = canvas.getBoundingClientRect();
+    let startGridCol = 0;
+    let startGridRow = 0;
+
+    if (mode === "3d") {
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mousePixelX = (e.clientX - rect.left) * scaleX;
+      const mousePixelY = (e.clientY - rect.top) * scaleY;
+      const gridPt = mapSceneryToGrid(
+        mousePixelX,
+        mousePixelY,
+        ASSETS_CONFIG.scenery.buildArea
+      );
+      startGridCol = gridPt.col;
+      startGridRow = gridPt.row;
+    }
+
     dragRef.current = {
       active: true,
       startX: e.clientX,
@@ -409,6 +498,8 @@ export default function WallArtView() {
       initOffsetX: offsetX,
       initOffsetY: offsetY,
       mode,
+      startGridCol,
+      startGridRow,
     };
     setIsDragging(true);
   };
@@ -420,26 +511,30 @@ export default function WallArtView() {
     if (dragRef.current && dragRef.current.active) {
       const canvas = e.currentTarget;
       const rect = canvas.getBoundingClientRect();
-      const dx = e.clientX - dragRef.current.startX;
-      const dy = e.clientY - dragRef.current.startY;
 
       let deltaC = 0;
       let deltaR = 0;
 
       if (mode === "2d") {
         const cellPixelSize = rect.width / COC_GRID_SIZE;
+        const dx = e.clientX - dragRef.current.startX;
+        const dy = e.clientY - dragRef.current.startY;
         deltaC = Math.round(dx / cellPixelSize);
         deltaR = Math.round(dy / cellPixelSize);
       } else {
-        // 3D Isometric View
-        // Inverse isometric projection:
-        // x = originX + (c - r) * (tileW / 2)
-        // y = originY + (c + r) * (tileH / 2)
-        const scaleFactor = rect.width / 640;
-        const tileW = 14 * scaleFactor;
-        const tileH = 7 * scaleFactor;
-        deltaC = Math.round(dx / tileW + dy / tileH);
-        deltaR = Math.round(dy / tileH - dx / tileW);
+        // 3D Isometric View: exact inverse affine mapping from scenery space
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const mousePixelX = (e.clientX - rect.left) * scaleX;
+        const mousePixelY = (e.clientY - rect.top) * scaleY;
+        const currentGrid = mapSceneryToGrid(
+          mousePixelX,
+          mousePixelY,
+          ASSETS_CONFIG.scenery.buildArea
+        );
+
+        deltaC = Math.round(currentGrid.col - dragRef.current.startGridCol);
+        deltaR = Math.round(currentGrid.row - dragRef.current.startGridRow);
       }
 
       const newX = Math.max(-20, Math.min(20, dragRef.current.initOffsetX + deltaC));
@@ -450,7 +545,7 @@ export default function WallArtView() {
       return;
     }
 
-    // 2D hover inspector when not dragging
+    // Hover inspector when not dragging
     if (mode === "2d") {
       const canvas = canvas2dRef.current;
       if (!canvas) return;
@@ -462,6 +557,27 @@ export default function WallArtView() {
       const cellSize = canvas.width / COC_GRID_SIZE;
       const c = Math.floor(mouseX / cellSize);
       const r = Math.floor(mouseY / cellSize);
+
+      if (r >= 0 && r < COC_GRID_SIZE && c >= 0 && c < COC_GRID_SIZE) {
+        setHoveredCell({ r, c });
+      } else {
+        setHoveredCell(null);
+      }
+    } else if (mode === "3d") {
+      const canvas = canvas3dRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const mousePixelX = (e.clientX - rect.left) * scaleX;
+      const mousePixelY = (e.clientY - rect.top) * scaleY;
+      const gridPt = mapSceneryToGrid(
+        mousePixelX,
+        mousePixelY,
+        ASSETS_CONFIG.scenery.buildArea
+      );
+      const c = Math.floor(gridPt.col);
+      const r = Math.floor(gridPt.row);
 
       if (r >= 0 && r < COC_GRID_SIZE && c >= 0 && c < COC_GRID_SIZE) {
         setHoveredCell({ r, c });
@@ -1182,32 +1298,67 @@ export default function WallArtView() {
                 )}
               </div>
 
-              {/* 2D vs 3D Isometric Toggle */}
-              <div className="flex items-center p-1 rounded-xl bg-app-cardSubtle border border-app-border text-xs font-bold">
-                <button
-                  onClick={() => setViewMode("2d")}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer",
-                    viewMode === "2d"
-                      ? "bg-amber-500 text-slate-950 font-black shadow-sm"
-                      : "text-app-muted hover:text-app-text"
-                  )}
-                >
-                  <Grid size={14} />
-                  <span>2D Izgara</span>
-                </button>
-                <button
-                  onClick={() => setViewMode("3d")}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer",
-                    viewMode === "3d"
-                      ? "bg-amber-500 text-slate-950 font-black shadow-sm"
-                      : "text-app-muted hover:text-app-text"
-                  )}
-                >
-                  <Box size={14} />
-                  <span>3D İzometrik</span>
-                </button>
+              {/* View Mode Controls & Toggles */}
+              <div className="flex flex-wrap items-center gap-2">
+                {viewMode === "3d" && (
+                  <button
+                    onClick={() => setShowDebugGrid((prev) => !prev)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer",
+                      showDebugGrid
+                        ? "bg-rose-500/20 text-rose-300 border-rose-500/50 shadow-sm"
+                        : "bg-app-cardSubtle text-app-muted border-app-border hover:text-app-text"
+                    )}
+                    title="İnşa alanı kırmızı sınırını ve 44x44 köşe doğrulama çizgilerini aç/kapat"
+                  >
+                    <Bug size={13} />
+                    <span>Debug Izgara</span>
+                  </button>
+                )}
+
+                {viewMode === "2d" && (
+                  <button
+                    onClick={() => setShow2dSceneryBg((prev) => !prev)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer",
+                      show2dSceneryBg
+                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/50 shadow-sm"
+                        : "bg-app-cardSubtle text-app-muted border-app-border hover:text-app-text"
+                    )}
+                    title="2D ızgarada sahne arka planını aç/kapat"
+                  >
+                    <ImageIcon size={13} />
+                    <span>Sahne Arka Planı</span>
+                  </button>
+                )}
+
+                {/* 2D vs 3D Isometric Toggle */}
+                <div className="flex items-center p-1 rounded-xl bg-app-cardSubtle border border-app-border text-xs font-bold">
+                  <button
+                    onClick={() => setViewMode("2d")}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer",
+                      viewMode === "2d"
+                        ? "bg-amber-500 text-slate-950 font-black shadow-sm"
+                        : "text-app-muted hover:text-app-text"
+                    )}
+                  >
+                    <Grid size={14} />
+                    <span>2D Izgara</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("3d")}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all cursor-pointer",
+                      viewMode === "3d"
+                        ? "bg-amber-500 text-slate-950 font-black shadow-sm"
+                        : "text-app-muted hover:text-app-text"
+                    )}
+                  >
+                    <Box size={14} />
+                    <span>3D İzometrik</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1252,7 +1403,7 @@ export default function WallArtView() {
                   </div>
                 </div>
               ) : (
-                <div className="relative select-none">
+                <div className="relative select-none w-full flex flex-col items-center">
                   {/* Floating Drag Indicator */}
                   {isDragging && (
                     <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-slate-900/95 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/60 shadow-xl backdrop-blur pointer-events-none flex items-center gap-2 z-20 animate-pulse">
@@ -1268,15 +1419,15 @@ export default function WallArtView() {
                     onPointerUp={handlePointerUp}
                     onPointerCancel={handlePointerUp}
                     className={cn(
-                      "rounded-lg shadow-md border max-w-full h-auto select-none touch-none transition-all",
+                      "rounded-xl shadow-lg border max-w-full h-auto select-none touch-none transition-all",
                       isDragging
                         ? "cursor-grabbing border-amber-400 shadow-amber-500/20 ring-1 ring-amber-400/50"
                         : "cursor-grab border-app-border hover:border-amber-500/50"
                     )}
-                    style={{ width: "min(100%, 640px)", height: "auto", aspectRatio: "4/3" }}
+                    style={{ width: "100%", maxWidth: "800px", height: "auto", aspectRatio: "3705 / 2545" }}
                   />
                   <div className="text-center text-[10px] text-app-muted mt-2 font-semibold">
-                    45° İzometrik Perspektif • Clash of Clans Köy Haritası Görünümü
+                    Kış Sahnesi (Winter Scenery) • Gerçek Seviye 19 Duvar Dokusu ile İzometrik Köy Haritası
                   </div>
                 </div>
               )}
