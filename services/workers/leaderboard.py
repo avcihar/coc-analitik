@@ -36,9 +36,16 @@ from cache.redis_strategy import CacheKey, TTL
 from schemas.pydantic.coc_models import MAX_TOWN_HALL_LEVEL
 from services.api.client import CoCAPIClient, CoCAPIException
 from services.army_parser.inference import (
+    EQUIPMENT_BY_HERO,
     EQUIPMENT_TO_HERO_AND_RARITY,
     KNOWN_HERO_NAMES,
     KNOWN_PET_NAMES,
+)
+from services.army_parser.unit_registry import (
+    TROOP_REGISTRY,
+    SPELL_REGISTRY,
+    SIEGE_REGISTRY,
+    UnitCategory,
 )
 from services.army_parser.parser import (
     build_copy_army_link,
@@ -572,7 +579,9 @@ def analyze_meta_statistics(
         })
 
     equipment_usage = []
-    for (h_name, eq_name), cnt in equipment_counter.most_common(30):
+    seen_equipment: set[Tuple[str, str]] = set()
+    for (h_name, eq_name), cnt in equipment_counter.most_common():
+        seen_equipment.add((h_name, eq_name))
         h_attacks = hero_attack_counter.get(h_name, total_ranked_attacks)
         pct = round((cnt / max(1, h_attacks)) * 100.0, 2)
         equipment_usage.append({
@@ -583,6 +592,18 @@ def analyze_meta_statistics(
             "pickRatePct": pct,
             "pick_rate": pct,
         })
+    # Ensure every single equipment for every hero is included
+    for h_name, eq_dict in sorted(EQUIPMENT_BY_HERO.items()):
+        for eq_name in sorted(eq_dict.keys()):
+            if (h_name, eq_name) not in seen_equipment:
+                equipment_usage.append({
+                    "hero": h_name,
+                    "name": eq_name,
+                    "count": 0,
+                    "usagePct": 0.0,
+                    "pickRatePct": 0.0,
+                    "pick_rate": 0.0,
+                })
 
     pet_avg_levels = {
         p: round(sum(lvls) / len(lvls), 1)
@@ -591,7 +612,9 @@ def analyze_meta_statistics(
     }
 
     pet_usage = []
+    seen_pets: set[str] = set()
     for p_name, cnt in pet_counter.most_common():
+        seen_pets.add(p_name)
         pct = round((cnt / total_ranked_attacks) * 100.0, 2)
         avg_lvl = pet_avg_levels.get(p_name)
         pet_usage.append({
@@ -603,6 +626,18 @@ def analyze_meta_statistics(
             "avgLevel": avg_lvl,
             "levelSource": "profil seviyesi" if avg_lvl is not None else None,
         })
+    # Ensure every single pet is included
+    for p_name in sorted(KNOWN_PET_NAMES):
+        if p_name not in seen_pets:
+            pet_usage.append({
+                "name": p_name,
+                "count": 0,
+                "usagePct": 0.0,
+                "pickRatePct": 0.0,
+                "pick_rate": 0.0,
+                "avgLevel": pet_avg_levels.get(p_name),
+                "levelSource": "profil seviyesi" if pet_avg_levels.get(p_name) is not None else None,
+            })
 
     pet_usage_by_hero: Dict[str, List[Dict[str, Any]]] = {h: [] for h in KNOWN_HERO_NAMES}
     for h_name in KNOWN_HERO_NAMES:
@@ -622,7 +657,9 @@ def analyze_meta_statistics(
             })
 
     super_troop_usage = []
+    seen_supers: set[str] = set()
     for st_name, cnt in super_troop_counter.most_common():
+        seen_supers.add(st_name)
         pct = round((cnt / total_ranked_attacks) * 100.0, 2)
         super_troop_usage.append({
             "name": st_name,
@@ -631,9 +668,20 @@ def analyze_meta_statistics(
             "pickRatePct": pct,
             "pick_rate": pct,
         })
+    for st_name in sorted(valid_super_troop_names):
+        if st_name not in seen_supers:
+            super_troop_usage.append({
+                "name": st_name,
+                "count": 0,
+                "usagePct": 0.0,
+                "pickRatePct": 0.0,
+                "pick_rate": 0.0,
+            })
 
     troop_usage = []
+    seen_troops: set[str] = set()
     for t_name, cnt in troop_usage_counter.most_common():
+        seen_troops.add(t_name)
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         troop_usage.append({
             "name": t_name,
@@ -647,9 +695,27 @@ def analyze_meta_statistics(
             if troop_level_sums.get(t_name)
             else 1.0,
         })
+    canonical_troops = {
+        meta.name for meta in TROOP_REGISTRY.values()
+        if meta.category != UnitCategory.SUPER_TROOP and meta.category != UnitCategory.BUILDER_TROOP
+    }
+    for t_name in sorted(canonical_troops):
+        if t_name not in seen_troops:
+            troop_usage.append({
+                "name": t_name,
+                "count": 0,
+                "usagePct": 0.0,
+                "pickRatePct": 0.0,
+                "pick_rate": 0.0,
+                "maxedCount": 0,
+                "maxedPct": 0.0,
+                "avgLevel": 1.0,
+            })
 
     spell_usage = []
+    seen_spells: set[str] = set()
     for s_name, cnt in spell_usage_counter.most_common():
+        seen_spells.add(s_name)
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         spell_usage.append({
             "name": s_name,
@@ -663,9 +729,24 @@ def analyze_meta_statistics(
             if spell_level_sums.get(s_name)
             else 1.0,
         })
+    canonical_spells = {meta.name for meta in SPELL_REGISTRY.values()}
+    for s_name in sorted(canonical_spells):
+        if s_name not in seen_spells:
+            spell_usage.append({
+                "name": s_name,
+                "count": 0,
+                "usagePct": 0.0,
+                "pickRatePct": 0.0,
+                "pick_rate": 0.0,
+                "maxedCount": 0,
+                "maxedPct": 0.0,
+                "avgLevel": 1.0,
+            })
 
     siege_usage = []
+    seen_sieges: set[str] = set()
     for sg_name, cnt in siege_usage_counter.most_common():
+        seen_sieges.add(sg_name)
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         siege_usage.append({
             "name": sg_name,
@@ -679,6 +760,19 @@ def analyze_meta_statistics(
             if siege_level_sums.get(sg_name)
             else 5.0,
         })
+    canonical_sieges = set(KNOWN_SIEGE_MACHINE_NAMES) | {meta.name for meta in SIEGE_REGISTRY.values()}
+    for sg_name in sorted(canonical_sieges):
+        if sg_name not in seen_sieges:
+            siege_usage.append({
+                "name": sg_name,
+                "count": 0,
+                "usagePct": 0.0,
+                "pickRatePct": 0.0,
+                "pick_rate": 0.0,
+                "maxedCount": 0,
+                "maxedPct": 0.0,
+                "avgLevel": 5.0,
+            })
 
     archetype_usage = []
     for arch_name, cnt in archetype_counter.most_common():

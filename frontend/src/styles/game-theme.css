@@ -254,9 +254,10 @@
   border-radius: var(--game-radius-md);
   cursor: pointer;
   user-select: none;
-  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  transition: transform 0.08s ease, filter 0.15s ease;
   text-decoration: none;
   -webkit-font-smoothing: antialiased;
+  box-shadow: none !important;
 }
 
 /* Accessible focus ring */
@@ -270,9 +271,9 @@
   filter: brightness(1.08);
 }
 
-/* Active: 3D depressed effect (2px downward translation, shadow contracts) */
+/* Active: clean press effect */
 .game-theme .game-btn:active:not(:disabled) {
-  transform: translateY(2.5px);
+  transform: scale(0.97);
 }
 
 /* Disabled state */
@@ -281,68 +282,44 @@
   cursor: not-allowed;
   filter: grayscale(0.85) opacity(0.65);
   transform: none !important;
-  box-shadow: 0 2px 0 var(--game-btn-gray-shadow) !important;
+  box-shadow: none !important;
 }
 
-/* Button Variants */
+/* Button Variants - Clean appearance with NO bottom drop shadow/extrusion */
 .game-theme .game-btn-green {
   background: linear-gradient(180deg, var(--game-btn-green-top) 0%, var(--game-btn-green-mid) 48%, var(--game-btn-green-bot) 100%);
   border-color: var(--game-btn-green-border);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
-    0 4px 0 var(--game-btn-green-bevel),
-    0 6px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
 }
 .game-theme .game-btn-green:active:not(:disabled) {
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
-    0 1.5px 0 var(--game-btn-green-bevel),
-    0 3px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
 .game-theme .game-btn-blue {
   background: linear-gradient(180deg, var(--game-btn-blue-top) 0%, var(--game-btn-blue-mid) 48%, var(--game-btn-blue-bot) 100%);
   border-color: var(--game-btn-blue-border);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
-    0 4px 0 var(--game-btn-blue-bevel),
-    0 6px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.5) !important;
 }
 .game-theme .game-btn-blue:active:not(:disabled) {
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
-    0 1.5px 0 var(--game-btn-blue-bevel),
-    0 3px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
 .game-theme .game-btn-red {
   background: linear-gradient(180deg, var(--game-btn-red-top) 0%, var(--game-btn-red-mid) 48%, var(--game-btn-red-bot) 100%);
   border-color: var(--game-btn-red-border);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
-    0 4px 0 var(--game-btn-red-bevel),
-    0 6px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
 }
 .game-theme .game-btn-red:active:not(:disabled) {
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
-    0 1.5px 0 var(--game-btn-red-bevel),
-    0 3px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
 .game-theme .game-btn-gold {
   background: linear-gradient(180deg, var(--game-btn-gold-top) 0%, var(--game-btn-gold-mid) 48%, var(--game-btn-gold-bot) 100%);
   border-color: var(--game-btn-gold-border);
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
-    0 4px 0 var(--game-btn-gold-bevel),
-    0 6px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.6) !important;
 }
 .game-theme .game-btn-gold:active:not(:disabled) {
-  box-shadow:
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
-    0 1.5px 0 var(--game-btn-gold-bevel),
-    0 3px 3px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Button Sizes */

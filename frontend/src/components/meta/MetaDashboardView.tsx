@@ -11,8 +11,6 @@ import {
   Zap,
   Shield,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -157,6 +155,153 @@ const HERO_MAX_LEVELS: Record<string, number> = {
   "Dragon Duke": 25,
 };
 
+// Canonical Item Definitions to Guarantee 100% Item Coverage in Usage Statistics
+const CANONICAL_EQUIPMENTS: { hero: string; name: string }[] = [
+  // Barbarian King (7)
+  { hero: "Barbarian King", name: "Barbarian Puppet" },
+  { hero: "Barbarian King", name: "Rage Vial" },
+  { hero: "Barbarian King", name: "Earthquake Boots" },
+  { hero: "Barbarian King", name: "Vampstache" },
+  { hero: "Barbarian King", name: "Giant Gauntlet" },
+  { hero: "Barbarian King", name: "Spiky Ball" },
+  { hero: "Barbarian King", name: "Snake Bracelet" },
+  // Archer Queen (7)
+  { hero: "Archer Queen", name: "Archer Puppet" },
+  { hero: "Archer Queen", name: "Invisibility Vial" },
+  { hero: "Archer Queen", name: "Giant Arrow" },
+  { hero: "Archer Queen", name: "Healer Puppet" },
+  { hero: "Archer Queen", name: "Frozen Arrow" },
+  { hero: "Archer Queen", name: "Magic Mirror" },
+  { hero: "Archer Queen", name: "Action Figure" },
+  // Grand Warden (6)
+  { hero: "Grand Warden", name: "Eternal Tome" },
+  { hero: "Grand Warden", name: "Life Gem" },
+  { hero: "Grand Warden", name: "Rage Gem" },
+  { hero: "Grand Warden", name: "Healing Tome" },
+  { hero: "Grand Warden", name: "Fireball" },
+  { hero: "Grand Warden", name: "Heroic Torch" },
+  // Royal Champion (6)
+  { hero: "Royal Champion", name: "Seeking Shield" },
+  { hero: "Royal Champion", name: "Royal Gem" },
+  { hero: "Royal Champion", name: "Haste Vial" },
+  { hero: "Royal Champion", name: "Hog Rider Puppet" },
+  { hero: "Royal Champion", name: "Rocket Spear" },
+  { hero: "Royal Champion", name: "Electro Boots" },
+  // Minion Prince (5)
+  { hero: "Minion Prince", name: "Henchmen Puppet" },
+  { hero: "Minion Prince", name: "Dark Orb" },
+  { hero: "Minion Prince", name: "Metal Pants" },
+  { hero: "Minion Prince", name: "Meteor Staff" },
+  { hero: "Minion Prince", name: "Dark Crown" },
+  // Dragon Duke (6)
+  { hero: "Dragon Duke", name: "Fire Heart" },
+  { hero: "Dragon Duke", name: "Stick Horse" },
+  { hero: "Dragon Duke", name: "Frost Flake" },
+  { hero: "Dragon Duke", name: "Noble Iron" },
+  { hero: "Dragon Duke", name: "Lavaloon Puppet" },
+  { hero: "Dragon Duke", name: "Rocket Backpack" },
+];
+
+const CANONICAL_PETS: string[] = [
+  "L.A.S.S.I",
+  "Mighty Yak",
+  "Electro Owl",
+  "Unicorn",
+  "Phoenix",
+  "Poison Lizard",
+  "Diggy",
+  "Frosty",
+  "Spirit Fox",
+  "Angry Jelly",
+  "Sneezy",
+  "Greedy Raven",
+];
+
+const CANONICAL_SIEGES: string[] = [
+  "Wall Wrecker",
+  "Battle Blimp",
+  "Stone Slammer",
+  "Siege Barracks",
+  "Log Launcher",
+  "Flame Flinger",
+  "Battle Drill",
+  "Troop Launcher",
+  "Sky Wagon",
+];
+
+const CANONICAL_SPELLS: string[] = [
+  "Lightning Spell",
+  "Healing Spell",
+  "Rage Spell",
+  "Jump Spell",
+  "Freeze Spell",
+  "Clone Spell",
+  "Invisibility Spell",
+  "Recall Spell",
+  "Revive Spell",
+  "Overgrowth Spell",
+  "Poison Spell",
+  "Earthquake Spell",
+  "Haste Spell",
+  "Skeleton Spell",
+  "Bat Spell",
+  "Ice Block Spell",
+  "Totem Spell",
+];
+
+const CANONICAL_TROOPS: string[] = [
+  "Barbarian",
+  "Archer",
+  "Giant",
+  "Goblin",
+  "Wall Breaker",
+  "Balloon",
+  "Wizard",
+  "Healer",
+  "Dragon",
+  "P.E.K.K.A",
+  "Baby Dragon",
+  "Miner",
+  "Electro Dragon",
+  "Yeti",
+  "Dragon Rider",
+  "Electro Titan",
+  "Root Rider",
+  "Druid",
+  "Thrower",
+  "Minion",
+  "Hog Rider",
+  "Valkyrie",
+  "Golem",
+  "Witch",
+  "Lava Hound",
+  "Bowler",
+  "Ice Golem",
+  "Headhunter",
+  "Apprentice Warden",
+  "Furnace",
+  "Elephant Rider",
+];
+
+const CANONICAL_SUPER_TROOPS: string[] = [
+  "Super Barbarian",
+  "Super Archer",
+  "Super Giant",
+  "Sneaky Goblin",
+  "Super Wall Breaker",
+  "Rocket Balloon",
+  "Super Wizard",
+  "Super Dragon",
+  "Inferno Dragon",
+  "Super Minion",
+  "Super Valkyrie",
+  "Super Witch",
+  "Ice Hound",
+  "Super Bowler",
+  "Super Miner",
+  "Super Hog Rider",
+];
+
 // Single Army Card Component matching in-game "Ordum -> Kaydedilen Setler"
 function MetaArmyCard({
   army,
@@ -225,7 +370,7 @@ function MetaArmyCard({
           href={copyUrl}
           target="_blank"
           icon={<ExternalLink size={16} />}
-          className="px-4 py-2 text-xs sm:text-sm font-black whitespace-nowrap shadow-md shrink-0 self-stretch sm:self-auto"
+          className="px-4 py-2 text-xs sm:text-sm font-black whitespace-nowrap shrink-0 self-stretch sm:self-auto"
           title="Doğrudan Clash of Clans oyununda açmak için tıkla"
         >
           Orduyu Kopyala
@@ -409,8 +554,6 @@ export default function MetaDashboardView() {
   // Phase 2 State (Usage Statistics)
   const [selectedHeroEqFilter, setSelectedHeroEqFilter] = useState<string>("Tümü");
   const [unitCategoryTab, setUnitCategoryTab] = useState<"troops" | "spells" | "siege" | "super">("troops");
-  const [showAllTroops, setShowAllTroops] = useState<boolean>(false);
-  const [showAllSpells, setShowAllSpells] = useState<boolean>(false);
 
   // Sync tab with URL hash parameter (e.g. #/meta?tab=stats or #/meta?tab=armies)
   useEffect(() => {
@@ -472,16 +615,89 @@ export default function MetaDashboardView() {
     dashboard?.metaArmies?.topRecommendations ||
     [];
 
-  // Phase 2: Data Extraction & Filtering
+  // Phase 2: Data Extraction & Complete Canonical Merging (100% item coverage)
   const stats = dashboard?.statistics;
   const heroes = stats?.heroUsage || [];
-  const allEquipments = stats?.equipmentUsage || [];
+  const rawEquipments = stats?.equipmentUsage || [];
   const allPairs = stats?.heroEquipmentPairs || [];
-  const pets = stats?.petUsage || [];
-  const troops = stats?.troopUsage || [];
-  const spells = stats?.spellUsage || [];
-  const sieges = stats?.siegeUsage || [];
-  const superTroops = stats?.superTroopUsage || [];
+  const rawPets = stats?.petUsage || [];
+  const rawTroops = stats?.troopUsage || [];
+  const rawSpells = stats?.spellUsage || [];
+  const rawSieges = stats?.siegeUsage || [];
+  const rawSuperTroops = stats?.superTroopUsage || [];
+
+  // 1. Merge Equipments
+  const eqMap = new Map<string, { hero: string; name: string; count: number; usagePct: number }>();
+  for (const eq of rawEquipments) {
+    eqMap.set(`${eq.hero}:::${eq.name}`, { ...eq });
+  }
+  for (const c of CANONICAL_EQUIPMENTS) {
+    const key = `${c.hero}:::${c.name}`;
+    if (!eqMap.has(key)) {
+      eqMap.set(key, { hero: c.hero, name: c.name, count: 0, usagePct: 0.0 });
+    }
+  }
+  const allEquipments = Array.from(eqMap.values());
+
+  // 2. Merge Pets
+  const petMap = new Map<string, PetStat>();
+  for (const p of rawPets) {
+    petMap.set(p.name, { ...p });
+  }
+  for (const name of CANONICAL_PETS) {
+    if (!petMap.has(name)) {
+      petMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 10 });
+    }
+  }
+  const pets = Array.from(petMap.values()).sort((a, b) => b.usagePct - a.usagePct);
+
+  // 3. Merge Troops (31 regular troops)
+  const troopMap = new Map<string, UnitUsageStat>();
+  for (const t of rawTroops) {
+    troopMap.set(t.name, { ...t });
+  }
+  for (const name of CANONICAL_TROOPS) {
+    if (!troopMap.has(name)) {
+      troopMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 1 });
+    }
+  }
+  const troops = Array.from(troopMap.values()).sort((a, b) => b.usagePct - a.usagePct);
+
+  // 4. Merge Spells (17 canonical spells)
+  const spellMap = new Map<string, UnitUsageStat>();
+  for (const sp of rawSpells) {
+    spellMap.set(sp.name, { ...sp });
+  }
+  for (const name of CANONICAL_SPELLS) {
+    if (!spellMap.has(name)) {
+      spellMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 1 });
+    }
+  }
+  const spells = Array.from(spellMap.values()).sort((a, b) => b.usagePct - a.usagePct);
+
+  // 5. Merge Sieges (9 canonical siege machines)
+  const siegeMap = new Map<string, UnitUsageStat>();
+  for (const s of rawSieges) {
+    siegeMap.set(s.name, { ...s });
+  }
+  for (const name of CANONICAL_SIEGES) {
+    if (!siegeMap.has(name)) {
+      siegeMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 5 });
+    }
+  }
+  const sieges = Array.from(siegeMap.values()).sort((a, b) => b.usagePct - a.usagePct);
+
+  // 6. Merge Super Troops (16 canonical super troops)
+  const superMap = new Map<string, { name: string; count: number; usagePct: number }>();
+  for (const st of rawSuperTroops) {
+    superMap.set(st.name, { ...st });
+  }
+  for (const name of CANONICAL_SUPER_TROOPS) {
+    if (!superMap.has(name)) {
+      superMap.set(name, { name, count: 0, usagePct: 0.0 });
+    }
+  }
+  const superTroops = Array.from(superMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
   const HERO_FILTER_OPTIONS = [
     "Tümü",
@@ -501,9 +717,6 @@ export default function MetaDashboardView() {
     .filter((pair) => selectedHeroEqFilter === "Tümü" || pair.hero === selectedHeroEqFilter)
     .sort((a, b) => b.usagePct - a.usagePct);
 
-  const displayedTroops = showAllTroops ? troops : troops.slice(0, 12);
-  const displayedSpells = showAllSpells ? spells : spells.slice(0, 12);
-
   const formattedFetchedAt = dashboard?.dataFetchedAt
     ? new Date(dashboard.dataFetchedAt).toLocaleTimeString("tr-TR", {
         hour: "2-digit",
@@ -512,9 +725,9 @@ export default function MetaDashboardView() {
     : null;
 
   return (
-    <div className="game-theme max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex flex-col h-[calc(100vh-80px)] min-h-[620px]">
-      {/* Main Outer Wooden Window Frame */}
-      <div className="game-window-frame flex-1 min-h-0 flex flex-col overflow-hidden">
+    <div className="game-theme max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex flex-col">
+      {/* Main Outer Wooden Window Frame (Natural flow with main page) */}
+      <div className="game-window-frame flex flex-col">
         {/* Window Top Edge: Tab Bar Header stuck flush to the top edge of the panel */}
         <div className="game-tab-strip shrink-0">
           <GameTabBar>
@@ -600,8 +813,8 @@ export default function MetaDashboardView() {
           )}
         </div>
 
-        {/* SCROLLABLE INNER DIV */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4 space-y-4 scrollbar-thin">
+        {/* NATURAL CONTENT DIV (No inner scroll, expands with page) */}
+        <div className="px-3 sm:px-6 py-3 sm:py-4 space-y-4">
           {/* Tab 1: Meta Ordular (Phase 1) */}
           {activeTab === "armies" && (
             <div className="space-y-4">
@@ -788,9 +1001,9 @@ export default function MetaDashboardView() {
                           <span>En Çok Kullanılan İkililer ({filteredPairs.length})</span>
                           <span className="text-[11px] text-amber-300/70">Birlikte kullanım</span>
                         </div>
-                        <div className="game-slot-well p-2.5 flex-1 max-h-[460px] overflow-y-auto space-y-2 scrollbar-thin">
+                        <div className="game-slot-well p-2.5 flex-1 space-y-2">
                           {filteredPairs.length > 0 ? (
-                            filteredPairs.slice(0, 10).map((pair, pIdx) => {
+                            filteredPairs.map((pair, pIdx) => {
                               const eq1 = pair.equipments?.[0] || pair.pair.split(" + ")[0];
                               const eq2 = pair.equipments?.[1] || pair.pair.split(" + ")[1];
                               return (
@@ -930,107 +1143,59 @@ export default function MetaDashboardView() {
 
                     {/* Content for Selected Category */}
                     <div className="game-slot-well p-2.5 sm:p-3.5 space-y-3">
-                      {/* BİRLİKLER */}
+                      {/* BİRLİKLER (Tam Katalog) */}
                       {unitCategoryTab === "troops" && (
-                        <div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                            {displayedTroops.map((t) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                          {troops.map((t) => (
+                            <div
+                              key={t.name}
+                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                            >
+                              <IconFrame
+                                name={t.name}
+                                size="unit"
+                                level={t.avgLevel ? Math.round(t.avgLevel) : undefined}
+                                isMax={t.maxedPct ? t.maxedPct > 95 : false}
+                              />
                               <div
-                                key={t.name}
-                                className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                                className="text-xs text-amber-100 font-bold truncate max-w-full"
+                                title={t.name}
                               >
-                                <IconFrame
-                                  name={t.name}
-                                  size="unit"
-                                  level={t.avgLevel ? Math.round(t.avgLevel) : undefined}
-                                  isMax={t.maxedPct ? t.maxedPct > 95 : false}
-                                />
-                                <div
-                                  className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                  title={t.name}
-                                >
-                                  {t.name}
-                                </div>
-                                <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                  %{t.usagePct.toFixed(1)}
-                                </div>
+                                {t.name}
                               </div>
-                            ))}
-                          </div>
-
-                          {/* Show All / Less Toggle */}
-                          {troops.length > 12 && (
-                            <div className="flex justify-center mt-3 pt-2 border-t border-amber-950/40">
-                              <button
-                                onClick={() => setShowAllTroops(!showAllTroops)}
-                                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-black/50 hover:bg-black/70 text-amber-300 text-xs font-bold border border-amber-950/60 transition-colors shadow"
-                              >
-                                {showAllTroops ? (
-                                  <>
-                                    <span>İlk 12 Birliği Göster</span>
-                                    <ChevronUp size={14} />
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>Tümünü Göster ({troops.length} Birlik)</span>
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
-                              </button>
+                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
+                                %{t.usagePct.toFixed(1)}
+                              </div>
                             </div>
-                          )}
+                          ))}
                         </div>
                       )}
 
-                      {/* BÜYÜLER */}
+                      {/* BÜYÜLER (Tam Katalog) */}
                       {unitCategoryTab === "spells" && (
-                        <div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                            {displayedSpells.map((s) => (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                          {spells.map((s) => (
+                            <div
+                              key={s.name}
+                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                            >
+                              <IconFrame
+                                name={s.name}
+                                size="unit"
+                                level={s.avgLevel ? Math.round(s.avgLevel) : undefined}
+                                isMax={s.maxedPct ? s.maxedPct > 95 : false}
+                              />
                               <div
-                                key={s.name}
-                                className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                                className="text-xs text-amber-100 font-bold truncate max-w-full"
+                                title={s.name}
                               >
-                                <IconFrame
-                                  name={s.name}
-                                  size="unit"
-                                  level={s.avgLevel ? Math.round(s.avgLevel) : undefined}
-                                  isMax={s.maxedPct ? s.maxedPct > 95 : false}
-                                />
-                                <div
-                                  className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                  title={s.name}
-                                >
-                                  {s.name}
-                                </div>
-                                <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                  %{s.usagePct.toFixed(1)}
-                                </div>
+                                {s.name}
                               </div>
-                            ))}
-                          </div>
-
-                          {/* Show All / Less Toggle */}
-                          {spells.length > 12 && (
-                            <div className="flex justify-center mt-3 pt-2 border-t border-amber-950/40">
-                              <button
-                                onClick={() => setShowAllSpells(!showAllSpells)}
-                                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-black/50 hover:bg-black/70 text-amber-300 text-xs font-bold border border-amber-950/60 transition-colors shadow"
-                              >
-                                {showAllSpells ? (
-                                  <>
-                                    <span>İlk 12 Büyüyü Göster</span>
-                                    <ChevronUp size={14} />
-                                  </>
-                                ) : (
-                                  <>
-                                    <span>Tümünü Göster ({spells.length} Büyü)</span>
-                                    <ChevronDown size={14} />
-                                  </>
-                                )}
-                              </button>
+                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
+                                %{s.usagePct.toFixed(1)}
+                              </div>
                             </div>
-                          )}
+                          ))}
                         </div>
                       )}
 
