@@ -29,4 +29,6 @@ frontend/out/
 scratch/
 .DS_Store
 Thumbs.db
+screenshot_*.png
+test_snap.png
 

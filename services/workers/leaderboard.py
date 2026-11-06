@@ -633,7 +633,7 @@ def analyze_meta_statistics(
         })
 
     troop_usage = []
-    for t_name, cnt in troop_usage_counter.most_common(20):
+    for t_name, cnt in troop_usage_counter.most_common():
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         troop_usage.append({
             "name": t_name,
@@ -649,7 +649,7 @@ def analyze_meta_statistics(
         })
 
     spell_usage = []
-    for s_name, cnt in spell_usage_counter.most_common(15):
+    for s_name, cnt in spell_usage_counter.most_common():
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         spell_usage.append({
             "name": s_name,
@@ -665,7 +665,7 @@ def analyze_meta_statistics(
         })
 
     siege_usage = []
-    for sg_name, cnt in siege_usage_counter.most_common(10):
+    for sg_name, cnt in siege_usage_counter.most_common():
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         siege_usage.append({
             "name": sg_name,

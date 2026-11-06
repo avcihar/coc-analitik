@@ -79,8 +79,9 @@ export default function Home() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.toLowerCase();
-      if (HASH_TO_TAB[hash]) {
-        setActiveTab(HASH_TO_TAB[hash]);
+      const basePath = hash.split("?")[0];
+      if (HASH_TO_TAB[basePath]) {
+        setActiveTab(HASH_TO_TAB[basePath]);
       } else if (!hash || hash === "#") {
         setActiveTab("home");
       }
