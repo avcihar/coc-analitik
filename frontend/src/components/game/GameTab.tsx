@@ -44,8 +44,8 @@ export function GameTab({
       )}
       {...rest}
     >
-      {icon && <span className="inline-flex shrink-0 items-center justify-center">{icon}</span>}
-      <span className={active ? "game-text-stroke-sm" : "drop-shadow-sm"}>{children}</span>
+      {icon && <span className={cn("inline-flex shrink-0 items-center justify-center", active ? "text-amber-300" : "text-[#B59982]")}>{icon}</span>}
+      <span className={active ? "game-text-stroke-sm text-white" : "text-[#B59982] font-bold drop-shadow-sm"}>{children}</span>
     </button>
   );
 }

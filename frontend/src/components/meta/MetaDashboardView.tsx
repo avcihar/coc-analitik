@@ -512,132 +512,136 @@ export default function MetaDashboardView() {
     : null;
 
   return (
-    <div className="game-theme max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
-      {/* Outer Wooden Window Frame */}
-      <div className="game-window-frame p-2.5 sm:p-4 md:p-6 space-y-4">
-        {/* Window Top Edge: Tab Bar */}
-        <div className="border-b-2 border-[#2B160D] pb-1 overflow-x-auto scrollbar-none">
+    <div className="game-theme max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex flex-col h-[calc(100vh-80px)] min-h-[620px]">
+      {/* Main Outer Wooden Window Frame */}
+      <div className="game-window-frame flex-1 min-h-0 flex flex-col overflow-hidden">
+        {/* Window Top Edge: Tab Bar Header stuck flush to the top edge of the panel */}
+        <div className="game-tab-strip shrink-0">
           <GameTabBar>
             <GameTab
               active={activeTab === "armies"}
               onClick={() => switchTab("armies")}
-              icon={<Swords size={16} />}
+              icon={<Swords size={18} />}
             >
               Meta Ordular
             </GameTab>
             <GameTab
               active={activeTab === "stats"}
               onClick={() => switchTab("stats")}
-              icon={<Shield size={16} />}
+              icon={<Shield size={18} />}
             >
               Kullanım İstatistikleri
             </GameTab>
           </GameTabBar>
         </div>
 
-        {/* Single-line Summary Bar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs sm:text-sm text-amber-100/90 font-medium">
-          <div className="truncate">
-            <span>
-              <strong className="text-amber-300 font-bold">
-                {dashboard?.totalPlayersAnalyzed || 200}
-              </strong>{" "}
-              oyuncu •{" "}
-              <strong className="text-amber-300 font-bold">
-                {(dashboard?.totalRankedAttacksAnalyzed || 3355).toLocaleString("tr-TR")}
-              </strong>{" "}
-              ranked saldırı • Son güncelleme:{" "}
-              <strong className="text-amber-300 font-bold">
-                {formattedFetchedAt || "18:24"}
-              </strong>
-            </span>
-          </div>
-
-          <div className="self-end sm:self-auto shrink-0">
-            <GameButton
-              variant="green"
-              size="sm"
-              onClick={() => fetchDashboard(true)}
-              disabled={loading || dashboard?.isProcessing}
-              icon={
-                <RefreshCw
-                  size={14}
-                  className={loading || dashboard?.isProcessing ? "animate-spin" : ""}
-                />
-              }
-              title="En son liderlik tablosu verilerini yenile"
-            >
-              Yenile
-            </GameButton>
-          </div>
-        </div>
-
-        {/* Background Processing Progress Bar */}
-        {dashboard?.isProcessing && dashboard.progress && (
-          <div className="game-panel-cream p-3 rounded-xl border border-amber-800 text-xs text-amber-950 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <RefreshCw size={14} className="animate-spin text-amber-800" />
-              <span className="font-bold">
-                {dashboard.progress.message || "Lider tablosu taranıyor..."}
+        {/* Pinned Single-line Summary Bar */}
+        <div className="shrink-0 px-3 sm:px-6 py-2.5 border-b border-amber-950/40">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs sm:text-sm text-amber-100/90 font-medium">
+            <div className="truncate">
+              <span>
+                <strong className="text-amber-300 font-bold">
+                  {dashboard?.totalPlayersAnalyzed || 200}
+                </strong>{" "}
+                oyuncu •{" "}
+                <strong className="text-amber-300 font-bold">
+                  {(dashboard?.totalRankedAttacksAnalyzed || 3355).toLocaleString("tr-TR")}
+                </strong>{" "}
+                ranked saldırı • Son güncelleme:{" "}
+                <strong className="text-amber-300 font-bold">
+                  {formattedFetchedAt || "18:24"}
+                </strong>
               </span>
             </div>
-            <div className="w-32 bg-amber-950/20 rounded-full h-2.5 overflow-hidden">
-              <div
-                className="bg-emerald-600 h-2.5 rounded-full transition-all duration-300"
-                style={{ width: `${dashboard.progress.percentage || 15}%` }}
-              />
+
+            <div className="self-end sm:self-auto shrink-0">
+              <GameButton
+                variant="green"
+                size="sm"
+                onClick={() => fetchDashboard(true)}
+                disabled={loading || dashboard?.isProcessing}
+                icon={
+                  <RefreshCw
+                    size={14}
+                    className={loading || dashboard?.isProcessing ? "animate-spin" : ""}
+                  />
+                }
+                title="En son liderlik tablosu verilerini yenile"
+              >
+                Yenile
+              </GameButton>
             </div>
           </div>
-        )}
 
-        {/* Error Alert */}
-        {errorMsg && (
-          <div className="game-panel-wood p-3 rounded-xl border border-red-800/80 text-xs text-red-200 flex items-center gap-2">
-            <AlertCircle size={16} className="text-red-400 shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
-        {/* Tab 1: Meta Ordular (Phase 1) */}
-        {activeTab === "armies" && (
-          <div className="space-y-4">
-            {loading && !dashboard ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className="h-44 rounded-2xl bg-amber-950/20 animate-pulse border border-amber-950/30"
-                  />
-                ))}
-              </div>
-            ) : activeArmies.length > 0 ? (
-              <div className="space-y-4">
-                {activeArmies.map((army) => (
-                  <MetaArmyCard
-                    key={army.id}
-                    army={army}
-                    defaultExpanded={army.rank === 1}
-                  />
-                ))}
-              </div>
-            ) : (
-              <GamePanel variant="wood" className="text-center py-10">
-                <span className="text-amber-200/80 font-bold">
-                  Henüz yeterli battle log kaydı bulunamadı.
+          {/* Background Processing Progress Bar */}
+          {dashboard?.isProcessing && dashboard.progress && (
+            <div className="game-panel-cream p-2.5 rounded-xl border border-amber-800 text-xs text-amber-950 flex items-center justify-between gap-3 mt-2">
+              <div className="flex items-center gap-2">
+                <RefreshCw size={14} className="animate-spin text-amber-800" />
+                <span className="font-bold">
+                  {dashboard.progress.message || "Lider tablosu taranıyor..."}
                 </span>
-              </GamePanel>
-            )}
-          </div>
-        )}
+              </div>
+              <div className="w-32 bg-amber-950/20 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className="bg-emerald-600 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${dashboard.progress.percentage || 15}%` }}
+                />
+              </div>
+            </div>
+          )}
 
-        {/* Tab 2: Kullanım İstatistikleri (Phase 2) */}
-        {activeTab === "stats" && (
-          <div className="space-y-4">
-            {/* Header Note */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs text-amber-200/90 font-medium">
-              <span>
-                * <strong className="text-amber-300">Kullanım Oranı:</strong> Analiz edilen{" "}
-                <strong className="text-amber-300 font-bold">
+          {/* Error Alert */}
+          {errorMsg && (
+            <div className="game-panel-wood p-2.5 rounded-xl border border-red-800/80 text-xs text-red-200 flex items-center gap-2 mt-2">
+              <AlertCircle size={16} className="text-red-400 shrink-0" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+        </div>
+
+        {/* SCROLLABLE INNER DIV */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4 space-y-4 scrollbar-thin">
+          {/* Tab 1: Meta Ordular (Phase 1) */}
+          {activeTab === "armies" && (
+            <div className="space-y-4">
+              {loading && !dashboard ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className="h-44 rounded-2xl bg-amber-950/20 animate-pulse border border-amber-950/30"
+                    />
+                  ))}
+                </div>
+              ) : activeArmies.length > 0 ? (
+                <div className="space-y-4">
+                  {activeArmies.map((army) => (
+                    <MetaArmyCard
+                      key={army.id}
+                      army={army}
+                      defaultExpanded={army.rank === 1}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <GamePanel variant="wood" className="text-center py-10">
+                  <span className="text-amber-200/80 font-bold">
+                    Henüz yeterli battle log kaydı bulunamadı.
+                  </span>
+                </GamePanel>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Kullanım İstatistikleri (Phase 2) */}
+          {activeTab === "stats" && (
+            <div className="space-y-4">
+              {/* Header Note */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs text-amber-200/90 font-medium">
+                <span>
+                  * <strong className="text-amber-300">Kullanım Oranı:</strong> Analiz edilen{" "}
+                  <strong className="text-amber-300 font-bold">
                   {(dashboard?.totalRankedAttacksAnalyzed || 3355).toLocaleString("tr-TR")}
                 </strong>{" "}
                 saldırı kaydının yüzde kaçında o öğenin orduya dahil edildiğini gösterir.
@@ -684,11 +688,11 @@ export default function MetaDashboardView() {
                       {heroes.map((hero) => (
                         <div
                           key={hero.name}
-                          className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5"
+                          className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                         >
                           <IconFrame
                             name={hero.name}
-                            size="hero"
+                            size="unit"
                             level={hero.avgLevel ? Math.round(hero.avgLevel) : undefined}
                             isMax={hero.maxedPct ? hero.maxedPct > 95 : false}
                           />
@@ -700,20 +704,6 @@ export default function MetaDashboardView() {
                           </div>
                           <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                             %{hero.usagePct.toFixed(1)}
-                          </div>
-                          <div className="game-progress-bar-slot">
-                            <div
-                              className="game-progress-bar-fill"
-                              style={{
-                                width: `${Math.min(100, Math.max(0, hero.usagePct))}%`,
-                              }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between w-full text-[10px] text-amber-200/75 font-semibold px-0.5 mt-0.5">
-                            <span>
-                              {hero.avgLevel ? `Ort. Lv. ${hero.avgLevel.toFixed(1)}` : "Max"}
-                            </span>
-                            <span>{hero.count.toLocaleString("tr-TR")} maç</span>
                           </div>
                         </div>
                       ))}
@@ -762,36 +752,25 @@ export default function MetaDashboardView() {
                         </div>
                         <div className="game-slot-well p-2.5 flex-1">
                           {filteredEquipments.length > 0 ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                               {filteredEquipments.map((eq) => (
                                 <div
                                   key={`${eq.hero}-${eq.name}`}
-                                  className="game-stat-tile p-2 flex flex-col items-center justify-between gap-1 text-center"
+                                  className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1 text-center"
                                 >
-                                  <IconFrame name={eq.name} size="equipment" rarity="epic" />
+                                  <IconFrame name={eq.name} size="unit" rarity="epic" />
                                   <div
-                                    className="text-[11px] text-amber-100 font-bold truncate max-w-full"
+                                    className="text-xs text-amber-100 font-bold truncate max-w-full"
                                     title={`${eq.name} (${eq.hero})`}
                                   >
                                     {eq.name}
                                   </div>
-                                  <div className="text-[10px] text-amber-300/80 font-medium truncate max-w-full">
+                                  <div className="text-[10px] text-amber-300/80 font-semibold truncate max-w-full">
                                     {eq.hero}
                                   </div>
-                                  <div className="text-sm font-black text-amber-300 font-['Lilita_One']">
+                                  <div className="text-base font-black text-amber-300 font-['Lilita_One']">
                                     %{eq.usagePct.toFixed(1)}
                                   </div>
-                                  <div className="game-progress-bar-slot">
-                                    <div
-                                      className="game-progress-bar-fill"
-                                      style={{
-                                        width: `${Math.min(100, Math.max(0, eq.usagePct))}%`,
-                                      }}
-                                    />
-                                  </div>
-                                  <span className="text-[9px] text-amber-200/60 font-semibold">
-                                    {eq.count.toLocaleString("tr-TR")} saldırı
-                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -809,7 +788,7 @@ export default function MetaDashboardView() {
                           <span>En Çok Kullanılan İkililer ({filteredPairs.length})</span>
                           <span className="text-[11px] text-amber-300/70">Birlikte kullanım</span>
                         </div>
-                        <div className="game-slot-well p-2.5 flex-1 max-h-[460px] overflow-y-auto space-y-1.5 scrollbar-thin">
+                        <div className="game-slot-well p-2.5 flex-1 max-h-[460px] overflow-y-auto space-y-2 scrollbar-thin">
                           {filteredPairs.length > 0 ? (
                             filteredPairs.slice(0, 10).map((pair, pIdx) => {
                               const eq1 = pair.equipments?.[0] || pair.pair.split(" + ")[0];
@@ -817,43 +796,32 @@ export default function MetaDashboardView() {
                               return (
                                 <div
                                   key={`${pair.hero}-${pair.pair}-${pIdx}`}
-                                  className="game-stat-tile p-2 flex items-center justify-between gap-2"
+                                  className="game-stat-tile p-2.5 flex items-center justify-between gap-3"
                                 >
-                                  {/* Two tiles side-by-side */}
-                                  <div className="flex items-center gap-1 shrink-0">
-                                    <IconFrame name={eq1} size="equipment" rarity="epic" />
-                                    {eq2 && <span className="text-amber-300 font-black text-xs">+</span>}
-                                    {eq2 && <IconFrame name={eq2} size="equipment" rarity="epic" />}
+                                  {/* Two tiles side-by-side with uniform unit size */}
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <IconFrame name={eq1} size="unit" rarity="epic" />
+                                    {eq2 && <span className="text-amber-300 font-black text-sm">+</span>}
+                                    {eq2 && <IconFrame name={eq2} size="unit" rarity="epic" />}
                                   </div>
 
-                                  {/* Info & mini progress bar */}
+                                  {/* Info */}
                                   <div className="flex-1 min-w-0 px-1">
                                     <div
-                                      className="text-xs text-amber-100 font-bold truncate"
+                                      className="text-xs sm:text-sm text-amber-100 font-bold truncate"
                                       title={pair.pair}
                                     >
                                       {pair.pair}
                                     </div>
-                                    <div className="text-[10px] text-amber-300/80 font-semibold truncate">
+                                    <div className="text-[11px] text-amber-300/80 font-semibold truncate">
                                       {pair.hero}
-                                    </div>
-                                    <div className="game-progress-bar-slot mt-1">
-                                      <div
-                                        className="game-progress-bar-fill"
-                                        style={{
-                                          width: `${Math.min(100, Math.max(0, pair.usagePct))}%`,
-                                        }}
-                                      />
                                     </div>
                                   </div>
 
-                                  {/* Percentage & Count */}
+                                  {/* Usage Percentage Only */}
                                   <div className="text-right shrink-0">
-                                    <div className="text-sm sm:text-base font-black text-amber-300 font-['Lilita_One']">
+                                    <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                                       %{pair.usagePct.toFixed(1)}
-                                    </div>
-                                    <div className="text-[10px] text-amber-200/60 font-semibold">
-                                      {pair.count.toLocaleString("tr-TR")} maç
                                     </div>
                                   </div>
                                 </div>
@@ -889,11 +857,11 @@ export default function MetaDashboardView() {
                       {pets.map((pet) => (
                         <div
                           key={pet.name}
-                          className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5"
+                          className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                         >
                           <IconFrame
                             name={pet.name}
-                            size="pet"
+                            size="unit"
                             rarity="legendary"
                             level={pet.avgLevel ? Math.round(pet.avgLevel) : 10}
                           />
@@ -905,20 +873,6 @@ export default function MetaDashboardView() {
                           </div>
                           <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                             %{pet.usagePct.toFixed(1)}
-                          </div>
-                          <div className="game-progress-bar-slot">
-                            <div
-                              className="game-progress-bar-fill"
-                              style={{
-                                width: `${Math.min(100, Math.max(0, pet.usagePct))}%`,
-                              }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between w-full text-[10px] text-amber-200/75 font-semibold px-0.5 mt-0.5">
-                            <span>
-                              {pet.avgLevel ? `Ort. Lv. ${pet.avgLevel.toFixed(1)}` : "Lv. 10"}
-                            </span>
-                            <span>{pet.count.toLocaleString("tr-TR")} maç</span>
                           </div>
                         </div>
                       ))}
@@ -983,7 +937,7 @@ export default function MetaDashboardView() {
                             {displayedTroops.map((t) => (
                               <div
                                 key={t.name}
-                                className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5 text-center"
+                                className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                               >
                                 <IconFrame
                                   name={t.name}
@@ -999,18 +953,6 @@ export default function MetaDashboardView() {
                                 </div>
                                 <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                                   %{t.usagePct.toFixed(1)}
-                                </div>
-                                <div className="game-progress-bar-slot">
-                                  <div
-                                    className="game-progress-bar-fill"
-                                    style={{
-                                      width: `${Math.min(100, Math.max(0, t.usagePct))}%`,
-                                    }}
-                                  />
-                                </div>
-                                <div className="flex items-center justify-between w-full text-[10px] text-amber-200/75 font-semibold px-0.5">
-                                  <span>{t.avgLevel ? `Lv. ${t.avgLevel.toFixed(1)}` : "-"}</span>
-                                  <span>{t.count.toLocaleString("tr-TR")} maç</span>
                                 </div>
                               </div>
                             ))}
@@ -1047,7 +989,7 @@ export default function MetaDashboardView() {
                             {displayedSpells.map((s) => (
                               <div
                                 key={s.name}
-                                className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5 text-center"
+                                className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                               >
                                 <IconFrame
                                   name={s.name}
@@ -1063,18 +1005,6 @@ export default function MetaDashboardView() {
                                 </div>
                                 <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                                   %{s.usagePct.toFixed(1)}
-                                </div>
-                                <div className="game-progress-bar-slot">
-                                  <div
-                                    className="game-progress-bar-fill"
-                                    style={{
-                                      width: `${Math.min(100, Math.max(0, s.usagePct))}%`,
-                                    }}
-                                  />
-                                </div>
-                                <div className="flex items-center justify-between w-full text-[10px] text-amber-200/75 font-semibold px-0.5">
-                                  <span>{s.avgLevel ? `Lv. ${s.avgLevel.toFixed(1)}` : "-"}</span>
-                                  <span>{s.count.toLocaleString("tr-TR")} maç</span>
                                 </div>
                               </div>
                             ))}
@@ -1110,7 +1040,7 @@ export default function MetaDashboardView() {
                           {sieges.map((sg) => (
                             <div
                               key={sg.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5 text-center"
+                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                             >
                               <IconFrame
                                 name={sg.name}
@@ -1127,18 +1057,6 @@ export default function MetaDashboardView() {
                               <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                                 %{sg.usagePct.toFixed(1)}
                               </div>
-                              <div className="game-progress-bar-slot">
-                                <div
-                                  className="game-progress-bar-fill"
-                                  style={{
-                                    width: `${Math.min(100, Math.max(0, sg.usagePct))}%`,
-                                  }}
-                                />
-                              </div>
-                              <div className="flex items-center justify-between w-full text-[10px] text-amber-200/75 font-semibold px-0.5">
-                                <span>{sg.avgLevel ? `Lv. ${sg.avgLevel.toFixed(1)}` : "-"}</span>
-                                <span>{sg.count.toLocaleString("tr-TR")} maç</span>
-                              </div>
                             </div>
                           ))}
                         </div>
@@ -1150,7 +1068,7 @@ export default function MetaDashboardView() {
                           {superTroops.map((st) => (
                             <div
                               key={st.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-between gap-1.5 text-center"
+                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
                             >
                               <IconFrame name={st.name} size="unit" />
                               <div
@@ -1162,17 +1080,6 @@ export default function MetaDashboardView() {
                               <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
                                 %{st.usagePct.toFixed(1)}
                               </div>
-                              <div className="game-progress-bar-slot">
-                                <div
-                                  className="game-progress-bar-fill"
-                                  style={{
-                                    width: `${Math.min(100, Math.max(0, st.usagePct))}%`,
-                                  }}
-                                />
-                              </div>
-                              <span className="text-[10px] text-amber-200/75 font-semibold">
-                                {st.count.toLocaleString("tr-TR")} maç
-                              </span>
                             </div>
                           ))}
                         </div>
@@ -1184,6 +1091,7 @@ export default function MetaDashboardView() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

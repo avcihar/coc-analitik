@@ -459,17 +459,28 @@
    TABS (GameTabBar & GameTab)
    ========================================================================== */
 
+/* The tab strip pinned flush to the very top edge inside .game-window-frame */
+.game-theme .game-tab-strip {
+  background: #341E12;
+  border-bottom: 3px solid #28160C;
+  border-top-left-radius: calc(var(--game-radius-xl) - 3.5px);
+  border-top-right-radius: calc(var(--game-radius-xl) - 3.5px);
+  display: flex;
+  align-items: flex-end;
+  padding: 8px 16px 0 16px;
+  position: relative;
+  z-index: 10;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.1);
+  user-select: none;
+}
+
 .game-theme .game-tab-bar {
   display: flex;
   align-items: flex-end;
-  gap: 0.35rem;
-  padding: 0 0.5rem;
-  background: #4E3428;
-  border-top-left-radius: var(--game-radius-lg);
-  border-top-right-radius: var(--game-radius-lg);
-  border: 3.5px solid #2B160D;
-  border-bottom: none;
-  overflow-x: auto;
+  gap: 0.4rem;
+  padding: 0;
+  background: transparent;
+  border: none;
   user-select: none;
 }
 
@@ -477,40 +488,62 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.65rem 1.4rem;
+  gap: 0.45rem;
+  padding: 0.7rem 1.6rem;
   font-family: var(--game-font);
-  font-size: 1rem;
-  border-top-left-radius: var(--game-radius-md);
-  border-top-right-radius: var(--game-radius-md);
-  border: 2.5px solid #261309;
-  border-bottom: none;
+  font-size: 1.05rem;
+  letter-spacing: 0.015em;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.15s ease;
+  transition: filter 0.15s ease, transform 0.15s ease, background 0.15s ease;
   white-space: nowrap;
 }
 
-/* Active tab: Cream wood */
+/* Active tab: EXACT SAME wood tone as the panel body below, bottom border open and seamlessly merged */
 .game-theme .game-tab-active {
-  background: linear-gradient(180deg, var(--game-cream-light) 0%, var(--game-cream-mid) 50%, var(--game-cream-dark) 100%);
+  background: linear-gradient(180deg, #64422F 0%, #5A3A28 100%);
+  border: 3px solid #28160C;
+  border-bottom: 3.5px solid #5A3A28 !important;
   color: #FFFFFF;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45);
-  transform: translateY(2px);
-  z-index: 2;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.08),
+    inset -1.5px 0 0 rgba(0, 0, 0, 0.25);
+  margin-bottom: -3px;
+  z-index: 20;
 }
 
-/* Inactive tab: Dark wood */
+/* Inactive tab: Dark wood, recessed */
 .game-theme .game-tab-inactive {
-  background: linear-gradient(180deg, #644436 0%, #4D3227 100%);
-  color: #C2AB9A;
-  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.15);
-  opacity: 0.9;
-  z-index: 1;
+  background: linear-gradient(180deg, #26140A 0%, #1A0D06 100%);
+  border: 2.5px solid #140A04;
+  border-bottom: 2.5px solid #140A04;
+  color: #8C7565;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -3px 4px rgba(0, 0, 0, 0.7);
+  opacity: 0.85;
+  margin-bottom: 0;
+  transform: translateY(2px);
+  z-index: 5;
 }
 
 .game-theme .game-tab-inactive:hover {
   opacity: 1;
-  filter: brightness(1.1);
+  filter: brightness(1.2);
+  color: #C2AB9A;
+}
+
+@media (max-width: 640px) {
+  .game-theme .game-tab-strip {
+    padding: 6px 8px 0 8px;
+  }
+  .game-theme .game-tab {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    gap: 0.3rem;
+  }
 }
 
 /* ==========================================================================
@@ -757,5 +790,24 @@
     transition: none !important;
     transform: none !important;
   }
+}
+
+/* Custom In-Game Scrollbar for .game-theme */
+.game-theme *::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.game-theme *::-webkit-scrollbar-track {
+  background: rgba(18, 10, 6, 0.65);
+  border-radius: 9999px;
+}
+.game-theme *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #A87146 0%, #6E4426 100%);
+  border-radius: 9999px;
+  border: 1px solid #331A0B;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.game-theme *::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #C28657 0%, #8D5A36 100%);
 }
 
