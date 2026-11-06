@@ -17,19 +17,26 @@ import {
   AlertCircle,
   Clock,
   Users,
+  Edit3,
+  Castle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { buildCopyArmyLink } from "@/lib/armyLink";
 import { safeFetchJson } from "@/lib/apiClient";
-import UnitIcon from "@/components/common/UnitIcon";
+import {
+  GameButton,
+  GamePanel,
+  GameTabBar,
+  GameTab,
+  IconFrame,
+  StatPill,
+} from "@/components/game";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 interface EquipmentPairStat {
   hero: string;
@@ -158,7 +165,7 @@ const SIX_HERO_OPTIONS = [
   "Dragon Duke",
 ];
 
-// Single Army Card Component with In-game copy button and secondary raw code copy
+// Single Army Card Component designed like in-game "Ordum -> Kaydedilen Setler"
 function MetaArmyCard({ army }: { army: RecommendedArmy }) {
   const [copiedCode, setCopiedCode] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -178,207 +185,270 @@ function MetaArmyCard({ army }: { army: RecommendedArmy }) {
 
   const hasLoadout = army.heroLoadout && Object.keys(army.heroLoadout).length > 0;
 
+  // Calculate capacities
+  const totalTroopUnits = (army.troops || []).reduce((acc, t) => acc + (t.count || 0), 0);
+  const totalSpellUnits = (army.spells || []).reduce((acc, s) => acc + (s.count || 0), 0);
+  const totalSiegeUnits = (army.siegeMachines || []).reduce((acc, sg) => acc + (sg.count || 0), 0);
+  const totalCCUnits = (army.clanCastle || []).reduce((acc, cc) => acc + (cc.count || 0), 0);
+
   return (
-    <div className="bg-app-card border border-app-border rounded-2xl p-5 md:p-6 shadow-sm hover:border-blue-500/40 transition-all space-y-4">
-      {/* Top Header: Rank, Name, Big Stats, Copy Action */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-app-border">
-        <div className="flex items-start sm:items-center gap-3">
-          <span className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 font-extrabold text-sm shrink-0">
-            #{army.rank}
+    <GamePanel
+      variant="wood"
+      className="transition-all"
+      title={
+        <div className="flex flex-wrap items-center gap-2">
+          <Edit3 size={15} className="text-amber-300 opacity-80" />
+          <span className="game-text-stroke-sm text-sm sm:text-base tracking-wide">
+            #{army.rank} • {army.name}
           </span>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-bold text-app-text">{army.name}</h3>
-              {army.style && (
-                <span className="px-2 py-0.5 rounded-md bg-app-cardSubtle border border-app-border text-[11px] font-semibold text-app-muted">
-                  {army.style}
-                </span>
+          {army.style && (
+            <span className="px-2 py-0.5 rounded-full bg-black/40 border border-amber-900/40 text-[10px] text-amber-200/90 font-bold uppercase tracking-wider">
+              {army.style}
+            </span>
+          )}
+        </div>
+      }
+      headerRight={
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {/* Capacity StatPills (352/352, 11/11, 3/3, 61/61 as in game screenshot) */}
+          <StatPill
+            icon={<Swords size={12} className="text-sky-300" />}
+            value={`${totalTroopUnits}/352`}
+            title="Birlik Kapasitesi"
+          />
+          <StatPill
+            icon={<Sparkles size={12} className="text-purple-300" />}
+            value={`${totalSpellUnits}/11`}
+            title="Büyü Kapasitesi"
+          />
+          <StatPill
+            icon={<Shield size={12} className="text-amber-300" />}
+            value={`${totalSiegeUnits}/3`}
+            title="Kuşatma Makinesi"
+          />
+          <StatPill
+            icon={<Castle size={12} className="text-emerald-300" />}
+            value={`${totalCCUnits}/61`}
+            title="Klan Kalesi Birimleri"
+          />
+
+          {/* Performance Badges */}
+          <StatPill
+            label="Kullanım"
+            value={`%${army.usagePct.toFixed(1)}`}
+            variant="amber"
+          />
+          <StatPill
+            label="3 Yıldız"
+            value={`%${army.threeStarRatePct.toFixed(1)}`}
+            variant="green"
+          />
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        {/* Main Composition Box (Troop Slot Well + Side Action Buttons) */}
+        <div className="flex flex-col lg:flex-row items-stretch gap-3">
+          {/* Left / Center: Units & Heroes in Inset Slot Well */}
+          <div className="flex-1 space-y-3 game-slot-well">
+            {/* 1. Row 1: Attack Troops, Spells, Siege Machines in order */}
+            <div>
+              <div className="flex items-center gap-1.5 mb-1.5 text-[11px] font-bold text-amber-200/80 uppercase tracking-wider">
+                <Swords size={12} className="text-amber-400" />
+                <span>Saldırı Birlikleri ({totalTroopUnits} Birlik • {totalSpellUnits} Büyü)</span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                {/* Troops */}
+                {army.troops?.map((troop, idx) => (
+                  <IconFrame
+                    key={`troop-${troop.id}-${idx}`}
+                    name={troop.name}
+                    count={troop.count}
+                    size="sm"
+                  />
+                ))}
+
+                {/* Vertical Divider */}
+                {army.spells && army.spells.length > 0 && (
+                  <div className="h-8 w-px bg-amber-900/40 my-auto mx-0.5" />
+                )}
+
+                {/* Spells */}
+                {army.spells?.map((spell, idx) => (
+                  <IconFrame
+                    key={`spell-${spell.id}-${idx}`}
+                    name={spell.name}
+                    count={spell.count}
+                    size="sm"
+                  />
+                ))}
+
+                {/* Vertical Divider */}
+                {army.siegeMachines && army.siegeMachines.length > 0 && (
+                  <div className="h-8 w-px bg-amber-900/40 my-auto mx-0.5" />
+                )}
+
+                {/* Siege Machines */}
+                {army.siegeMachines?.map((sg, idx) => (
+                  <IconFrame
+                    key={`siege-${sg.id}-${idx}`}
+                    name={sg.name}
+                    count={sg.count}
+                    size="sm"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* 2. Row 2: Heroes & Clan Castle Row */}
+            <div className="pt-2 border-t border-amber-950/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              {/* Heroes, Equipments, Pets sub-block */}
+              {hasLoadout && (
+                <div className="flex-1">
+                  <div className="flex items-center gap-1.5 mb-1.5 text-[11px] font-bold text-amber-200/80 uppercase tracking-wider">
+                    <Crown size={12} className="text-amber-400" />
+                    <span>Kahramanlar, Donanımlar ve Hayvanlar</span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    {Object.entries(army.heroLoadout).map(([heroName, loadout]) => (
+                      <div
+                        key={heroName}
+                        className="inline-flex items-center gap-1 p-1 rounded-lg bg-black/35 border border-amber-950/40 shadow-inner"
+                        title={`${heroName} - ${loadout.primaryPair.join(" + ")} ${loadout.pet ? `• ${loadout.pet}` : ""}`}
+                      >
+                        {/* Hero Icon */}
+                        <IconFrame name={heroName} size="sm" />
+
+                        {/* 2 Equipments Stacked / Beside */}
+                        <div className="flex flex-col gap-0.5">
+                          {loadout.primaryPair.slice(0, 2).map((eq, eIdx) => (
+                            <IconFrame
+                              key={`${heroName}-eq-${eIdx}`}
+                              name={eq}
+                              size="xs"
+                              rarity="epic"
+                            />
+                          ))}
+                        </div>
+
+                        {/* Pet Icon */}
+                        {loadout.pet && (
+                          <IconFrame
+                            name={loadout.pet}
+                            size="xs"
+                            rarity="legendary"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Clan Castle Inset Box */}
+              {army.clanCastle && army.clanCastle.length > 0 && (
+                <div className="game-cc-well shrink-0 self-stretch sm:self-auto flex flex-col justify-center">
+                  <div className="flex items-center gap-1 mb-1 text-[10px] font-bold text-amber-200/90 uppercase tracking-wider">
+                    <Castle size={11} className="text-emerald-400" />
+                    <span>Klan Kalesi</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {army.clanCastle.map((cc, idx) => (
+                      <IconFrame
+                        key={`cc-${cc.id}-${idx}`}
+                        name={cc.name}
+                        count={cc.count}
+                        size="xs"
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-            {army.sampleCount !== undefined && (
-              <span className="text-xs text-app-muted font-medium">
-                {army.sampleCount} saldırı örneği • {army.threeStarCount ?? 0} üç yıldız
-              </span>
+          </div>
+
+          {/* Right Column: 3D Tactical Action Buttons */}
+          <div className="flex flex-row lg:flex-col justify-center gap-2.5 shrink-0 self-stretch lg:w-44 pt-1 lg:pt-0">
+            {/* Primary Action: Orduyu Kopyala (Green Button) */}
+            <GameButton
+              variant="green"
+              size="md"
+              href={copyUrl}
+              target="_blank"
+              icon={<ExternalLink size={15} />}
+              className="flex-1 lg:flex-initial w-full"
+              title="Doğrudan Clash of Clans oyununda açmak için ordu bağlantısını tıkla"
+            >
+              Orduyu Kopyala
+            </GameButton>
+
+            {/* Secondary Action: Kodu Kopyala (Blue Button) */}
+            <GameButton
+              variant="blue"
+              size="md"
+              onClick={handleCopyCode}
+              icon={copiedCode ? <Check size={15} className="text-emerald-300" /> : <Copy size={15} />}
+              className="flex-1 lg:flex-initial w-full"
+              title="Ham ordu kodunu panoya kopyala (armyShareCode)"
+            >
+              {copiedCode ? "Kopyalandı!" : "Kodu Kopyala"}
+            </GameButton>
+
+            {/* Details toggle button */}
+            {hasLoadout && (
+              <GameButton
+                variant="gold"
+                size="sm"
+                onClick={() => setDetailsExpanded(!detailsExpanded)}
+                className="w-full text-xs"
+              >
+                <span>{detailsExpanded ? "Gizle" : "Donanım"}</span>
+                <ChevronDown
+                  size={14}
+                  className={cn("transition-transform duration-200", detailsExpanded && "rotate-180")}
+                />
+              </GameButton>
             )}
           </div>
         </div>
 
-        {/* Big Performance Numbers & Copy Buttons */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 self-start lg:self-center">
-          {/* Usage % Metric */}
-          <div className="text-right">
-            <span className="text-[11px] font-bold text-app-muted block uppercase tracking-wider">
-              Kullanım Oranı
-            </span>
-            <span className="text-xl sm:text-2xl font-black text-blue-400">
-              %{army.usagePct.toFixed(1)}
-            </span>
-          </div>
-
-          {/* 3-Star % Metric */}
-          <div className="text-right pl-4 border-l border-app-border">
-            <span className="text-[11px] font-bold text-app-muted block uppercase tracking-wider">
-              3 Yıldız Başarısı
-            </span>
-            <span className="text-xl sm:text-2xl font-black text-emerald-400">
-              %{army.threeStarRatePct.toFixed(1)}
-            </span>
-          </div>
-
-          {/* Action Buttons: Primary In-game Copy + Secondary Icon Code Copy */}
-          <div className="flex items-center gap-2 pl-2">
-            <a
-              href={copyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition-all active:scale-95"
-            >
-              <span>Orduyu Kopyala</span>
-              <ExternalLink size={14} />
-            </a>
-
-            <button
-              onClick={handleCopyCode}
-              title={copiedCode ? "Kopyalandı!" : "Ham ordu kodunu kopyala (armyShareCode)"}
-              className="p-2.5 rounded-xl bg-app-cardSubtle hover:bg-app-border border border-app-border text-app-muted hover:text-app-text cursor-pointer transition-colors relative"
-            >
-              {copiedCode ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Army Composition: Troops & Spells Grid */}
-      <div className="space-y-3">
-        {/* Troops Section */}
-        {army.troops && army.troops.length > 0 && (
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-app-muted block mb-2">
-              Saldırı Birlikleri ({army.troops.reduce((acc, t) => acc + (t.count || 0), 0)} adet)
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {army.troops.map((troop, idx) => (
-                <UnitIcon
-                  key={`${troop.id}-${idx}`}
-                  name={troop.name}
-                  count={troop.count}
-                  size="sm"
-                  showNameBelow
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Spells, Siege & CC Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-app-border">
-          {/* Spells */}
-          {army.spells && army.spells.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-app-muted block mb-2">
-                Büyüler ({army.spells.reduce((acc, s) => acc + (s.count || 0), 0)} adet)
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {army.spells.map((spell, idx) => (
-                  <UnitIcon
-                    key={`${spell.id}-${idx}`}
-                    name={spell.name}
-                    count={spell.count}
-                    size="xs"
-                    showNameBelow
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Siege Machine */}
-          {army.siegeMachines && army.siegeMachines.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-app-muted block mb-2">
-                Kuşatma Makinesi
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {army.siegeMachines.map((sg, idx) => (
-                  <UnitIcon
-                    key={`${sg.id}-${idx}`}
-                    name={sg.name}
-                    count={sg.count}
-                    size="xs"
-                    showNameBelow
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Clan Castle */}
-          {army.clanCastle && army.clanCastle.length > 0 && (
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-app-muted block mb-2">
-                Klan Kalesi
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {army.clanCastle.map((cc, idx) => (
-                  <UnitIcon
-                    key={`${cc.id}-${idx}`}
-                    name={cc.name}
-                    count={cc.count}
-                    size="xs"
-                    showNameBelow
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Collapsible Detay Section (Hero Equipment & Pets) */}
-      {hasLoadout && (
-        <div className="pt-2">
-          <button
-            onClick={() => setDetailsExpanded(!detailsExpanded)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-400 hover:text-blue-300 cursor-pointer transition-colors"
-          >
-            <span>{detailsExpanded ? "Kahraman Donanımını Gizle" : "Kahraman Donanımı ve Evcil Hayvanları Göster"}</span>
-            <ChevronDown
-              size={14}
-              className={cn("transition-transform duration-200", detailsExpanded && "rotate-180")}
-            />
-          </button>
-
+        {/* Collapsible Detay Section (Hero Equipment & Pets Text Details) */}
+        {hasLoadout && (
           <AnimatePresence>
             {detailsExpanded && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-3 p-4 rounded-xl bg-app-cardSubtle border border-app-border space-y-3"
+                className="game-slot-well p-3 space-y-2.5"
               >
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="text-xs font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Crown size={14} />
+                  <span>Kahraman Donanım ve Evcil Hayvan Detayları</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   {Object.entries(army.heroLoadout).map(([heroName, loadout]) => (
                     <div
                       key={heroName}
-                      className="p-3 rounded-lg bg-app-card border border-app-border space-y-1.5"
+                      className="p-2.5 rounded-lg bg-black/45 border border-amber-950/60 space-y-1 text-xs"
                     >
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-app-text">
-                        <Crown size={13} className="text-amber-400" />
+                      <div className="font-bold text-amber-200 flex items-center gap-1.5">
+                        <IconFrame name={heroName} size="xs" />
                         <span>{heroName}</span>
                       </div>
-                      <div className="text-[11px] text-app-muted space-y-0.5 font-medium">
-                        <div>
-                          Ekipman:{" "}
-                          <strong className="text-purple-400">
-                            {loadout.primaryPair && loadout.primaryPair.length > 0
-                              ? loadout.primaryPair.join(" + ")
-                              : "Standart"}
-                          </strong>
-                        </div>
+                      <div className="text-[11px] text-amber-100/80">
+                        <span className="text-purple-300 font-semibold block">
+                          {loadout.primaryPair && loadout.primaryPair.length > 0
+                            ? loadout.primaryPair.join(" + ")
+                            : "Standart"}
+                        </span>
                         {loadout.pet && (
-                          <div>
-                            Pet: <strong className="text-cyan-400">{loadout.pet}</strong>
-                          </div>
+                          <span className="text-cyan-300 font-semibold block mt-0.5">
+                            🐾 {loadout.pet}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -387,9 +457,9 @@ function MetaArmyCard({ army }: { army: RecommendedArmy }) {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </GamePanel>
   );
 }
 
@@ -465,101 +535,115 @@ export default function MetaDashboardView() {
     : null;
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 font-sans">
-      {/* 1. Header & Clean Single-Line Summary Strip */}
-      <div className="bg-app-card border border-app-border rounded-2xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h1 className="text-xl md:text-2xl font-extrabold text-app-text tracking-tight flex items-center gap-2">
-              <Award className="text-blue-500" size={24} />
-              <span>TH18 Meta & Ordu Tavsiyeleri</span>
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/25">
+    <div className="game-theme w-full max-w-6xl mx-auto space-y-6 select-none font-sans">
+      {/* 1. Header: Authentic In-Game Tab Bar (Ordum / Kaydedilen Setler / Ordu Tarifleri) */}
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <GameTabBar>
+            <GameTab>Ordum</GameTab>
+            <GameTab active>Kaydedilen Setler</GameTab>
+            <GameTab>Ordu Tarifleri</GameTab>
+          </GameTabBar>
+
+          {/* Quick Header Actions: TownHall Tag + Refresh Button */}
+          <div className="flex items-center gap-2 pb-1.5 self-start sm:self-auto">
+            <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono">
               TH 18
             </span>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/25">
-              Örneklem: İlk 200
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40">
+              İlk 200 Oyuncu
             </span>
-          </div>
 
-          {/* Clean One-Line Summary as requested */}
-          <div className="text-xs text-app-muted font-medium mt-1.5 flex flex-wrap items-center gap-2">
-            <span>
-              <strong className="text-app-text font-bold">{(dashboard?.totalPlayersAnalyzed ?? 200).toLocaleString("tr-TR")}</strong> oyuncu
-            </span>
-            <span>•</span>
-            <span>
-              <strong className="text-app-text font-bold">{(dashboard?.totalRankedAttacksAnalyzed ?? 0).toLocaleString("tr-TR")}</strong> ranked saldırı
-            </span>
-            <span>•</span>
-            <span>Son güncelleme: <strong className="text-app-text font-bold">{formattedFetchedAt || "Az önce"}</strong></span>
+            <GameButton
+              variant="blue"
+              size="sm"
+              onClick={() => fetchDashboard(topN, selectedTh, true)}
+              disabled={loading}
+              icon={<RefreshCw size={13} className={cn(loading && "animate-spin")} />}
+              title="Meta verilerini canlı yeniden tara"
+            >
+              Yenile
+            </GameButton>
           </div>
         </div>
 
-        <button
-          onClick={() => fetchDashboard(topN, selectedTh, true)}
-          disabled={loading}
-          className="px-3.5 py-2 rounded-xl bg-app-cardSubtle hover:bg-app-border border border-app-border text-xs font-bold text-app-text cursor-pointer flex items-center gap-1.5 transition-colors self-start md:self-auto"
-          title="Verileri Canlı Yenile"
-        >
-          <RefreshCw size={14} className={cn(loading && "animate-spin text-blue-400")} />
-          <span>Yenile</span>
-        </button>
+        {/* In-game Card Subtitle Strip */}
+        <div className="game-panel game-panel-wood rounded-tl-none -mt-[3.5px] p-3 text-xs flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-amber-100 font-medium">
+            <span>
+              <strong className="text-white font-black">{(dashboard?.totalPlayersAnalyzed ?? 200).toLocaleString("tr-TR")}</strong> oyuncu analizi
+            </span>
+            <span>•</span>
+            <span>
+              <strong className="text-white font-black">{(dashboard?.totalRankedAttacksAnalyzed ?? 0).toLocaleString("tr-TR")}</strong> ranked saldırı
+            </span>
+            <span>•</span>
+            <span>Son güncelleme: <strong className="text-amber-300 font-bold">{formattedFetchedAt || "Az önce"}</strong></span>
+          </div>
+
+          <div className="text-[11px] text-amber-200/80 font-semibold">
+            Oyundaki &quot;Kaydedilen Setler&quot; Arayüzü ile 1:1 Uyumlu
+          </div>
+        </div>
       </div>
 
       {/* Background Processing / Cold Start Banner */}
       {dashboard?.isProcessing && (
-        <div className="bg-blue-500/10 border border-blue-500/25 rounded-2xl p-4 flex items-center gap-3.5 text-xs text-blue-300 shadow-sm animate-pulse">
-          <RefreshCw size={18} className="animate-spin text-blue-400 shrink-0" />
-          <div className="flex-1">
-            <div className="font-bold text-sm text-blue-200">Veriler hazırlanıyor...</div>
-            <div className="text-blue-300/80 mt-0.5">
-              {dashboard.progress?.message || "Lider tablosundaki TH18 oyuncuları taranıyor ve meta ordular analiz ediliyor, lütfen bekleyin."}
+        <GamePanel variant="blue" className="p-3">
+          <div className="flex items-center gap-3 text-xs text-blue-100">
+            <RefreshCw size={18} className="animate-spin text-sky-300 shrink-0" />
+            <div className="flex-1">
+              <div className="font-bold text-sm text-white">Veriler Taranıyor...</div>
+              <div className="text-blue-200/80 text-[11px] mt-0.5">
+                {dashboard.progress?.message || "Lider tablosundaki TH18 oyuncuları taranıyor ve meta ordular analiz ediliyor, lütfen bekleyin."}
+              </div>
             </div>
+            {dashboard.progress?.percentage !== undefined && dashboard.progress.percentage > 0 && (
+              <span className="font-mono font-bold text-sky-300 px-2 py-1 rounded bg-blue-900/60 border border-blue-500/40">
+                %{dashboard.progress.percentage.toFixed(0)}
+              </span>
+            )}
           </div>
-          {dashboard.progress?.percentage !== undefined && dashboard.progress.percentage > 0 && (
-            <span className="font-mono font-bold text-blue-400 px-2 py-1 rounded bg-blue-500/20">
-              %{dashboard.progress.percentage.toFixed(0)}
-            </span>
-          )}
-        </div>
+        </GamePanel>
       )}
 
       {/* Loading Skeleton */}
       {loading && !dashboard && (
         <div className="space-y-4">
-          <div className="h-44 bg-app-cardSubtle rounded-2xl animate-pulse border border-app-border" />
-          <div className="h-44 bg-app-cardSubtle rounded-2xl animate-pulse border border-app-border" />
+          <div className="h-44 game-panel game-panel-wood rounded-2xl animate-pulse" />
+          <div className="h-44 game-panel game-panel-wood rounded-2xl animate-pulse" />
         </div>
       )}
 
       {/* Error Notice */}
       {errorMsg && !loading && (
-        <div className="bg-app-card border border-red-500/30 rounded-2xl p-5 flex items-center gap-3 text-sm text-app-text">
-          <AlertCircle size={20} className="text-red-400 shrink-0" />
-          <div>
-            <div className="font-bold">Veri Yüklenemedi</div>
-            <div className="text-xs text-app-muted mt-0.5">{errorMsg}</div>
+        <GamePanel variant="dark" className="border-red-600/50">
+          <div className="flex items-center gap-3 text-sm text-red-200">
+            <AlertCircle size={20} className="text-red-400 shrink-0" />
+            <div>
+              <div className="font-bold text-white">Veri Yüklenemedi</div>
+              <div className="text-xs text-red-300/80 mt-0.5">{errorMsg}</div>
+            </div>
           </div>
-        </div>
+        </GamePanel>
       )}
 
-      {/* 2. Top Recommended Armies Section FIRST (As required: User sees best armies first) */}
+      {/* 2. Top Recommended Armies Section FIRST */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-app-border pb-2.5">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-            <Flame size={16} className="text-amber-500" />
-            En Yüksek Başarılı TH18 Meta Orduları ({activeArmies.length})
+        <div className="flex items-center justify-between border-b-2 border-amber-950/60 pb-2">
+          <h2 className="game-text-stroke-sm text-base sm:text-lg flex items-center gap-2">
+            <Flame size={18} className="text-amber-400" />
+            <span>En Yüksek Başarılı TH18 Meta Orduları ({activeArmies.length})</span>
           </h2>
-          <span className="text-xs text-app-muted font-medium">
-            Gerçek `armyShareCode` Kopyalama Linkleri
+          <span className="text-xs text-amber-200/80 font-semibold hidden sm:inline-block">
+            Gerçek armyShareCode Kopyalama Bağlantıları
           </span>
         </div>
 
         {activeArmies.length === 0 && !loading ? (
-          <div className="bg-app-card border border-app-border rounded-2xl p-6 text-sm text-app-muted text-center font-medium">
+          <GamePanel variant="wood" className="text-center text-sm text-amber-200/80 py-8">
             Henüz yeterli battle log kaydı bulunamadı.
-          </div>
+          </GamePanel>
         ) : (
           <div className="space-y-4">
             {activeArmies.map((army) => (
@@ -569,188 +653,174 @@ export default function MetaDashboardView() {
         )}
       </div>
 
-      {/* 3. Hero Pick Rates Section (ClashSpot Style) */}
+      {/* 3. Hero Pick Rates Section */}
       {stats && (stats.heroUsage || []).length > 0 && (
-        <div className="bg-app-card border border-app-border rounded-2xl p-5 md:p-6 shadow-sm space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-app-border pb-3">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-              <Crown size={16} className="text-amber-400" />
-              Kahraman Tercih Oranları (Hero Pick Rate %)
-            </h2>
-            <span className="text-xs font-semibold text-app-muted">
+        <GamePanel
+          variant="wood"
+          title={
+            <div className="flex items-center gap-2">
+              <Crown size={16} className="text-amber-300" />
+              <span>Kahraman Tercih Oranları (Hero Pick Rate %)</span>
+            </div>
+          }
+          headerRight={
+            <span className="text-xs text-amber-200/80 font-semibold hidden sm:inline-block">
               6 Kahraman (Minion Prince & Dragon Duke Dahil)
             </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          }
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {(stats.heroUsage || []).map((hero) => (
               <div
                 key={hero.name}
-                className="bg-app-cardSubtle border border-app-border rounded-xl p-4 space-y-2.5"
+                className="game-slot-well p-3 space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <UnitIcon name={hero.name} size="xs" />
+                    <IconFrame name={hero.name} size="xs" />
                     <div>
-                      <div className="text-xs font-bold text-app-text">{hero.name}</div>
+                      <div className="text-xs font-bold text-white">{hero.name}</div>
                       {hero.avgLevel && (
-                        <div className="text-[10px] text-app-muted font-medium">
+                        <div className="text-[10px] text-amber-200/70 font-medium">
                           Ort. Lv.{hero.avgLevel} {hero.maxedPct ? `• %${hero.maxedPct} Max` : ""}
                         </div>
                       )}
                     </div>
                   </div>
-                  <span className="text-sm font-black text-amber-400">
+                  <span className="game-text-stroke-gold text-sm font-black">
                     %{hero.usagePct.toFixed(1)}
                   </span>
                 </div>
 
-                {/* Colored Progress Bar */}
-                <div className="h-2 w-full bg-app-card rounded-full overflow-hidden border border-app-border/40">
+                {/* Clash Golden Progress Bar */}
+                <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-amber-950/80">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
+                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-300 shadow-sm"
                     style={{ width: `${Math.min(100, Math.max(0, hero.usagePct))}%` }}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </GamePanel>
       )}
 
       {/* 4. Equipment Pairs & Pets Grid */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Equipment Pairs */}
-          <div className="bg-app-card border border-app-border rounded-2xl p-5 md:p-6 shadow-sm space-y-4">
-            <div className="space-y-2 border-b border-app-border pb-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-                <Shield size={16} className="text-purple-400" />
-                Kahraman Ekipmanı İkilileri
-              </h2>
-              {/* Tabbed Hero Filter */}
-              <div className="flex flex-wrap gap-1">
+          <GamePanel
+            variant="wood"
+            title={
+              <div className="flex items-center gap-2">
+                <Shield size={16} className="text-purple-300" />
+                <span>Kahraman Ekipmanı İkilileri</span>
+              </div>
+            }
+          >
+            <div className="space-y-3">
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap gap-1 pb-2 border-b border-amber-950/40">
                 {SIX_HERO_OPTIONS.map((opt) => (
                   <button
                     key={opt}
                     onClick={() => setSelectedHeroFilter(opt)}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors border",
+                      "px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-colors border",
                       selectedHeroFilter === opt
-                        ? "bg-purple-600 text-white border-purple-500"
-                        : "bg-app-cardSubtle text-app-muted border-app-border hover:text-app-text"
+                        ? "bg-[#A97A52] text-white border-[#382014] shadow-sm font-black"
+                        : "bg-black/30 text-amber-200/70 border-amber-950/40 hover:text-white"
                     )}
                   >
                     {opt}
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="space-y-2.5">
-              {displayedEquipmentPairs.length === 0 ? (
-                <div className="text-xs text-app-muted font-medium py-3">Veri bulunamadı.</div>
-              ) : (
-                displayedEquipmentPairs.map((item, idx) => (
+              {/* Items List */}
+              <div className="space-y-2">
+                {displayedEquipmentPairs.map((pair, idx) => (
                   <div
-                    key={`${item.hero}-${item.pair}-${idx}`}
-                    className="bg-app-cardSubtle border border-app-border rounded-xl p-3 space-y-1.5"
+                    key={`${pair.hero}-${pair.pair}-${idx}`}
+                    className="p-2.5 rounded-lg bg-black/30 border border-amber-950/40 flex items-center justify-between gap-2"
                   >
-                    <div className="flex items-center justify-between text-xs font-bold">
-                      <span className="text-app-text truncate pr-2" title={item.pair}>
-                        {item.pair}
-                      </span>
-                      <span className="text-purple-400 shrink-0 font-extrabold">
-                        %{item.usagePct.toFixed(1)}
-                      </span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <IconFrame name={pair.hero} size="xs" />
+                      <div className="truncate">
+                        <div className="text-xs font-bold text-white truncate">
+                          {pair.pair}
+                        </div>
+                        <div className="text-[10px] text-amber-200/60 font-medium">
+                          {pair.count} saldırı örneği
+                        </div>
+                      </div>
                     </div>
-                    <div className="h-1.5 w-full bg-app-card rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-purple-500"
-                        style={{ width: `${Math.min(100, Math.max(0, item.usagePct))}%` }}
-                      />
-                    </div>
+
+                    <span className="game-text-stroke-sm text-xs font-bold text-purple-300 shrink-0">
+                      %{pair.usagePct.toFixed(1)}
+                    </span>
                   </div>
-                ))
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          </GamePanel>
 
-          {/* Pets & Super Troops */}
-          <div className="bg-app-card border border-app-border rounded-2xl p-5 md:p-6 shadow-sm space-y-5">
-            {/* Pets */}
+          {/* Pets */}
+          <GamePanel
+            variant="wood"
+            title={
+              <div className="flex items-center gap-2">
+                <Sparkles size={16} className="text-cyan-300" />
+                <span>Evcil Hayvan Tercihleri (Pets)</span>
+              </div>
+            }
+          >
             <div className="space-y-3">
-              <div className="space-y-2 border-b border-app-border pb-3">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-                  <Sparkles size={16} className="text-cyan-400" />
-                  Evcil Hayvan Tercih Oranları
-                </h2>
-                <div className="flex flex-wrap gap-1">
-                  {SIX_HERO_OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      onClick={() => setSelectedPetHeroFilter(opt)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors border",
-                        selectedPetHeroFilter === opt
-                          ? "bg-cyan-600 text-white border-cyan-500"
-                          : "bg-app-cardSubtle text-app-muted border-app-border hover:text-app-text"
-                      )}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
+              {/* Filter Tabs */}
+              <div className="flex flex-wrap gap-1 pb-2 border-b border-amber-950/40">
+                {SIX_HERO_OPTIONS.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setSelectedPetHeroFilter(opt)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md text-[11px] font-bold cursor-pointer transition-colors border",
+                      selectedPetHeroFilter === opt
+                        ? "bg-[#A97A52] text-white border-[#382014] shadow-sm font-black"
+                        : "bg-black/30 text-amber-200/70 border-amber-950/40 hover:text-white"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                ))}
               </div>
 
-              <div className="space-y-2.5">
-                {displayedPets.length === 0 ? (
-                  <div className="text-xs text-app-muted font-medium py-2">Veri bulunamadı.</div>
-                ) : (
-                  displayedPets.map((pet) => (
-                    <div
-                      key={`${pet.hero || "all"}-${pet.name}`}
-                      className="bg-app-cardSubtle border border-app-border rounded-xl p-3 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between text-xs font-bold">
-                        <span className="text-app-text">{pet.name}</span>
-                        <span className="text-cyan-400 font-extrabold">
-                          %{pet.usagePct.toFixed(1)}
-                        </span>
-                      </div>
-                      <div className="h-1.5 w-full bg-app-card rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-cyan-500"
-                          style={{ width: `${Math.min(100, Math.max(0, pet.usagePct))}%` }}
-                        />
+              {/* Items List */}
+              <div className="space-y-2">
+                {displayedPets.map((pet, idx) => (
+                  <div
+                    key={`${pet.name}-${idx}`}
+                    className="p-2.5 rounded-lg bg-black/30 border border-amber-950/40 flex items-center justify-between gap-2"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <IconFrame name={pet.name} size="xs" rarity="legendary" />
+                      <div className="truncate">
+                        <div className="text-xs font-bold text-white truncate">
+                          {pet.name}
+                        </div>
+                        <div className="text-[10px] text-amber-200/60 font-medium">
+                          {pet.hero ? `${pet.hero} ile` : `${pet.count} saldırı`}
+                        </div>
                       </div>
                     </div>
-                  ))
-                )}
+
+                    <span className="game-text-stroke-sm text-xs font-bold text-cyan-300 shrink-0">
+                      %{pet.usagePct.toFixed(1)}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-
-            {/* Super Troops */}
-            {stats.superTroopUsage && stats.superTroopUsage.length > 0 && (
-              <div className="pt-3 border-t border-app-border space-y-2.5">
-                <h2 className="text-sm font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-                  <Flame size={16} className="text-rose-400" />
-                  Aktif Süper Birlikler
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {stats.superTroopUsage.slice(0, 6).map((st) => (
-                    <div
-                      key={st.name}
-                      className="px-3 py-1.5 rounded-lg bg-app-cardSubtle border border-app-border text-xs flex items-center gap-2"
-                    >
-                      <span className="font-bold text-app-text">{st.name}</span>
-                      <span className="font-extrabold text-rose-400">%{st.usagePct.toFixed(1)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+          </GamePanel>
         </div>
       )}
     </div>

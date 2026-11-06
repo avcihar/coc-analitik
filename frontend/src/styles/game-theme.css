@@ -1,0 +1,596 @@
+/* ==========================================================================
+   CLASH OF CLANS GAME THEME DESIGN SYSTEM
+   --------------------------------------------------------------------------
+   All tokens are measured directly from in-game Clash of Clans screenshots:
+   - saved_armies: media_1793976314345_6814d384.jpg (Ordum / Kaydedilen Setler)
+   - clan: media_1793976352148_aabc3aae.jpg (Klan Arayüzü)
+   - profile: media_1793976352146_bce3b3d6.jpg (Oyuncu Profili)
+   - profile_troops1: media_1793976352155_e6195bfa.jpg (Birlikler & Ekipmanlar)
+   - profile_troops2: media_1793976352158_30675680.jpg (Büyüler & Kuşatma)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+
+.game-theme {
+  /* ------------------------------------------------------------------------
+     1. TYPOGRAPHY
+     ------------------------------------------------------------------------ */
+  --game-font: 'Lilita One', 'Segoe UI Black', Impact, -apple-system, BlinkMacSystemFont, sans-serif;
+  --game-font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* ------------------------------------------------------------------------
+     2. PANEL SURFACES (Measured from screenshots)
+     ------------------------------------------------------------------------ */
+  /* Wood Card Body (from saved_armies: Card body #735342 / #6D4F41) */
+  --game-wood-light: #7E5B47;
+  --game-wood-mid: #6E4D3A;
+  --game-wood-dark: #583929;
+  --game-wood-border: #2C180E;
+  --game-wood-shadow: #1E0F08;
+  --game-wood-highlight: rgba(255, 255, 255, 0.16);
+
+  /* Wood Card Header / Inactive Tab (from saved_armies: #563B30 / #4C3227) */
+  --game-wood-header-light: #5E3F32;
+  --game-wood-header-dark: #462C22;
+  --game-wood-header-border: #24140C;
+
+  /* Inset Well / Slot Container (from saved_armies: troop well #463328 / #3A271E) */
+  --game-slot-bg-light: #443026;
+  --game-slot-bg-dark: #342219;
+  --game-slot-border: #22140D;
+  --game-slot-inner-shadow: rgba(0, 0, 0, 0.65);
+
+  /* Cream / Tan Active Tab (from saved_armies: active tab #C59B75 / #B68963) */
+  --game-cream-light: #D8AF86;
+  --game-cream-mid: #C69B73;
+  --game-cream-dark: #A97A52;
+  --game-cream-border: #382014;
+  --game-cream-shadow: #24130A;
+
+  /* Blue-Gray Profile Panel (from profile: #6B789A / #5B6888) */
+  --game-blue-panel-light: #7684A8;
+  --game-blue-panel-mid: #687597;
+  --game-blue-panel-dark: #546080;
+  --game-blue-panel-border: #2C3549;
+  --game-blue-panel-shadow: #1A202D;
+
+  /* Dark Inset Box (from profile & profile_troops1: #4C5868 / #384252) */
+  --game-dark-box-light: #3C4757;
+  --game-dark-box-mid: #2F3845;
+  --game-dark-box-dark: #222933;
+  --game-dark-box-border: #151A21;
+
+  /* Clan Castle Inset Box (from saved_armies: CC box #715A41) */
+  --game-cc-box-bg: #4A3A2C;
+  --game-cc-box-border: #281E15;
+
+  /* ------------------------------------------------------------------------
+     3. 3D BUTTON PALETTES (Measured from clan and saved_armies)
+     ------------------------------------------------------------------------ */
+  /* Green Button (from saved_armies 'Kullan' & 'Paylaş': #94C55A -> #649140 -> #3D6822) */
+  --game-btn-green-top: #9CE04A;
+  --game-btn-green-mid: #72BD36;
+  --game-btn-green-bot: #519E23;
+  --game-btn-green-bevel: #2E6B11;
+  --game-btn-green-shadow: #194008;
+  --game-btn-green-border: #142E06;
+
+  /* Blue Button (from clan 'Klan Duyurusu': #8AE4FE -> #2A87D0 -> #1768B2) */
+  --game-btn-blue-top: #93EBFF;
+  --game-btn-blue-mid: #3399E8;
+  --game-btn-blue-bot: #1B72C6;
+  --game-btn-blue-bevel: #104C8A;
+  --game-btn-blue-shadow: #092C52;
+  --game-btn-blue-border: #061F3B;
+
+  /* Red Button (from clan 'Ayrıl' and saved_armies 'X': #FF5B65 -> #E82229 -> #C41016) */
+  --game-btn-red-top: #FF6E75;
+  --game-btn-red-mid: #EB2830;
+  --game-btn-red-bot: #C61318;
+  --game-btn-red-bevel: #7E0A0E;
+  --game-btn-red-shadow: #4A0507;
+  --game-btn-red-border: #330305;
+
+  /* Gold / Yellow Button (from clan 'Düzenle' & 'E-posta': #FFE668 -> #F5B824 -> #D48F0A) */
+  --game-btn-gold-top: #FFEB75;
+  --game-btn-gold-mid: #F8C12C;
+  --game-btn-gold-bot: #DB930D;
+  --game-btn-gold-bevel: #8A5603;
+  --game-btn-gold-shadow: #523201;
+  --game-btn-gold-border: #382101;
+
+  /* Gray / Disabled Button */
+  --game-btn-gray-top: #B8BCC6;
+  --game-btn-gray-mid: #9398A5;
+  --game-btn-gray-bot: #737885;
+  --game-btn-gray-bevel: #464A53;
+  --game-btn-gray-shadow: #2B2E34;
+  --game-btn-gray-border: #1C1E22;
+
+  /* ------------------------------------------------------------------------
+     4. BADGES & PILLS
+     ------------------------------------------------------------------------ */
+  /* Level Badge (from profile_troops1 & saved_armies) */
+  --game-badge-bg: #1B1E26;
+  --game-badge-border: #0A0C10;
+  --game-badge-text: #FFFFFF;
+  --game-badge-max-bg: #F4BA28;
+  --game-badge-max-border: #6B4204;
+  --game-badge-max-text: #FFFFFF;
+
+  /* Stat Pill (Troop/Spell capacity from saved_armies: 352/352, 11/11) */
+  --game-pill-bg: rgba(22, 14, 9, 0.75);
+  --game-pill-border: #3A2317;
+  --game-pill-text: #FFFFFF;
+
+  /* ------------------------------------------------------------------------
+     5. BORDERS & SHADOWS (Geometry measured from screenshots)
+     ------------------------------------------------------------------------ */
+  --game-radius-sm: 6px;
+  --game-radius-md: 10px;
+  --game-radius-lg: 16px;
+  --game-radius-xl: 22px;
+}
+
+/* ==========================================================================
+   TYPOGRAPHY UTILITIES
+   ========================================================================== */
+
+/* Iconic in-game text stroke: Crisp white letters with solid black outline */
+.game-theme .game-text-stroke,
+.game-text-stroke {
+  font-family: var(--game-font);
+  color: #FFFFFF;
+  -webkit-text-stroke: 1.4px #000000;
+  text-shadow:
+    0 2px 0 #000000,
+    -1px -1px 0 #000000,
+     1px -1px 0 #000000,
+    -1px  1px 0 #000000,
+     1px  1px 0 #000000,
+     0 3px 2px rgba(0, 0, 0, 0.85);
+  letter-spacing: 0.02em;
+}
+
+.game-theme .game-text-stroke-sm,
+.game-text-stroke-sm {
+  font-family: var(--game-font);
+  color: #FFFFFF;
+  -webkit-text-stroke: 0.9px #000000;
+  text-shadow:
+    0 1.5px 0 #000000,
+    -1px 0 0 #000000,
+     1px 0 0 #000000,
+     0 -1px 0 #000000,
+     0 1px 0 #000000,
+     0 2px 2px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.01em;
+}
+
+.game-theme .game-text-stroke-gold,
+.game-text-stroke-gold {
+  font-family: var(--game-font);
+  color: #FFEB75;
+  -webkit-text-stroke: 1.2px #492800;
+  text-shadow:
+    0 2px 0 #492800,
+    -1px 0 0 #492800,
+     1px 0 0 #492800,
+     0 -1px 0 #492800,
+     0 1px 0 #492800,
+     0 3px 2px rgba(0, 0, 0, 0.85);
+}
+
+.game-theme .game-text-stroke-blue,
+.game-text-stroke-blue {
+  font-family: var(--game-font);
+  color: #72DCFF;
+  -webkit-text-stroke: 1.2px #092A4E;
+  text-shadow:
+    0 2px 0 #092A4E,
+    -1px 0 0 #092A4E,
+     1px 0 0 #092A4E,
+     0 -1px 0 #092A4E,
+     0 1px 0 #092A4E,
+     0 3px 2px rgba(0, 0, 0, 0.85);
+}
+
+.game-theme .game-text-stroke-green,
+.game-text-stroke-green {
+  font-family: var(--game-font);
+  color: #B5F55D;
+  -webkit-text-stroke: 1.2px #183C08;
+  text-shadow:
+    0 2px 0 #183C08,
+    -1px 0 0 #183C08,
+     1px 0 0 #183C08,
+     0 -1px 0 #183C08,
+     0 1px 0 #183C08,
+     0 3px 2px rgba(0, 0, 0, 0.85);
+}
+
+/* ==========================================================================
+   GAME BUTTON STYLING (3D Tactical Bevel & Click Physics)
+   ========================================================================== */
+
+.game-theme .game-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--game-font);
+  font-weight: 900;
+  color: #FFFFFF;
+  text-align: center;
+  border-style: solid;
+  border-width: 2.5px;
+  border-radius: var(--game-radius-md);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Accessible focus ring */
+.game-theme .game-btn:focus-visible {
+  outline: 3px solid #FFEB75;
+  outline-offset: 2px;
+}
+
+/* Hover: subtle top glow */
+.game-theme .game-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* Active: 3D depressed effect (2px downward translation, shadow contracts) */
+.game-theme .game-btn:active:not(:disabled) {
+  transform: translateY(2.5px);
+}
+
+/* Disabled state */
+.game-theme .game-btn:disabled,
+.game-theme .game-btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  filter: grayscale(0.85) opacity(0.65);
+  transform: none !important;
+  box-shadow: 0 2px 0 var(--game-btn-gray-shadow) !important;
+}
+
+/* Button Variants */
+.game-theme .game-btn-green {
+  background: linear-gradient(180deg, var(--game-btn-green-top) 0%, var(--game-btn-green-mid) 48%, var(--game-btn-green-bot) 100%);
+  border-color: var(--game-btn-green-border);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
+    0 4px 0 var(--game-btn-green-bevel),
+    0 6px 6px rgba(0, 0, 0, 0.45);
+}
+.game-theme .game-btn-green:active:not(:disabled) {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
+    0 1.5px 0 var(--game-btn-green-bevel),
+    0 3px 3px rgba(0, 0, 0, 0.35);
+}
+
+.game-theme .game-btn-blue {
+  background: linear-gradient(180deg, var(--game-btn-blue-top) 0%, var(--game-btn-blue-mid) 48%, var(--game-btn-blue-bot) 100%);
+  border-color: var(--game-btn-blue-border);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    0 4px 0 var(--game-btn-blue-bevel),
+    0 6px 6px rgba(0, 0, 0, 0.45);
+}
+.game-theme .game-btn-blue:active:not(:disabled) {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.5),
+    0 1.5px 0 var(--game-btn-blue-bevel),
+    0 3px 3px rgba(0, 0, 0, 0.35);
+}
+
+.game-theme .game-btn-red {
+  background: linear-gradient(180deg, var(--game-btn-red-top) 0%, var(--game-btn-red-mid) 48%, var(--game-btn-red-bot) 100%);
+  border-color: var(--game-btn-red-border);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
+    0 4px 0 var(--game-btn-red-bevel),
+    0 6px 6px rgba(0, 0, 0, 0.45);
+}
+.game-theme .game-btn-red:active:not(:disabled) {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.45),
+    0 1.5px 0 var(--game-btn-red-bevel),
+    0 3px 3px rgba(0, 0, 0, 0.35);
+}
+
+.game-theme .game-btn-gold {
+  background: linear-gradient(180deg, var(--game-btn-gold-top) 0%, var(--game-btn-gold-mid) 48%, var(--game-btn-gold-bot) 100%);
+  border-color: var(--game-btn-gold-border);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
+    0 4px 0 var(--game-btn-gold-bevel),
+    0 6px 6px rgba(0, 0, 0, 0.45);
+}
+.game-theme .game-btn-gold:active:not(:disabled) {
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.6),
+    0 1.5px 0 var(--game-btn-gold-bevel),
+    0 3px 3px rgba(0, 0, 0, 0.35);
+}
+
+/* Button Sizes */
+.game-theme .game-btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: var(--game-radius-sm);
+  border-width: 2px;
+}
+.game-theme .game-btn-md {
+  padding: 0.55rem 1.15rem;
+  font-size: 0.95rem;
+  border-radius: var(--game-radius-md);
+  border-width: 2.5px;
+}
+.game-theme .game-btn-lg {
+  padding: 0.75rem 1.6rem;
+  font-size: 1.15rem;
+  border-radius: var(--game-radius-lg);
+  border-width: 3px;
+}
+
+/* ==========================================================================
+   GAME PANELS (Wood, Blue, Dark, Cream)
+   ========================================================================== */
+
+.game-theme .game-panel {
+  position: relative;
+  border-radius: var(--game-radius-lg);
+  border-style: solid;
+  border-width: 3.5px;
+  box-sizing: border-box;
+}
+
+/* Wood Panel Variant (Ordum / Kaydedilen Setler Card) */
+.game-theme .game-panel-wood {
+  background: linear-gradient(180deg, var(--game-wood-light) 0%, var(--game-wood-mid) 40%, var(--game-wood-dark) 100%);
+  border-color: var(--game-wood-border);
+  box-shadow:
+    inset 0 2px 0 var(--game-wood-highlight),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+    0 5px 0 var(--game-wood-shadow),
+    0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Blue-Gray Panel Variant (Profile / Clan Screen) */
+.game-theme .game-panel-blue {
+  background: linear-gradient(180deg, var(--game-blue-panel-light) 0%, var(--game-blue-panel-mid) 40%, var(--game-blue-panel-dark) 100%);
+  border-color: var(--game-blue-panel-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    0 5px 0 var(--game-blue-panel-shadow),
+    0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* Dark Container Panel Variant (Inner inset / black backdrop) */
+.game-theme .game-panel-dark {
+  background: linear-gradient(180deg, var(--game-dark-box-light) 0%, var(--game-dark-box-mid) 50%, var(--game-dark-box-dark) 100%);
+  border-color: var(--game-dark-box-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    0 4px 0 #11151A,
+    0 6px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Cream Panel Variant */
+.game-theme .game-panel-cream {
+  background: linear-gradient(180deg, var(--game-cream-light) 0%, var(--game-cream-mid) 50%, var(--game-cream-dark) 100%);
+  border-color: var(--game-cream-border);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.4),
+    0 4px 0 var(--game-cream-shadow),
+    0 6px 12px rgba(0, 0, 0, 0.45);
+}
+
+/* Panel Header Strip (Wood bar across top of card) */
+.game-theme .game-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(180deg, var(--game-wood-header-light) 0%, var(--game-wood-header-dark) 100%);
+  border-bottom: 2.5px solid var(--game-wood-header-border);
+  border-top-left-radius: calc(var(--game-radius-lg) - 3.5px);
+  border-top-right-radius: calc(var(--game-radius-lg) - 3.5px);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Inset Slot Well (Where troops and spells sit) */
+.game-theme .game-slot-well {
+  background: linear-gradient(180deg, var(--game-slot-bg-dark) 0%, var(--game-slot-bg-light) 100%);
+  border: 2px solid var(--game-slot-border);
+  border-radius: var(--game-radius-md);
+  padding: 0.5rem;
+  box-shadow:
+    inset 0 3px 6px var(--game-slot-inner-shadow),
+    inset 0 1px 2px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Clan Castle Dedicated Well */
+.game-theme .game-cc-well {
+  background: var(--game-cc-box-bg);
+  border: 2px solid var(--game-cc-box-border);
+  border-radius: var(--game-radius-md);
+  padding: 0.4rem 0.55rem;
+  box-shadow:
+    inset 0 3px 5px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   TABS (GameTabBar & GameTab)
+   ========================================================================== */
+
+.game-theme .game-tab-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  padding: 0 0.5rem;
+  background: #4E3428;
+  border-top-left-radius: var(--game-radius-lg);
+  border-top-right-radius: var(--game-radius-lg);
+  border: 3.5px solid #2B160D;
+  border-bottom: none;
+  overflow-x: auto;
+  user-select: none;
+}
+
+.game-theme .game-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.4rem;
+  font-family: var(--game-font);
+  font-size: 1rem;
+  border-top-left-radius: var(--game-radius-md);
+  border-top-right-radius: var(--game-radius-md);
+  border: 2.5px solid #261309;
+  border-bottom: none;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+/* Active tab: Cream wood */
+.game-theme .game-tab-active {
+  background: linear-gradient(180deg, var(--game-cream-light) 0%, var(--game-cream-mid) 50%, var(--game-cream-dark) 100%);
+  color: #FFFFFF;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45);
+  transform: translateY(2px);
+  z-index: 2;
+}
+
+/* Inactive tab: Dark wood */
+.game-theme .game-tab-inactive {
+  background: linear-gradient(180deg, #644436 0%, #4D3227 100%);
+  color: #C2AB9A;
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.15);
+  opacity: 0.9;
+  z-index: 1;
+}
+
+.game-theme .game-tab-inactive:hover {
+  opacity: 1;
+  filter: brightness(1.1);
+}
+
+/* ==========================================================================
+   ICON FRAME & LEVEL BADGE
+   ========================================================================== */
+
+.game-theme .game-icon-frame {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #373D4D 0%, #20242E 100%);
+  border: 2px solid #14171E;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.6);
+  flex-shrink: 0;
+}
+
+/* Rarity border variants */
+.game-theme .game-icon-frame-common {
+  border-color: #14171E;
+}
+.game-theme .game-icon-frame-rare {
+  border-color: #1A75C8;
+}
+.game-theme .game-icon-frame-epic {
+  border-color: #9C33D4;
+}
+.game-theme .game-icon-frame-legendary {
+  border-color: #EFA613;
+}
+
+/* Unit Quantity Count Badge (Top-left: e.g. "x2", "x6") */
+.game-theme .game-count-badge {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-family: var(--game-font);
+  font-size: 0.72rem;
+  line-height: 1;
+  color: #FFFFFF;
+  -webkit-text-stroke: 0.8px #000000;
+  text-shadow: 0 1px 2px #000000;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Level Badge (Bottom-right: e.g. "12", "14", "MAX") */
+.game-theme .game-level-badge {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: var(--game-badge-bg);
+  border: 1px solid var(--game-badge-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+  font-family: var(--game-font);
+  font-size: 0.65rem;
+  line-height: 1;
+  color: #FFFFFF;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.game-theme .game-level-badge-max {
+  background: linear-gradient(180deg, #FDD64B 0%, #D88E10 100%);
+  border-color: #613B00;
+  color: #FFFFFF;
+  -webkit-text-stroke: 0.4px #4D2D00;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   STAT PILL (Capacity Indicators e.g. 352/352, 11/11, 3/3, 61/61)
+   ========================================================================== */
+
+.game-theme .game-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--game-pill-bg);
+  border: 1.5px solid var(--game-pill-border);
+  border-radius: 9999px;
+  font-family: var(--game-font);
+  font-size: 0.8rem;
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .game-theme .game-btn {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+

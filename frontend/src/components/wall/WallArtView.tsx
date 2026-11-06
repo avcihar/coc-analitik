@@ -47,6 +47,8 @@ import {
 import { getAllBitmapFonts, getBitmapFont, BitmapFont } from "@/lib/bitmapFonts";
 import {
   ASSETS_CONFIG,
+  getSceneryConfig,
+  SceneryAssetConfig,
   mapGridToScenery,
   mapSceneryToGrid,
 } from "@/lib/assetsConfig";
@@ -155,15 +157,59 @@ export default function WallArtView() {
   const [viewMode, setViewMode] = useState<"2d" | "3d">("3d");
   const [showDebugGrid, setShowDebugGrid] = useState<boolean>(false);
   const [show2dSceneryBg, setShow2dSceneryBg] = useState<boolean>(false);
+
+  // Scenery Selector State
+  const availableSceneries = useMemo(() => {
+    return ASSETS_CONFIG.sceneries.filter((s) => s.verified !== false);
+  }, []);
+
+  const [selectedSceneryId, setSelectedSceneryId] = useState<string>("winter");
+  const [sceneryLoading, setSceneryLoading] = useState<boolean>(false);
   const [sceneryImg, setSceneryImg] = useState<HTMLImageElement | null>(null);
   const [wallImg, setWallImg] = useState<HTMLImageElement | null>(null);
 
-  // Preload real scenery background and wall 19 texture
+  // Restore selected scenery from localStorage on mount
   useEffect(() => {
-    const s = new Image();
-    s.src = ASSETS_CONFIG.scenery.src;
-    s.onload = () => setSceneryImg(s);
+    try {
+      const saved = localStorage.getItem("wallart.scenery");
+      if (saved && availableSceneries.some((s) => s.id === saved)) {
+        setSelectedSceneryId(saved);
+      }
+    } catch {
+      // LocalStorage access fallback
+    }
+  }, [availableSceneries]);
 
+  const handleSelectScenery = useCallback((id: string) => {
+    if (!availableSceneries.some((s) => s.id === id)) return;
+    setSelectedSceneryId(id);
+    try {
+      localStorage.setItem("wallart.scenery", id);
+    } catch {
+      // LocalStorage access fallback
+    }
+  }, [availableSceneries]);
+
+  const currentScenery: SceneryAssetConfig = useMemo(() => {
+    return getSceneryConfig(selectedSceneryId);
+  }, [selectedSceneryId]);
+
+  // Load real scenery background dynamically when selected scenery changes
+  useEffect(() => {
+    setSceneryLoading(true);
+    const s = new Image();
+    s.src = currentScenery.src;
+    s.onload = () => {
+      setSceneryImg(s);
+      setSceneryLoading(false);
+    };
+    s.onerror = () => {
+      setSceneryLoading(false);
+    };
+  }, [currentScenery.src]);
+
+  // Preload wall texture once
+  useEffect(() => {
     const w = new Image();
     w.src = ASSETS_CONFIG.wall.src;
     w.onload = () => setWallImg(w);
@@ -325,12 +371,12 @@ export default function WallArtView() {
     if (!ctx) return;
 
     // Use natural image dimensions for 1:1 pixel precision
-    const width = sceneryImg?.naturalWidth || ASSETS_CONFIG.scenery.naturalWidth;
-    const height = sceneryImg?.naturalHeight || ASSETS_CONFIG.scenery.naturalHeight;
+    const width = currentScenery.naturalWidth;
+    const height = currentScenery.naturalHeight;
     canvas.width = width;
     canvas.height = height;
 
-    const buildArea = ASSETS_CONFIG.scenery.buildArea;
+    const buildArea = currentScenery.buildArea;
 
     // 1. Draw Real In-Game Village Scenery
     if (sceneryImg && sceneryImg.complete) {
@@ -457,7 +503,7 @@ export default function WallArtView() {
         ctx.fillRect(center.x - 12, center.y - 12, 24, 24);
       }
     }
-  }, [viewMode, result, sceneryImg, wallImg, showDebugGrid]);
+  }, [viewMode, result, sceneryImg, wallImg, showDebugGrid, currentScenery]);
 
   // ── Canvas Drag-to-Position Handlers (2D and 3D) ───────────────────────────
   const handlePointerDown = (
@@ -485,7 +531,7 @@ export default function WallArtView() {
       const gridPt = mapSceneryToGrid(
         mousePixelX,
         mousePixelY,
-        ASSETS_CONFIG.scenery.buildArea
+        currentScenery.buildArea
       );
       startGridCol = gridPt.col;
       startGridRow = gridPt.row;
@@ -530,7 +576,7 @@ export default function WallArtView() {
         const currentGrid = mapSceneryToGrid(
           mousePixelX,
           mousePixelY,
-          ASSETS_CONFIG.scenery.buildArea
+          currentScenery.buildArea
         );
 
         deltaC = Math.round(currentGrid.col - dragRef.current.startGridCol);
@@ -574,7 +620,7 @@ export default function WallArtView() {
       const gridPt = mapSceneryToGrid(
         mousePixelX,
         mousePixelY,
-        ASSETS_CONFIG.scenery.buildArea
+        currentScenery.buildArea
       );
       const c = Math.floor(gridPt.col);
       const r = Math.floor(gridPt.row);
@@ -1362,6 +1408,51 @@ export default function WallArtView() {
               </div>
             </div>
 
+            {/* Scenery Selector Toolbar */}
+            <div className="space-y-2 pt-1 pb-1">
+              <div className="flex items-center justify-between text-xs font-bold px-1">
+                <span className="text-app-muted flex items-center gap-1.5">
+                  <ImageIcon size={14} className="text-amber-400" /> Ana Köy Sahnesi ({availableSceneries.length})
+                </span>
+                <span className="text-[11px] font-mono text-amber-400 font-bold bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 truncate max-w-[240px]">
+                  {currentScenery.name}
+                </span>
+              </div>
+
+              {/* Horizontal Scrollable Ribbon with Snap */}
+              <div className="flex items-center gap-2 overflow-x-auto py-2 px-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900/50 rounded-xl bg-app-cardSubtle/50 border border-app-border/50 select-none">
+                {availableSceneries.map((sc) => {
+                  const isSelected = sc.id === selectedSceneryId;
+                  return (
+                    <button
+                      key={sc.id}
+                      type="button"
+                      onClick={() => handleSelectScenery(sc.id)}
+                      className={cn(
+                        "relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer group/btn",
+                        isSelected
+                          ? "border-amber-400 ring-2 ring-amber-400/40 scale-105 shadow-md shadow-amber-500/20 z-10"
+                          : "border-app-border/80 hover:border-slate-400 opacity-75 hover:opacity-100 hover:scale-102"
+                      )}
+                      title={`${sc.name} (${sc.naturalWidth}×${sc.naturalHeight})`}
+                    >
+                      <img
+                        src={sc.thumb}
+                        alt={sc.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover"
+                      />
+                      {isSelected && (
+                        <div className="absolute inset-x-0 bottom-0 bg-amber-500 text-[8px] sm:text-[9px] font-black text-slate-950 text-center py-0.5 leading-none tracking-tight">
+                          SEÇİLİ
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Canvas Viewport */}
             <div className="overflow-x-auto flex flex-col items-center py-2 bg-app-bg/50 rounded-xl border border-app-border/60">
               {viewMode === "2d" ? (
@@ -1412,6 +1503,14 @@ export default function WallArtView() {
                     </div>
                   )}
 
+                  {/* Scenery Loading Transition Overlay */}
+                  {sceneryLoading && (
+                    <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-10 rounded-xl">
+                      <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs text-amber-300 font-semibold">Sahne Yükleniyor...</span>
+                    </div>
+                  )}
+
                   <canvas
                     ref={canvas3dRef}
                     onPointerDown={(e) => handlePointerDown(e, "3d")}
@@ -1424,10 +1523,15 @@ export default function WallArtView() {
                         ? "cursor-grabbing border-amber-400 shadow-amber-500/20 ring-1 ring-amber-400/50"
                         : "cursor-grab border-app-border hover:border-amber-500/50"
                     )}
-                    style={{ width: "100%", maxWidth: "800px", height: "auto", aspectRatio: "3705 / 2545" }}
+                    style={{
+                      width: "100%",
+                      maxWidth: "800px",
+                      height: "auto",
+                      aspectRatio: `${currentScenery.naturalWidth} / ${currentScenery.naturalHeight}`,
+                    }}
                   />
                   <div className="text-center text-[10px] text-app-muted mt-2 font-semibold">
-                    Kış Sahnesi (Winter Scenery) • Gerçek Seviye 19 Duvar Dokusu ile İzometrik Köy Haritası
+                    {currentScenery.name} • Gerçek Seviye 19 Duvar Dokusu ile İzometrik Köy Haritası
                   </div>
                 </div>
               )}

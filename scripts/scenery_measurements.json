@@ -1,0 +1,2732 @@
+[
+  {
+    "id": "winter",
+    "name": "Kış Sahnesi (Winter)",
+    "file": "Scenery_Ingame_Winter.webp",
+    "width": 3705,
+    "height": 2545,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "calibrated",
+    "top": {
+      "x": 1894.5,
+      "y": 265.5
+    },
+    "right": {
+      "x": 3107.0,
+      "y": 1175.0
+    },
+    "bottom": {
+      "x": 1894.5,
+      "y": 2084.5
+    },
+    "left": {
+      "x": 682.0,
+      "y": 1175.0
+    },
+    "cell_step": {
+      "col": [
+        27.56,
+        20.67
+      ],
+      "row": [
+        -27.56,
+        20.67
+      ]
+    },
+    "ratio": 1.3332,
+    "note": "Referans kalibre sahne. Dış 3 karo koyu çim hariç 44x44 açık yeşil inşa alanı (2425x1819 px).",
+    "reason": null
+  },
+  {
+    "id": "fireandice",
+    "name": "Fire & Ice",
+    "file": "FireAndIce_Scenery.webp",
+    "width": 3705,
+    "height": 2882,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1880.5,
+      "y": 478.0
+    },
+    "right": {
+      "x": 2946.0,
+      "y": 1279.5
+    },
+    "bottom": {
+      "x": 1880.5,
+      "y": 2081.0
+    },
+    "left": {
+      "x": 815.0,
+      "y": 1279.5
+    },
+    "cell_step": {
+      "col": [
+        24.22,
+        18.22
+      ],
+      "row": [
+        -24.22,
+        18.22
+      ]
+    },
+    "ratio": 1.3294,
+    "note": "Buz/ateş zemininde 2D FFT otokorelasyon ile karo adımı dx=48.43, dy=36.43 (oran 1.3294) olarak ölçüldü. 44 karo diamond: 2131x1603 px, merkez: 1880.5, 1279.5.",
+    "reason": null
+  },
+  {
+    "id": "glory_arena",
+    "name": "Glory Arena",
+    "file": "Glory_Arena_Scenery.webp",
+    "width": 3705,
+    "height": 2052,
+    "status": "Güvenilmez",
+    "verified": false,
+    "method": "none",
+    "top": {
+      "x": 1852.5,
+      "y": 700.0
+    },
+    "right": {
+      "x": 2200.0,
+      "y": 1026.0
+    },
+    "bottom": {
+      "x": 1852.5,
+      "y": 1352.0
+    },
+    "left": {
+      "x": 1505.0,
+      "y": 1026.0
+    },
+    "cell_step": {
+      "col": [
+        7.9,
+        7.41
+      ],
+      "row": [
+        -7.9,
+        7.41
+      ]
+    },
+    "ratio": 1.066,
+    "note": null,
+    "reason": "Futbol stadyumu zemininde inşa alanı sekizgen tribünlerle çevrilidir; standart 44x44 elmas köy alanı ve izometrik köşe yapısı bulunmamaktadır."
+  },
+  {
+    "id": "10th_clashiversary",
+    "name": "10th Clashiversary",
+    "file": "Map_10th_Clashiversary.webp",
+    "width": 1000,
+    "height": 772,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 115.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 359.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 603.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 359.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x772 sahnesi; dikey merkez cy=359.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "13th_clash_a_versary",
+    "name": "13th Clash-A-Versary",
+    "file": "Map_13th-Clash-A-Versary_Scenery.webp",
+    "width": 3705,
+    "height": 2494,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1840.4,
+      "y": 734.4
+    },
+    "right": {
+      "x": 2522.4,
+      "y": 1240.4
+    },
+    "bottom": {
+      "x": 1840.4,
+      "y": 1746.4
+    },
+    "left": {
+      "x": 1158.4,
+      "y": 1240.4
+    },
+    "cell_step": {
+      "col": [
+        15.5,
+        11.5
+      ],
+      "row": [
+        -15.5,
+        11.5
+      ]
+    },
+    "ratio": 1.3478,
+    "note": "3705x2494 13. yıl dönümü sahnesi; 31x23 px karo periyodu ile 1364x1012 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "9th_clashiversary",
+    "name": "9th Clashiversary",
+    "file": "Map_9th_Clashiversary_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "anime_fury",
+    "name": "Anime Fury",
+    "file": "Map_Anime_Fury_Scenery.webp",
+    "width": 3705,
+    "height": 2639,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 879.0
+    },
+    "right": {
+      "x": 2424.0,
+      "y": 1319.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1759.0
+    },
+    "left": {
+      "x": 1280.0,
+      "y": 1319.0
+    },
+    "cell_step": {
+      "col": [
+        13.0,
+        10.0
+      ],
+      "row": [
+        -13.0,
+        10.0
+      ]
+    },
+    "ratio": 1.3,
+    "note": "3705x2639 anime öfkesi sahnesi; 26x20 px karo periyodu ile 1144x880 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "anime",
+    "name": "Anime",
+    "file": "Map_Anime_Scenery.webp",
+    "width": 2048,
+    "height": 1916,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1056.0,
+      "y": 421.5
+    },
+    "right": {
+      "x": 1650.0,
+      "y": 861.5
+    },
+    "bottom": {
+      "x": 1056.0,
+      "y": 1301.5
+    },
+    "left": {
+      "x": 462.0,
+      "y": 861.5
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "2048x1916 orta çözünürlük sahne; 27x20 px karo adımı ve 1188x880 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "barbarian_odyssey",
+    "name": "Barbarian Odyssey",
+    "file": "Map_Barbarian_Odyssey_Scenery.webp",
+    "width": 3705,
+    "height": 2000,
+    "status": "Elle düzeltildi",
+    "verified": true,
+    "method": "manual",
+    "top": {
+      "x": 1844.5,
+      "y": 661.0
+    },
+    "right": {
+      "x": 2304.0,
+      "y": 1006.0
+    },
+    "bottom": {
+      "x": 1844.5,
+      "y": 1351.0
+    },
+    "left": {
+      "x": 1385.0,
+      "y": 1006.0
+    },
+    "cell_step": {
+      "col": [
+        10.44,
+        7.84
+      ],
+      "row": [
+        -10.44,
+        7.84
+      ]
+    },
+    "ratio": 1.3319,
+    "note": "Eski W/3705 formülünün ürettiği 2425 px genişlik kaldırıldı. Görsel analizle altın/teal avlu sınırlarına göre 919x690 px iç elmas olarak manuel kalibre edildi (merkez: 1844.5, 1006.0).",
+    "reason": null
+  },
+  {
+    "id": "books_of_clash",
+    "name": "Books of Clash",
+    "file": "Map_Books_of_Clash_Scenery.webp",
+    "width": 1000,
+    "height": 783,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 120.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 365.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 609.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 365.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x783 sahnesi; dikey merkez cy=365.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "chess",
+    "name": "Chess",
+    "file": "Map_Chess_Scenery.webp",
+    "width": 1000,
+    "height": 778,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 362.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 606.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 362.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x778 sahnesi; dikey merkez cy=362.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "clash_a_rama",
+    "name": "Clash-A-Rama",
+    "file": "Map_Clash-A-Rama_Scenery.webp",
+    "width": 3705,
+    "height": 2565,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1832.7,
+      "y": 299.7
+    },
+    "right": {
+      "x": 3020.7,
+      "y": 1201.7
+    },
+    "bottom": {
+      "x": 1832.7,
+      "y": 2103.7
+    },
+    "left": {
+      "x": 644.7,
+      "y": 1201.7
+    },
+    "cell_step": {
+      "col": [
+        27.0,
+        20.5
+      ],
+      "row": [
+        -27.0,
+        20.5
+      ]
+    },
+    "ratio": 1.3171,
+    "note": "3705x2565 Clash-A-Rama çizgi film teması; 54x41 px karo periyodu ile 2376x1804 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "clash_fest",
+    "name": "Clash Fest",
+    "file": "Map_Clash_Fest.webp",
+    "width": 1000,
+    "height": 774,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 360.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 604.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 360.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x774 sahnesi; dikey merkez cy=360.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "clash_games",
+    "name": "Clash Games",
+    "file": "Map_Clash_Games_Scenery.webp",
+    "width": 2048,
+    "height": 1904,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1056.0,
+      "y": 415.5
+    },
+    "right": {
+      "x": 1650.0,
+      "y": 855.5
+    },
+    "bottom": {
+      "x": 1056.0,
+      "y": 1295.5
+    },
+    "left": {
+      "x": 462.0,
+      "y": 855.5
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "2048x1904 orta çözünürlük sahne; 27x20 px karo adımı ve 1188x880 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "clashamania",
+    "name": "ClashaMania",
+    "file": "Map_ClashaMania_Scenery.webp",
+    "width": 3705,
+    "height": 2882,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1859.7,
+      "y": 480.3
+    },
+    "right": {
+      "x": 2915.7,
+      "y": 1272.3
+    },
+    "bottom": {
+      "x": 1859.7,
+      "y": 2064.3
+    },
+    "left": {
+      "x": 803.7,
+      "y": 1272.3
+    },
+    "cell_step": {
+      "col": [
+        24.0,
+        18.0
+      ],
+      "row": [
+        -24.0,
+        18.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "3705x2882 geniş harita; 48x36 px karo adımı ile 2112x1584 px iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "clashy_constructs",
+    "name": "Clashy Constructs",
+    "file": "Map_Clashy_Constructs_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "classic_autumn",
+    "name": "Classic Autumn",
+    "file": "Map_Classic_Autumn_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "classic_meteor",
+    "name": "Classic Meteor",
+    "file": "Map_Classic_Meteor_Scenery.webp",
+    "width": 3709,
+    "height": 2566,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1895.0,
+      "y": 270.5
+    },
+    "right": {
+      "x": 3107.5,
+      "y": 1180.0
+    },
+    "bottom": {
+      "x": 1895.0,
+      "y": 2089.5
+    },
+    "left": {
+      "x": 682.5,
+      "y": 1180.0
+    },
+    "cell_step": {
+      "col": [
+        27.56,
+        20.67
+      ],
+      "row": [
+        -27.56,
+        20.67
+      ]
+    },
+    "ratio": 1.3332,
+    "note": "3709x2566 meteor sahnesi; klasik çim zemininde 2425x1819 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "classic",
+    "name": "Klasik (Classic)",
+    "file": "Map_Classic_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "classic_skeleton",
+    "name": "Classic Skeleton",
+    "file": "Map_Classic_Skeleton_Scenery.webp",
+    "width": 2351,
+    "height": 1627,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1202.2,
+      "y": 168.5
+    },
+    "right": {
+      "x": 1971.6,
+      "y": 745.6
+    },
+    "bottom": {
+      "x": 1202.2,
+      "y": 1322.7
+    },
+    "left": {
+      "x": 432.8,
+      "y": 745.6
+    },
+    "cell_step": {
+      "col": [
+        17.49,
+        13.12
+      ],
+      "row": [
+        -17.49,
+        13.12
+      ]
+    },
+    "ratio": 1.3332,
+    "note": "2351x1627 iskelet teması; klasik çim zemini doğrudan doğrulanarak 1538x1154 px elmas belirlendi.",
+    "reason": null
+  },
+  {
+    "id": "cosmic_portals",
+    "name": "Cosmic Portals",
+    "file": "Map_Cosmic_Portals_Scenery.webp",
+    "width": 3705,
+    "height": 2662,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1840.2,
+      "y": 827.1
+    },
+    "right": {
+      "x": 2500.2,
+      "y": 1311.1
+    },
+    "bottom": {
+      "x": 1840.2,
+      "y": 1795.1
+    },
+    "left": {
+      "x": 1180.2,
+      "y": 1311.1
+    },
+    "cell_step": {
+      "col": [
+        15.0,
+        11.0
+      ],
+      "row": [
+        -15.0,
+        11.0
+      ]
+    },
+    "ratio": 1.3636,
+    "note": "3705x2662 kozmik portallar teması; 30x22 px karo adımı ile 1320x968 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "cosmic",
+    "name": "Cosmic",
+    "file": "Map_Cosmic_Scenery.webp",
+    "width": 3705,
+    "height": 1954,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 493.0
+    },
+    "right": {
+      "x": 2512.0,
+      "y": 977.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1461.0
+    },
+    "left": {
+      "x": 1192.0,
+      "y": 977.0
+    },
+    "cell_step": {
+      "col": [
+        15.0,
+        11.0
+      ],
+      "row": [
+        -15.0,
+        11.0
+      ]
+    },
+    "ratio": 1.3636,
+    "note": "3705x1954 kozmik sahne; 30x22 px karo adımı ile 1320x968 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "crossover",
+    "name": "Crossover",
+    "file": "Map_Crossover_Scenery.webp",
+    "width": 4274,
+    "height": 3324,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 2150.0,
+      "y": 548.0
+    },
+    "right": {
+      "x": 3382.0,
+      "y": 1472.0
+    },
+    "bottom": {
+      "x": 2150.0,
+      "y": 2396.0
+    },
+    "left": {
+      "x": 918.0,
+      "y": 1472.0
+    },
+    "cell_step": {
+      "col": [
+        28.0,
+        21.0
+      ],
+      "row": [
+        -28.0,
+        21.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "4273x3324 yüksek çözünürlüklü sahne; 56x42 px karo boyutu ve 2464x1848 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "cyber",
+    "name": "Cyber",
+    "file": "Map_Cyber_Scenery.webp",
+    "width": 3705,
+    "height": 2842,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 981.0
+    },
+    "right": {
+      "x": 2446.0,
+      "y": 1421.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1861.0
+    },
+    "left": {
+      "x": 1258.0,
+      "y": 1421.0
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "3705x2842 siber sahne; 27x20 px karo periyodu ile 1188x880 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "dark_ages",
+    "name": "Dark Ages",
+    "file": "Map_Dark_Ages.webp",
+    "width": 1000,
+    "height": 779,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 363.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 607.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 363.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x779 sahnesi; dikey merkez cy=363.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "dark_days",
+    "name": "Dark Days",
+    "file": "Map_Dark_Days_Scenery.webp",
+    "width": 3540,
+    "height": 2715,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1777.7,
+      "y": 322.5
+    },
+    "right": {
+      "x": 2789.7,
+      "y": 1070.5
+    },
+    "bottom": {
+      "x": 1777.7,
+      "y": 1818.5
+    },
+    "left": {
+      "x": 765.7,
+      "y": 1070.5
+    },
+    "cell_step": {
+      "col": [
+        23.0,
+        17.0
+      ],
+      "row": [
+        -23.0,
+        17.0
+      ]
+    },
+    "ratio": 1.3529,
+    "note": "3540x2715 karanlık günler teması; 46x34 px karo periyodu ile 2024x1496 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "desert_nights",
+    "name": "Desert Nights",
+    "file": "Map_Desert_Nights_Scenery.webp",
+    "width": 3705,
+    "height": 2003,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 649.0
+    },
+    "right": {
+      "x": 2314.0,
+      "y": 1001.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1353.0
+    },
+    "left": {
+      "x": 1390.0,
+      "y": 1001.0
+    },
+    "cell_step": {
+      "col": [
+        10.5,
+        8.0
+      ],
+      "row": [
+        -10.5,
+        8.0
+      ]
+    },
+    "ratio": 1.3125,
+    "note": "3705x2003 çöl geceleri sahnesi; 21x16 px karo periyodu ile 924x704 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "doomed",
+    "name": "Doomed",
+    "file": "Map_Doomed_Scenery.webp",
+    "width": 4274,
+    "height": 3324,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 2150.0,
+      "y": 548.0
+    },
+    "right": {
+      "x": 3382.0,
+      "y": 1472.0
+    },
+    "bottom": {
+      "x": 2150.0,
+      "y": 2396.0
+    },
+    "left": {
+      "x": 918.0,
+      "y": 1472.0
+    },
+    "cell_step": {
+      "col": [
+        28.0,
+        21.0
+      ],
+      "row": [
+        -28.0,
+        21.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "4273x3324 yüksek çözünürlüklü sahne; 56x42 px karo boyutu ve 2464x1848 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "dragon_escape",
+    "name": "Dragon Escape",
+    "file": "Map_Dragon_Escape_Scenery.webp",
+    "width": 3705,
+    "height": 2003,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 297.0
+    },
+    "right": {
+      "x": 2776.0,
+      "y": 1001.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1705.0
+    },
+    "left": {
+      "x": 928.0,
+      "y": 1001.0
+    },
+    "cell_step": {
+      "col": [
+        21.0,
+        16.0
+      ],
+      "row": [
+        -21.0,
+        16.0
+      ]
+    },
+    "ratio": 1.3125,
+    "note": "3705x2003 ejderha kaçışı sahnesi; 42x32 px karo periyodu ile 1848x1408 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "dragon_palace",
+    "name": "Dragon Palace",
+    "file": "Map_Dragon_Palace.webp",
+    "width": 1000,
+    "height": 778,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 362.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 606.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 362.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x778 sahnesi; dikey merkez cy=362.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "egypt",
+    "name": "Egypt",
+    "file": "Map_Egypt_Scenery.webp",
+    "width": 2048,
+    "height": 1593,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1056.0,
+      "y": 356.5
+    },
+    "right": {
+      "x": 1650.0,
+      "y": 796.5
+    },
+    "bottom": {
+      "x": 1056.0,
+      "y": 1236.5
+    },
+    "left": {
+      "x": 462.0,
+      "y": 796.5
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "2048x1593 orta çözünürlük sahne; 27x20 px karo adımı ve 1188x880 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "epic_jungle",
+    "name": "Epic Jungle",
+    "file": "Map_Epic_Jungle_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "epic_magic",
+    "name": "Epic Magic",
+    "file": "Map_Epic_Magic.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "epic_winter",
+    "name": "Epic Winter",
+    "file": "Map_Epic_Winter_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "football",
+    "name": "Football",
+    "file": "Map_Football_Scenery.webp",
+    "width": 2048,
+    "height": 1448,
+    "status": "Güvenilmez",
+    "verified": false,
+    "method": "none",
+    "top": {
+      "x": 1024.0,
+      "y": 418.0
+    },
+    "right": {
+      "x": 1442.0,
+      "y": 724.0
+    },
+    "bottom": {
+      "x": 1024.0,
+      "y": 1030.0
+    },
+    "left": {
+      "x": 606.0,
+      "y": 724.0
+    },
+    "cell_step": {
+      "col": [
+        9.5,
+        6.95
+      ],
+      "row": [
+        -9.5,
+        6.95
+      ]
+    },
+    "ratio": 1.366,
+    "note": null,
+    "reason": "Futbol sahası / kale direkleri ve saha çizgileri olan özel tema; standart köy haritası geometrisi dışındadır."
+  },
+  {
+    "id": "frost_age",
+    "name": "Frost Age",
+    "file": "Map_Frost_Age_Scenery.webp",
+    "width": 3705,
+    "height": 2223,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 539.0
+    },
+    "right": {
+      "x": 2600.0,
+      "y": 1111.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1683.0
+    },
+    "left": {
+      "x": 1104.0,
+      "y": 1111.0
+    },
+    "cell_step": {
+      "col": [
+        17.0,
+        13.0
+      ],
+      "row": [
+        -17.0,
+        13.0
+      ]
+    },
+    "ratio": 1.3077,
+    "note": "3705x2223 buzul çağı teması; 34x26 px karo periyodu ile 1496x1144 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "future",
+    "name": "Future",
+    "file": "Map_Future_Scenery.webp",
+    "width": 1000,
+    "height": 778,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 362.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 606.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 362.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x778 sahnesi; dikey merkez cy=362.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "ghost",
+    "name": "Ghost",
+    "file": "Map_Ghost_Scenery.webp",
+    "width": 1000,
+    "height": 778,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 362.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 606.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 362.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x778 sahnesi; dikey merkez cy=362.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "gingerbread",
+    "name": "Gingerbread",
+    "file": "Map_Gingerbread_Scenery.webp",
+    "width": 1000,
+    "height": 778,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 118.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 362.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 606.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 362.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x778 sahnesi; dikey merkez cy=362.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "goblin_caves",
+    "name": "Goblin Caves",
+    "file": "Map_Goblin_Caves.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "high_seas",
+    "name": "High Seas",
+    "file": "Map_High_Seas_Scenery.webp",
+    "width": 3705,
+    "height": 3705,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1840.0,
+      "y": 1031.8
+    },
+    "right": {
+      "x": 2896.0,
+      "y": 1823.8
+    },
+    "bottom": {
+      "x": 1840.0,
+      "y": 2615.8
+    },
+    "left": {
+      "x": 784.0,
+      "y": 1823.8
+    },
+    "cell_step": {
+      "col": [
+        24.0,
+        18.0
+      ],
+      "row": [
+        -24.0,
+        18.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "3705x3705 ada sahnesi; 48x36 px karo adımı ile 2112x1584 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "hog_mountain",
+    "name": "Hog Mountain",
+    "file": "Map_Hog_Mountain_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "inferno_town",
+    "name": "Inferno Town",
+    "file": "Map_Inferno_Town_Scenery.webp",
+    "width": 3705,
+    "height": 2545,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1894.5,
+      "y": 265.5
+    },
+    "right": {
+      "x": 3107.0,
+      "y": 1175.0
+    },
+    "bottom": {
+      "x": 1894.5,
+      "y": 2084.5
+    },
+    "left": {
+      "x": 682.0,
+      "y": 1175.0
+    },
+    "cell_step": {
+      "col": [
+        27.56,
+        20.67
+      ],
+      "row": [
+        -27.56,
+        20.67
+      ]
+    },
+    "ratio": 1.3332,
+    "note": "3705x2545 cehennem kasabası; kentsel taş zemininde 2425x1819 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "jolly",
+    "name": "Jolly",
+    "file": "Map_Jolly_Scenery.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "jungle",
+    "name": "Jungle",
+    "file": "Map_Jungle_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "justice",
+    "name": "Justice",
+    "file": "Map_Justice_Scenery.webp",
+    "width": 4273,
+    "height": 3324,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 2150.0,
+      "y": 548.0
+    },
+    "right": {
+      "x": 3382.0,
+      "y": 1472.0
+    },
+    "bottom": {
+      "x": 2150.0,
+      "y": 2396.0
+    },
+    "left": {
+      "x": 918.0,
+      "y": 1472.0
+    },
+    "cell_step": {
+      "col": [
+        28.0,
+        21.0
+      ],
+      "row": [
+        -28.0,
+        21.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "4273x3324 yüksek çözünürlüklü sahne; 56x42 px karo boyutu ve 2464x1848 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "magic",
+    "name": "Magic",
+    "file": "Map_Magic.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "magic_theatre",
+    "name": "Magic Theatre",
+    "file": "Map_Magic_Theatre.webp",
+    "width": 1000,
+    "height": 776,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 117.1
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.5
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.9
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.5
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x776 sahnesi; dikey merkez cy=361.5 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "mash_a_rama",
+    "name": "Mash A Rama",
+    "file": "Map_Mash-A-Rama_Scenery.webp",
+    "width": 5400,
+    "height": 7268,
+    "status": "Güvenilmez",
+    "verified": false,
+    "method": "none",
+    "top": {
+      "x": 2700.0,
+      "y": 2710.0
+    },
+    "right": {
+      "x": 3910.0,
+      "y": 3634.0
+    },
+    "bottom": {
+      "x": 2700.0,
+      "y": 4558.0
+    },
+    "left": {
+      "x": 1490.0,
+      "y": 3634.0
+    },
+    "cell_step": {
+      "col": [
+        27.5,
+        21.0
+      ],
+      "row": [
+        -27.5,
+        21.0
+      ]
+    },
+    "ratio": 1.3095,
+    "note": null,
+    "reason": "5400x7268 dikey tanıtım posteri; karakter çizimleri ve aksiyon kompozisyonu içerir, standart köy tabanı yoktur."
+  },
+  {
+    "id": "money_in_the_bank",
+    "name": "Money in the Bank",
+    "file": "Map_Money_in_the_Bank_Scenery.webp",
+    "width": 3705,
+    "height": 2008,
+    "status": "Güvenilmez",
+    "verified": false,
+    "method": "none",
+    "top": {
+      "x": 1852.5,
+      "y": 652.0
+    },
+    "right": {
+      "x": 2314.5,
+      "y": 1004.0
+    },
+    "bottom": {
+      "x": 1852.5,
+      "y": 1356.0
+    },
+    "left": {
+      "x": 1390.5,
+      "y": 1004.0
+    },
+    "cell_step": {
+      "col": [
+        10.5,
+        8.0
+      ],
+      "row": [
+        -10.5,
+        8.0
+      ]
+    },
+    "ratio": 1.3125,
+    "note": null,
+    "reason": "WWE temalı güreş ringi ve stadyum düzeni; standart köy geometrisi dışındadır."
+  },
+  {
+    "id": "painter",
+    "name": "Painter",
+    "file": "Map_Painter_Scenery.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "pirate",
+    "name": "Pirate",
+    "file": "Map_Pirate_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "pixel",
+    "name": "Pixel",
+    "file": "Map_Pixel_Scenery.webp",
+    "width": 1000,
+    "height": 703,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 80.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 325.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 569.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 325.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x703 sahnesi; dikey merkez cy=325.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "primal",
+    "name": "Primal",
+    "file": "Map_Primal_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "pumpkin_graveyard",
+    "name": "Pumpkin Graveyard",
+    "file": "Map_Pumpkin_Graveyard_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "royale",
+    "name": "Royale",
+    "file": "Map_Royale_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "shadow",
+    "name": "Shadow",
+    "file": "Map_Shadow_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "skeleton_kingdom",
+    "name": "Skeleton Kingdom",
+    "file": "Map_Skeleton_Kingdom_Scenery.webp",
+    "width": 3705,
+    "height": 2004,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 650.0
+    },
+    "right": {
+      "x": 2314.0,
+      "y": 1002.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1354.0
+    },
+    "left": {
+      "x": 1390.0,
+      "y": 1002.0
+    },
+    "cell_step": {
+      "col": [
+        10.5,
+        8.0
+      ],
+      "row": [
+        -10.5,
+        8.0
+      ]
+    },
+    "ratio": 1.3125,
+    "note": "3705x2004 iskelet krallığı teması; 21x16 px karo periyodu ile 924x704 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "snow_day",
+    "name": "Snow Day",
+    "file": "Map_Snow_Day_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "sound_of_clash",
+    "name": "Sound of Clash",
+    "file": "Map_Sound_of_Clash_Scenery.webp",
+    "width": 5577,
+    "height": 3009,
+    "status": "Güvenilmez",
+    "verified": false,
+    "method": "none",
+    "top": {
+      "x": 2788.0,
+      "y": 758.0
+    },
+    "right": {
+      "x": 3470.0,
+      "y": 1264.0
+    },
+    "bottom": {
+      "x": 2788.0,
+      "y": 1770.0
+    },
+    "left": {
+      "x": 2106.0,
+      "y": 1264.0
+    },
+    "cell_step": {
+      "col": [
+        15.5,
+        11.5
+      ],
+      "row": [
+        -15.5,
+        11.5
+      ]
+    },
+    "ratio": 1.3478,
+    "note": null,
+    "reason": "Konser sahnesi / festival tanıtım afişi; standart 44x44 köy tabanı yoktur."
+  },
+  {
+    "id": "space",
+    "name": "Space",
+    "file": "Map_Space_Scenery.webp",
+    "width": 2048,
+    "height": 1593,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1056.0,
+      "y": 356.5
+    },
+    "right": {
+      "x": 1650.0,
+      "y": 796.5
+    },
+    "bottom": {
+      "x": 1056.0,
+      "y": 1236.5
+    },
+    "left": {
+      "x": 462.0,
+      "y": 796.5
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "2048x1593 orta çözünürlük sahne; 27x20 px karo adımı ve 1188x880 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "spooky",
+    "name": "Spooky",
+    "file": "Map_Spooky_Scenery.webp",
+    "width": 1000,
+    "height": 775,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 116.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 361.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 605.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 361.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x775 sahnesi; dikey merkez cy=361.0 olarak hizalandı, 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "summer",
+    "name": "Summer",
+    "file": "Map_Summer_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "the_awesome_quest",
+    "name": "The Awesome Quest",
+    "file": "Map_The_Awesome_Quest_Scenery.webp",
+    "width": 3705,
+    "height": 2314,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 717.0
+    },
+    "right": {
+      "x": 2424.0,
+      "y": 1157.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1597.0
+    },
+    "left": {
+      "x": 1280.0,
+      "y": 1157.0
+    },
+    "cell_step": {
+      "col": [
+        13.0,
+        10.0
+      ],
+      "row": [
+        -13.0,
+        10.0
+      ]
+    },
+    "ratio": 1.3,
+    "note": "3705x2314 harika macera teması; 26x20 px karo periyodu ile 1144x880 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "tiger_mountain",
+    "name": "Tiger Mountain",
+    "file": "Map_Tiger_Mountain_Scenery.webp",
+    "width": 1000,
+    "height": 687,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 511.3,
+      "y": 72.6
+    },
+    "right": {
+      "x": 838.5,
+      "y": 317.0
+    },
+    "bottom": {
+      "x": 511.3,
+      "y": 561.4
+    },
+    "left": {
+      "x": 184.1,
+      "y": 317.0
+    },
+    "cell_step": {
+      "col": [
+        7.44,
+        5.55
+      ],
+      "row": [
+        -7.44,
+        5.55
+      ]
+    },
+    "ratio": 1.339,
+    "note": "1000x687 standart köy tabanı; 2D FFT otokorelasyon ile 14.88x11.11 px karo boyutu ve 654.5x488.8 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "toy_workshop",
+    "name": "Toy Workshop",
+    "file": "Map_Toy_Workshop_Scenery.webp",
+    "width": 4273,
+    "height": 3324,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 2150.0,
+      "y": 548.0
+    },
+    "right": {
+      "x": 3382.0,
+      "y": 1472.0
+    },
+    "bottom": {
+      "x": 2150.0,
+      "y": 2396.0
+    },
+    "left": {
+      "x": 918.0,
+      "y": 1472.0
+    },
+    "cell_step": {
+      "col": [
+        28.0,
+        21.0
+      ],
+      "row": [
+        -28.0,
+        21.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "4273x3324 yüksek çözünürlüklü sahne; 56x42 px karo boyutu ve 2464x1848 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "wasteland",
+    "name": "Wasteland",
+    "file": "Map_Wasteland_Scenery.webp",
+    "width": 3705,
+    "height": 1588,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 24.0
+    },
+    "right": {
+      "x": 2864.0,
+      "y": 794.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1564.0
+    },
+    "left": {
+      "x": 840.0,
+      "y": 794.0
+    },
+    "cell_step": {
+      "col": [
+        23.0,
+        17.5
+      ],
+      "row": [
+        -23.0,
+        17.5
+      ]
+    },
+    "ratio": 1.3143,
+    "note": "3705x1588 çorak topraklar; dikey kırpılmış sahne, merkez cy=794.0 ile 2024x1540 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "wild_west",
+    "name": "Wild West",
+    "file": "Map_Wild_West_Scenery.webp",
+    "width": 2048,
+    "height": 1606,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1056.0,
+      "y": 363.0
+    },
+    "right": {
+      "x": 1650.0,
+      "y": 803.0
+    },
+    "bottom": {
+      "x": 1056.0,
+      "y": 1243.0
+    },
+    "left": {
+      "x": 462.0,
+      "y": 803.0
+    },
+    "cell_step": {
+      "col": [
+        13.5,
+        10.0
+      ],
+      "row": [
+        -13.5,
+        10.0
+      ]
+    },
+    "ratio": 1.35,
+    "note": "2048x1606 orta çözünürlük sahne; 27x20 px karo adımı ve 1188x880 px 44x44 iç alan doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "year_of_the_fire_horse",
+    "name": "Year of the Fire Horse",
+    "file": "Map_Year_of_the_Fire_Horse_Scenery.webp",
+    "width": 3705,
+    "height": 2003,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1852.0,
+      "y": 649.0
+    },
+    "right": {
+      "x": 2314.0,
+      "y": 1001.0
+    },
+    "bottom": {
+      "x": 1852.0,
+      "y": 1353.0
+    },
+    "left": {
+      "x": 1390.0,
+      "y": 1001.0
+    },
+    "cell_step": {
+      "col": [
+        10.5,
+        8.0
+      ],
+      "row": [
+        -10.5,
+        8.0
+      ]
+    },
+    "ratio": 1.3125,
+    "note": "3705x2003 ateş atı yılı teması; 21x16 px karo periyodu ile 924x704 px elmas doğrulandı.",
+    "reason": null
+  },
+  {
+    "id": "military",
+    "name": "Military",
+    "file": "Military_Scenery.webp",
+    "width": 3705,
+    "height": 2882,
+    "status": "Doğrulandı",
+    "verified": true,
+    "method": "tile-pattern",
+    "top": {
+      "x": 1859.7,
+      "y": 480.3
+    },
+    "right": {
+      "x": 2915.7,
+      "y": 1272.3
+    },
+    "bottom": {
+      "x": 1859.7,
+      "y": 2064.3
+    },
+    "left": {
+      "x": 803.7,
+      "y": 1272.3
+    },
+    "cell_step": {
+      "col": [
+        24.0,
+        18.0
+      ],
+      "row": [
+        -24.0,
+        18.0
+      ]
+    },
+    "ratio": 1.3333,
+    "note": "3705x2882 geniş harita; 48x36 px karo adımı ile 2112x1584 px iç alan doğrulandı.",
+    "reason": null
+  }
+]

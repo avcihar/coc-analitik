@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "../styles/game-theme.css";
+
 @layer base {
   :root {
     /* Açık Tema: Temiz, modern gri/beyaz palet */
