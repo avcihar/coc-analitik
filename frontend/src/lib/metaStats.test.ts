@@ -84,5 +84,49 @@ if (calculateUsagePct(3000, 0) !== 0) throw new Error("Zero total attacks failed
 if (calculateUsagePct(3000, 3000) !== 100.0) throw new Error("100% usage failed");
 console.log("✓ Test 5: Edge cases (0 attacks, 0 total, 100% saturation) handled gracefully.");
 
+// Test 6: Equipment Pair canonicalization and single-item rejection
+interface RawPair {
+  hero: string;
+  pair: string;
+  equipments: string[];
+  count: number;
+  usagePct: number;
+}
+function canonicalizePairs(raw: RawPair[]): RawPair[] {
+  const map = new Map<string, RawPair>();
+  for (const item of raw) {
+    const equips = item.equipments.length >= 2 ? item.equipments.slice(0, 2) : item.pair.split("+").map(s => s.trim()).filter(Boolean);
+    if (equips.length < 2) continue; // Reject single equipments!
+    const sorted = [...equips].sort();
+    const label = `${sorted[0]} + ${sorted[1]}`;
+    const key = `${item.hero}:::${label}`;
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, { hero: item.hero, pair: label, equipments: sorted, count: item.count, usagePct: item.usagePct });
+    } else {
+      existing.count += item.count;
+      existing.usagePct = Number((existing.usagePct + item.usagePct).toFixed(1));
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => b.usagePct - a.usagePct);
+}
+
+const uncanonicalPairs: RawPair[] = [
+  { hero: "Minion Prince", pair: "Meteor Staff + Dark Orb", equipments: ["Meteor Staff", "Dark Orb"], count: 549, usagePct: 54.9 },
+  { hero: "Minion Prince", pair: "Meteor Staff", equipments: ["Meteor Staff"], count: 198, usagePct: 19.8 }, // Single equipment!
+  { hero: "Minion Prince", pair: "Dark Orb + Meteor Staff", equipments: ["Dark Orb", "Meteor Staff"], count: 197, usagePct: 19.7 }, // Inverted duplicate!
+];
+const canonicalResult = canonicalizePairs(uncanonicalPairs);
+if (canonicalResult.length !== 1) {
+  throw new Error(`Test 6 Failed: Expected 1 merged pair, got ${canonicalResult.length}`);
+}
+if (canonicalResult[0].pair !== "Dark Orb + Meteor Staff") {
+  throw new Error(`Test 6 Failed: Expected canonical label 'Dark Orb + Meteor Staff', got '${canonicalResult[0].pair}'`);
+}
+if (canonicalResult[0].usagePct !== 74.6) {
+  throw new Error(`Test 6 Failed: Expected 74.6%, got ${canonicalResult[0].usagePct}%`);
+}
+console.log("✓ Test 6: Inverted pairs successfully merged into one canonical combination and single equipment rejected.");
+
 console.log("=== ALL META USAGE STATISTICS TESTS PASSED! ===");
 

@@ -556,9 +556,13 @@ def analyze_meta_statistics(
             if eq_names:
                 for en in eq_names:
                     equipment_counter[(h_name, en)] += 1
-                pair_label = f"{eq_names[0]} + {eq_names[1]}" if len(eq_names) >= 2 else eq_names[0]
-                pair_counter_by_hero[h_name][pair_label] += 1
-                global_pair_counter[(h_name, pair_label)] += 1
+                # Equipment pairs strictly require at least 2 equipments
+                # Sort alphabetically so combination {A, B} and {B, A} are counted together as the same canonical pair
+                if len(eq_names) >= 2:
+                    sorted_pair = sorted([eq_names[0], eq_names[1]])
+                    pair_label = f"{sorted_pair[0]} + {sorted_pair[1]}"
+                    pair_counter_by_hero[h_name][pair_label] += 1
+                    global_pair_counter[(h_name, pair_label)] += 1
 
             # Pet
             pet_obj = h_slot.get("pet")
@@ -588,9 +592,11 @@ def analyze_meta_statistics(
         ]
 
     hero_equipment_pairs = []
-    for (h_name, pair_name), cnt in global_pair_counter.most_common(25):
+    seen_pair_keys: set[Tuple[str, str]] = set()
+    for (h_name, pair_name), cnt in global_pair_counter.most_common(50):
         h_attacks = hero_attack_counter.get(h_name, total_ranked_attacks)
         pct = round((cnt / max(1, h_attacks)) * 100.0, 2)
+        seen_pair_keys.add((h_name, pair_name))
         hero_equipment_pairs.append({
             "hero": h_name,
             "pair": pair_name,
@@ -600,6 +606,13 @@ def analyze_meta_statistics(
             "pickRatePct": pct,
             "pick_rate": pct,
         })
+    # Also guarantee that the top pairs for EVERY hero are included in hero_equipment_pairs
+    for h_name, h_pairs in equipment_by_hero.items():
+        for p in h_pairs:
+            pair_key = (h_name, p["pair"])
+            if pair_key not in seen_pair_keys:
+                seen_pair_keys.add(pair_key)
+                hero_equipment_pairs.append(p)
 
     valid_equipments: set[Tuple[str, str]] = {
         (h_name, eq_name)

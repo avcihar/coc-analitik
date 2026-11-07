@@ -549,4 +549,51 @@ def test_hero_pick_rate_strictly_from_ranked_attacks():
     assert hero_map["Royal Champion"]["pickRatePct"] == 0.0
 
 
+def test_equipment_pairs_canonical_merging_and_no_single_equipments():
+    """
+    Verify that equipment combinations with inverted order (e.g. A + B and B + A)
+    are merged into a single canonical combination, and single equipments (len == 1)
+    are strictly rejected from equipment pairs.
+    """
+    # Minion Prince is hero id 6 in army codes
+    # e52 = Dark Orb, e53 = Meteor Staff
+    # Battle 1: e52_53 (Dark Orb + Meteor Staff)
+    # Battle 2: e53_52 (Meteor Staff + Dark Orb) - inverted order!
+    # Battle 3: e53 only (Meteor Staff single equipment)
+    code_order_1 = "h6p0e52_53u10x0s1x0"
+    code_order_2 = "h6p0e53_52u10x0s1x0"
+    code_single = "h6p0e53u10x0s1x0"
+
+    mock_profile = {
+        "tag": "#PAIR_TESTER",
+        "name": "PairTester",
+        "townHallLevel": 18,
+        "heroes": [
+            {"name": "Minion Prince", "level": 95, "maxLevel": 95, "village": "home"},
+        ],
+        "battlelog": [
+            {"battleType": "ranked", "attack": True, "battleTime": "20261029T010000Z", "armyShareCode": code_order_1, "stars": 3},
+            {"battleType": "ranked", "attack": True, "battleTime": "20261029T020000Z", "armyShareCode": code_order_2, "stars": 3},
+            {"battleType": "ranked", "attack": True, "battleTime": "20261029T030000Z", "armyShareCode": code_single, "stars": 2},
+        ],
+    }
+
+    stats = analyze_meta_statistics([mock_profile])
+    minion_pairs = stats["equipmentByHero"]["Minion Prince"]
+
+    # 1. Single equipment ("Meteor Staff") must NOT be in pairs!
+    pair_labels = [p["pair"] for p in minion_pairs]
+    assert "Meteor Staff" not in pair_labels
+
+    # 2. Both inverted battles (order 1 and order 2) must be merged into 1 pair
+    assert len(minion_pairs) == 1
+    pair_stat = minion_pairs[0]
+    # Alphabetical order: "Fire Heart + Rocket Backpack"
+    assert pair_stat["pair"] == "Fire Heart + Rocket Backpack"
+    assert pair_stat["count"] == 2
+    # 2 out of 3 attacks = 66.67%
+    assert pair_stat["usagePct"] == 66.67
+
+
+
 

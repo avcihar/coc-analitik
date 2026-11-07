@@ -629,7 +629,51 @@ export default function MetaDashboardView() {
   const stats = dashboard?.statistics;
   const heroes = stats?.heroUsage || [];
   const rawEquipments = stats?.equipmentUsage || [];
-  const allPairs = stats?.heroEquipmentPairs || [];
+  const rawPairs = stats?.heroEquipmentPairs || [];
+  const heroEqByHero = stats?.equipmentByHero || {};
+  // Combine all pairs from heroEquipmentPairs and equipmentByHero
+  const combinedRawPairs = [...rawPairs];
+  for (const hName of Object.keys(heroEqByHero)) {
+    const list = heroEqByHero[hName] || [];
+    combinedRawPairs.push(...list);
+  }
+
+  // Canonicalize pairs:
+  // 1. MUST have exactly 2 valid equipment items (skip single equipment like "Meteor Staff")
+  // 2. Sort equipment names alphabetically so combination {A, B} and {B, A} are counted together as the same canonical pair
+  // 3. Sum their counts and usagePct
+  const pairMap = new Map<string, EquipmentPairStat>();
+  for (const pair of combinedRawPairs) {
+    if (!pair || !pair.hero) continue;
+    const equips =
+      pair.equipments && pair.equipments.length >= 2
+        ? pair.equipments.slice(0, 2).map((s) => s.trim())
+        : (pair.pair || "").split("+").map((s) => s.trim()).filter(Boolean);
+
+    // Filter out single items! A pair strictly requires 2 equipments.
+    if (equips.length < 2) continue;
+
+    // Canonical order (alphabetical sort)
+    const sortedEquips = [...equips].sort();
+    const canonicalPairLabel = `${sortedEquips[0]} + ${sortedEquips[1]}`;
+    const key = `${pair.hero}:::${canonicalPairLabel}`;
+
+    const existing = pairMap.get(key);
+    if (!existing) {
+      pairMap.set(key, {
+        hero: pair.hero,
+        pair: canonicalPairLabel,
+        equipments: sortedEquips,
+        count: pair.count || 0,
+        usagePct: pair.usagePct || 0,
+      });
+    } else {
+      existing.count += pair.count || 0;
+      existing.usagePct = Math.min(100.0, Number((existing.usagePct + (pair.usagePct || 0)).toFixed(2)));
+    }
+  }
+
+  const allPairs = Array.from(pairMap.values());
   const rawPets = stats?.petUsage || [];
   const rawTroops = stats?.troopUsage || [];
   const rawSpells = stats?.spellUsage || [];
