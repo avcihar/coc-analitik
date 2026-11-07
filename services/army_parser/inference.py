@@ -67,6 +67,7 @@ EQUIPMENT_BY_HERO: Dict[str, Dict[str, Rarity]] = {
         "Giant Gauntlet": Rarity.EPIC,
         "Spiky Ball": Rarity.EPIC,
         "Snake Bracelet": Rarity.EPIC,
+        "Stick Horse": Rarity.EPIC,
     },
     "Archer Queen": {
         "Archer Puppet": Rarity.COMMON,
@@ -76,13 +77,16 @@ EQUIPMENT_BY_HERO: Dict[str, Dict[str, Rarity]] = {
         "Frozen Arrow": Rarity.EPIC,
         "Magic Mirror": Rarity.EPIC,
         "Action Figure": Rarity.EPIC,
+        "Monolith Arrow": Rarity.COMMON,
     },
     "Minion Prince": {
-        "Henchman Puppet": Rarity.COMMON,
+        "Henchmen Puppet": Rarity.COMMON,
         "Dark Orb": Rarity.COMMON,
         "Metal Pants": Rarity.COMMON,
         "Noble Iron": Rarity.COMMON,
         "Dark Crown": Rarity.EPIC,
+        "Meteor Staff": Rarity.EPIC,
+        "Portal Pendant": Rarity.EPIC,
     },
     "Grand Warden": {
         "Eternal Tome": Rarity.COMMON,
@@ -90,6 +94,7 @@ EQUIPMENT_BY_HERO: Dict[str, Dict[str, Rarity]] = {
         "Rage Gem": Rarity.COMMON,
         "Healing Tome": Rarity.COMMON,
         "Fireball": Rarity.EPIC,
+        "Heroic Torch": Rarity.EPIC,
         "Lavaloon Puppet": Rarity.EPIC,
     },
     "Royal Champion": {
@@ -99,14 +104,15 @@ EQUIPMENT_BY_HERO: Dict[str, Dict[str, Rarity]] = {
         "Haste Vial": Rarity.COMMON,
         "Rocket Spear": Rarity.EPIC,
         "Electro Boots": Rarity.EPIC,
+        "Frost Flake": Rarity.EPIC,
     },
     "Dragon Duke": {
-        "Flame Breath": Rarity.COMMON,
-        "Dragon Scale Shield": Rarity.COMMON,
-        "Winged Gem": Rarity.COMMON,
-        "Drake Talon": Rarity.COMMON,
-        "Dragonfire Crown": Rarity.EPIC,
-        "Inferno Core": Rarity.EPIC,
+        "Fire Heart": Rarity.COMMON,
+        "Flame Blower": Rarity.COMMON,
+        "Stun Blaster": Rarity.COMMON,
+        "Electro Fangs": Rarity.EPIC,
+        "Revenge Deck": Rarity.EPIC,
+        "Rocket Backpack": Rarity.EPIC,
     },
 }
 
@@ -133,7 +139,20 @@ SIEGE_NAME_TO_ID: Dict[str, int] = {
     meta.name.lower(): siege_id for siege_id, meta in SIEGE_REGISTRY.items()
 }
 
-KNOWN_PET_NAMES: set[str] = {p.value for p in PetName}
+KNOWN_PET_NAMES: set[str] = {
+    "L.A.S.S.I",
+    "Mighty Yak",
+    "Electro Owl",
+    "Unicorn",
+    "Frosty",
+    "Diggy",
+    "Poison Lizard",
+    "Phoenix",
+    "Spirit Fox",
+    "Angry Jelly",
+    "Sneezy",
+    "Greedy Raven",
+}
 KNOWN_HERO_NAMES: set[str] = {h.value for h in HeroName}
 
 # Map each equipment item name -> (HeroName, Rarity)
@@ -639,8 +658,8 @@ def _extract_heroes_and_equipment(
             {"name": "Rocket Spear", "level": 27, "maxLevel": 27, "rarity": "Epic", "isEpic": True},
         ]),
         ("Dragon Duke", 15, [
-            {"name": "Dragonfire Crown", "level": 27, "maxLevel": 27, "rarity": "Epic", "isEpic": True},
-            {"name": "Flame Breath", "level": 18, "maxLevel": 18, "rarity": "Common", "isEpic": False},
+            {"name": "Electro Fangs", "level": 27, "maxLevel": 27, "rarity": "Epic", "isEpic": True},
+            {"name": "Fire Heart", "level": 18, "maxLevel": 18, "rarity": "Common", "isEpic": False},
         ]),
     )
     existing_hero_names = {h["name"] for h in heroes_detailed}

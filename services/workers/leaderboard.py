@@ -377,8 +377,27 @@ def analyze_meta_statistics(
         )
         th_counter[th] += 1
 
+    OFFICIAL_SUPER_TROOP_NAMES: set[str] = {
+        "Super Barbarian",
+        "Super Archer",
+        "Super Giant",
+        "Sneaky Goblin",
+        "Super Wall Breaker",
+        "Rocket Balloon",
+        "Super Wizard",
+        "Super Dragon",
+        "Inferno Dragon",
+        "Super Minion",
+        "Super Valkyrie",
+        "Super Witch",
+        "Ice Hound",
+        "Super Bowler",
+        "Super Miner",
+        "Super Hog Rider",
+        "Super Yeti",
+    }
     valid_super_troops = get_valid_super_troops()
-    valid_super_troop_names = set(valid_super_troops.values())
+    valid_super_troop_names = set(valid_super_troops.values()) | OFFICIAL_SUPER_TROOP_NAMES
     known_siege_set = set(KNOWN_SIEGE_MACHINE_NAMES)
 
     # 1. Profile-level units for average level & % Max Seviye
@@ -499,10 +518,14 @@ def analyze_meta_statistics(
         # Troops, Spells, Siege
         for t_slot in decoded.get("troops") or []:
             t_name = str(t_slot.get("name", "")).strip()
-            if t_name:
+            if t_name in ("Head Hunter", "Head Hunter "):
+                t_name = "Headhunter"
+            if not t_name:
+                continue
+            if t_name in valid_super_troop_names or t_name.startswith("Super "):
+                super_troop_counter[t_name] += 1
+            else:
                 troop_usage_counter[t_name] += 1
-                if t_name in valid_super_troop_names:
-                    super_troop_counter[t_name] += 1
 
         for s_slot in decoded.get("spells") or []:
             s_name = str(s_slot.get("name", "")).strip()
@@ -578,9 +601,16 @@ def analyze_meta_statistics(
             "pick_rate": pct,
         })
 
+    valid_equipments: set[Tuple[str, str]] = {
+        (h_name, eq_name)
+        for h_name, eq_dict in EQUIPMENT_BY_HERO.items()
+        for eq_name in eq_dict.keys()
+    }
     equipment_usage = []
     seen_equipment: set[Tuple[str, str]] = set()
     for (h_name, eq_name), cnt in equipment_counter.most_common():
+        if (h_name, eq_name) not in valid_equipments:
+            continue
         seen_equipment.add((h_name, eq_name))
         h_attacks = hero_attack_counter.get(h_name, total_ranked_attacks)
         pct = round((cnt / max(1, h_attacks)) * 100.0, 2)
@@ -592,7 +622,7 @@ def analyze_meta_statistics(
             "pickRatePct": pct,
             "pick_rate": pct,
         })
-    # Ensure every single equipment for every hero is included
+    # Ensure every single official equipment for every hero is included
     for h_name, eq_dict in sorted(EQUIPMENT_BY_HERO.items()):
         for eq_name in sorted(eq_dict.keys()):
             if (h_name, eq_name) not in seen_equipment:
@@ -614,6 +644,8 @@ def analyze_meta_statistics(
     pet_usage = []
     seen_pets: set[str] = set()
     for p_name, cnt in pet_counter.most_common():
+        if p_name not in KNOWN_PET_NAMES:
+            continue
         seen_pets.add(p_name)
         pct = round((cnt / total_ranked_attacks) * 100.0, 2)
         avg_lvl = pet_avg_levels.get(p_name)
@@ -643,6 +675,8 @@ def analyze_meta_statistics(
     for h_name in KNOWN_HERO_NAMES:
         h_attacks = hero_attack_counter.get(h_name, 0)
         for p_name, cnt in hero_pet_counter[h_name].most_common():
+            if p_name not in KNOWN_PET_NAMES:
+                continue
             pct = round((cnt / h_attacks) * 100.0, 2) if h_attacks > 0 else 0.0
             avg_lvl = pet_avg_levels.get(p_name)
             pet_usage_by_hero[h_name].append({
@@ -659,6 +693,8 @@ def analyze_meta_statistics(
     super_troop_usage = []
     seen_supers: set[str] = set()
     for st_name, cnt in super_troop_counter.most_common():
+        if st_name not in valid_super_troop_names:
+            continue
         seen_supers.add(st_name)
         pct = round((cnt / total_ranked_attacks) * 100.0, 2)
         super_troop_usage.append({
@@ -678,9 +714,15 @@ def analyze_meta_statistics(
                 "pick_rate": 0.0,
             })
 
+    canonical_troops = {
+        meta.name for meta in TROOP_REGISTRY.values()
+        if meta.category != UnitCategory.SUPER_TROOP and meta.category != UnitCategory.BUILDER_TROOP
+    }
     troop_usage = []
     seen_troops: set[str] = set()
     for t_name, cnt in troop_usage_counter.most_common():
+        if t_name not in canonical_troops:
+            continue
         seen_troops.add(t_name)
         pct = round(min(100.0, (cnt / total_ranked_attacks) * 100.0), 2)
         troop_usage.append({
@@ -695,10 +737,6 @@ def analyze_meta_statistics(
             if troop_level_sums.get(t_name)
             else 1.0,
         })
-    canonical_troops = {
-        meta.name for meta in TROOP_REGISTRY.values()
-        if meta.category != UnitCategory.SUPER_TROOP and meta.category != UnitCategory.BUILDER_TROOP
-    }
     for t_name in sorted(canonical_troops):
         if t_name not in seen_troops:
             troop_usage.append({

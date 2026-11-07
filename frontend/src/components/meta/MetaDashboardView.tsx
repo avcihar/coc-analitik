@@ -155,9 +155,9 @@ const HERO_MAX_LEVELS: Record<string, number> = {
   "Dragon Duke": 25,
 };
 
-// Canonical Item Definitions to Guarantee 100% Item Coverage in Usage Statistics
+// Canonical Item Definitions matching official icons in frontend/public/icons/
 const CANONICAL_EQUIPMENTS: { hero: string; name: string }[] = [
-  // Barbarian King (7)
+  // Barbarian King (8 - from docs/Hero Equipment/Barbarian King)
   { hero: "Barbarian King", name: "Barbarian Puppet" },
   { hero: "Barbarian King", name: "Rage Vial" },
   { hero: "Barbarian King", name: "Earthquake Boots" },
@@ -165,7 +165,8 @@ const CANONICAL_EQUIPMENTS: { hero: string; name: string }[] = [
   { hero: "Barbarian King", name: "Giant Gauntlet" },
   { hero: "Barbarian King", name: "Spiky Ball" },
   { hero: "Barbarian King", name: "Snake Bracelet" },
-  // Archer Queen (7)
+  { hero: "Barbarian King", name: "Stick Horse" },
+  // Archer Queen (8 - from docs/Hero Equipment/Archer Queen)
   { hero: "Archer Queen", name: "Archer Puppet" },
   { hero: "Archer Queen", name: "Invisibility Vial" },
   { hero: "Archer Queen", name: "Giant Arrow" },
@@ -173,33 +174,38 @@ const CANONICAL_EQUIPMENTS: { hero: string; name: string }[] = [
   { hero: "Archer Queen", name: "Frozen Arrow" },
   { hero: "Archer Queen", name: "Magic Mirror" },
   { hero: "Archer Queen", name: "Action Figure" },
-  // Grand Warden (6)
+  { hero: "Archer Queen", name: "Monolith Arrow" },
+  // Grand Warden (7 - from docs/Hero Equipment/Grand Warden)
   { hero: "Grand Warden", name: "Eternal Tome" },
   { hero: "Grand Warden", name: "Life Gem" },
   { hero: "Grand Warden", name: "Rage Gem" },
   { hero: "Grand Warden", name: "Healing Tome" },
   { hero: "Grand Warden", name: "Fireball" },
   { hero: "Grand Warden", name: "Heroic Torch" },
-  // Royal Champion (6)
+  { hero: "Grand Warden", name: "Lavaloon Puppet" },
+  // Royal Champion (7 - from docs/Hero Equipment/Royal Champion)
   { hero: "Royal Champion", name: "Seeking Shield" },
   { hero: "Royal Champion", name: "Royal Gem" },
   { hero: "Royal Champion", name: "Haste Vial" },
   { hero: "Royal Champion", name: "Hog Rider Puppet" },
   { hero: "Royal Champion", name: "Rocket Spear" },
   { hero: "Royal Champion", name: "Electro Boots" },
-  // Minion Prince (5)
-  { hero: "Minion Prince", name: "Henchmen Puppet" },
+  { hero: "Royal Champion", name: "Frost Flake" },
+  // Minion Prince (7 - from docs/Hero Equipment/Minion Prince)
+  { hero: "Minion Prince", name: "Dark Crown" },
   { hero: "Minion Prince", name: "Dark Orb" },
+  { hero: "Minion Prince", name: "Henchmen Puppet" },
   { hero: "Minion Prince", name: "Metal Pants" },
   { hero: "Minion Prince", name: "Meteor Staff" },
-  { hero: "Minion Prince", name: "Dark Crown" },
-  // Dragon Duke (6)
+  { hero: "Minion Prince", name: "Noble Iron" },
+  { hero: "Minion Prince", name: "Portal Pendant" },
+  // Dragon Duke (6 - from docs/Hero Equipment/Dragon Duke)
+  { hero: "Dragon Duke", name: "Electro Fangs" },
   { hero: "Dragon Duke", name: "Fire Heart" },
-  { hero: "Dragon Duke", name: "Stick Horse" },
-  { hero: "Dragon Duke", name: "Frost Flake" },
-  { hero: "Dragon Duke", name: "Noble Iron" },
-  { hero: "Dragon Duke", name: "Lavaloon Puppet" },
+  { hero: "Dragon Duke", name: "Flame Blower" },
+  { hero: "Dragon Duke", name: "Revenge Deck" },
   { hero: "Dragon Duke", name: "Rocket Backpack" },
+  { hero: "Dragon Duke", name: "Stun Blaster" },
 ];
 
 const CANONICAL_PETS: string[] = [
@@ -207,10 +213,10 @@ const CANONICAL_PETS: string[] = [
   "Mighty Yak",
   "Electro Owl",
   "Unicorn",
-  "Phoenix",
-  "Poison Lizard",
-  "Diggy",
   "Frosty",
+  "Diggy",
+  "Poison Lizard",
+  "Phoenix",
   "Spirit Fox",
   "Angry Jelly",
   "Sneezy",
@@ -250,6 +256,7 @@ const CANONICAL_SPELLS: string[] = [
 ];
 
 const CANONICAL_TROOPS: string[] = [
+  // Regular Elixir Troops (19)
   "Barbarian",
   "Archer",
   "Giant",
@@ -267,8 +274,9 @@ const CANONICAL_TROOPS: string[] = [
   "Dragon Rider",
   "Electro Titan",
   "Root Rider",
-  "Druid",
   "Thrower",
+  "Meteor Golem",
+  // Regular Dark Elixir Troops (13)
   "Minion",
   "Hog Rider",
   "Valkyrie",
@@ -279,8 +287,9 @@ const CANONICAL_TROOPS: string[] = [
   "Ice Golem",
   "Headhunter",
   "Apprentice Warden",
+  "Druid",
   "Furnace",
-  "Elephant Rider",
+  "Ruin Witch",
 ];
 
 const CANONICAL_SUPER_TROOPS: string[] = [
@@ -300,6 +309,7 @@ const CANONICAL_SUPER_TROOPS: string[] = [
   "Super Bowler",
   "Super Miner",
   "Super Hog Rider",
+  "Super Yeti",
 ];
 
 // Single Army Card Component matching in-game "Ordum -> Kaydedilen Setler"
@@ -626,10 +636,13 @@ export default function MetaDashboardView() {
   const rawSieges = stats?.siegeUsage || [];
   const rawSuperTroops = stats?.superTroopUsage || [];
 
-  // 1. Merge Equipments
+  // 1. Merge Equipments (Only the 43 official ones from docs/Hero Equipment & public/icons/equipment)
+  const validCanonicalKeys = new Set(CANONICAL_EQUIPMENTS.map((c) => `${c.hero}:::${c.name}`));
   const eqMap = new Map<string, { hero: string; name: string; count: number; usagePct: number }>();
   for (const eq of rawEquipments) {
-    eqMap.set(`${eq.hero}:::${eq.name}`, { ...eq });
+    const key = `${eq.hero}:::${eq.name}`;
+    if (!validCanonicalKeys.has(key)) continue; // Filter out fake or misplaced equipments!
+    eqMap.set(key, { ...eq });
   }
   for (const c of CANONICAL_EQUIPMENTS) {
     const key = `${c.hero}:::${c.name}`;
@@ -639,9 +652,10 @@ export default function MetaDashboardView() {
   }
   const allEquipments = Array.from(eqMap.values());
 
-  // 2. Merge Pets
+  // 2. Merge Pets (Only the 12 official ones from public/icons/pets)
   const petMap = new Map<string, PetStat>();
   for (const p of rawPets) {
+    if (!CANONICAL_PETS.includes(p.name)) continue; // Filter out fake/scrapped pets!
     petMap.set(p.name, { ...p });
   }
   for (const name of CANONICAL_PETS) {
@@ -651,10 +665,17 @@ export default function MetaDashboardView() {
   }
   const pets = Array.from(petMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // 3. Merge Troops (31 regular troops)
+  // Helper to distinguish super troops from normal troops
+  const isSuperTroop = (name: string) =>
+    CANONICAL_SUPER_TROOPS.includes(name) || name.startsWith("Super ");
+
+  // 3. Merge Troops (32 regular troops only - strictly NO super troops, NO unreleased/event units)
   const troopMap = new Map<string, UnitUsageStat>();
   for (const t of rawTroops) {
-    troopMap.set(t.name, { ...t });
+    const cleanName = t.name === "Head Hunter" ? "Headhunter" : t.name;
+    if (isSuperTroop(cleanName)) continue; // Never allow Super Troops in Birlikler!
+    if (!CANONICAL_TROOPS.includes(cleanName)) continue; // Never allow unreleased/fake units (e.g. Elephant Rider)!
+    troopMap.set(cleanName, { ...t, name: cleanName });
   }
   for (const name of CANONICAL_TROOPS) {
     if (!troopMap.has(name)) {
@@ -666,6 +687,7 @@ export default function MetaDashboardView() {
   // 4. Merge Spells (17 canonical spells)
   const spellMap = new Map<string, UnitUsageStat>();
   for (const sp of rawSpells) {
+    if (!CANONICAL_SPELLS.includes(sp.name)) continue;
     spellMap.set(sp.name, { ...sp });
   }
   for (const name of CANONICAL_SPELLS) {
@@ -678,6 +700,7 @@ export default function MetaDashboardView() {
   // 5. Merge Sieges (9 canonical siege machines)
   const siegeMap = new Map<string, UnitUsageStat>();
   for (const s of rawSieges) {
+    if (!CANONICAL_SIEGES.includes(s.name)) continue;
     siegeMap.set(s.name, { ...s });
   }
   for (const name of CANONICAL_SIEGES) {
@@ -687,10 +710,13 @@ export default function MetaDashboardView() {
   }
   const sieges = Array.from(siegeMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // 6. Merge Super Troops (16 canonical super troops)
+  // 6. Merge Super Troops (17 canonical super troops only)
   const superMap = new Map<string, { name: string; count: number; usagePct: number }>();
-  for (const st of rawSuperTroops) {
-    superMap.set(st.name, { ...st });
+  for (const st of [...rawSuperTroops, ...rawTroops.filter((t) => isSuperTroop(t.name))]) {
+    if (!CANONICAL_SUPER_TROOPS.includes(st.name)) continue;
+    if (!superMap.has(st.name) || (st.usagePct || 0) > (superMap.get(st.name)?.usagePct || 0)) {
+      superMap.set(st.name, { name: st.name, count: st.count || 0, usagePct: st.usagePct || 0.0 });
+    }
   }
   for (const name of CANONICAL_SUPER_TROOPS) {
     if (!superMap.has(name)) {
