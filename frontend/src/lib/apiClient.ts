@@ -54,6 +54,12 @@ export async function safeFetchJson<T = any>(
         res.status
       );
     }
+    if (res.status === 500) {
+      throw new ApiError(
+        `Sunucu zaman aşımına uğradı veya dahili hata oluştu (HTTP 500). Lütfen tekrar deneyin.`,
+        500
+      );
+    }
     throw new ApiError(
       `Sunucudan beklenmeyen yanıt geldi (HTTP ${res.status}). Beklenen JSON verisi yerine farklı format alındı.`,
       res.status

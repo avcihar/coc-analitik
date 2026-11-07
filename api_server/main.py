@@ -377,6 +377,14 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     async def coc_api_error_handler(_request: Request, exc: CoCAPIException):
         return JSONResponse(status_code=502, content={"detail": str(exc)})
 
+    @application.exception_handler(Exception)
+    async def unhandled_exception_handler(_request: Request, exc: Exception):
+        logger.exception("Unhandled server exception: %s", exc)
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "detail": f"Sunucu hatası: {str(exc)}"},
+        )
+
     # ── Routes ─────────────────────────────────────────────────────────────
 
     @application.get("/health", tags=["System"])
@@ -712,10 +720,16 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         cache_key = CacheKey.leaderboard_global(
             f"meta_top_analysis_{location_id}_top_{effective_n}_th_{town_hall or 'all'}"
         )
+        v3_key = CacheKey.leaderboard_global(
+            f"meta_v3_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
+        )
         if not force_refresh:
             cached = await cache.get(cache_key)
             if cached is not None and not cached.get("isProcessing"):
                 return cached
+            cached_v3 = await cache.get(v3_key)
+            if cached_v3 is not None and not cached_v3.get("isProcessing"):
+                return cached_v3
 
         from services.workers.leaderboard import MetaTaskManager
         job_id = f"{location_id}_{effective_n}_{town_hall or 'all'}"
@@ -723,18 +737,30 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         if existing_job and not force_refresh and existing_job.current_dashboard:
             return existing_job.current_dashboard
 
-        dashboard = await generate_meta_dashboard(
-            api_client=api_client,
-            redis_client=getattr(cache, "redis", None),
-            top_n=effective_n,
-            sample_size=effective_n,
-            town_hall=town_hall,
-            location_id=location_id,
-            force_refresh=force_refresh,
-        )
-        if not dashboard.get("isProcessing"):
-            await cache.set(cache_key, dashboard, ttl=1800)
-        return dashboard
+        try:
+            dashboard = await generate_meta_dashboard(
+                api_client=api_client,
+                redis_client=getattr(cache, "redis", None),
+                top_n=effective_n,
+                sample_size=effective_n,
+                town_hall=town_hall,
+                location_id=location_id,
+                force_refresh=force_refresh,
+            )
+            if not dashboard.get("isProcessing"):
+                await cache.set(cache_key, dashboard, ttl=1800)
+                await cache.set(v3_key, dashboard, ttl=1800)
+            return dashboard
+        except Exception as exc:
+            logger.exception("Error generating meta top analysis: %s", exc)
+            stale = await cache.get(cache_key) or await cache.get(v3_key)
+            if stale:
+                logger.warning("Serving stale meta dashboard fallback after error: %s", exc)
+                return stale
+            raise HTTPException(
+                status_code=500,
+                detail=f"Meta analizi gerçekleştirilemedi: {str(exc)}",
+            )
 
     @application.get("/api/v1/meta/dashboard", tags=["Meta Analytics"])
     async def get_meta_dashboard(
@@ -773,10 +799,16 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         cache_key = CacheKey.leaderboard_global(
             f"meta_dashboard_top_{effective_n}_th_{town_hall or 'all'}"
         )
+        v3_key = CacheKey.leaderboard_global(
+            f"meta_v3_global_n_{effective_n}_th_{town_hall or 'all'}"
+        )
         if not force_refresh:
             cached = await cache.get(cache_key)
             if cached is not None and not cached.get("isProcessing"):
                 return cached
+            cached_v3 = await cache.get(v3_key)
+            if cached_v3 is not None and not cached_v3.get("isProcessing"):
+                return cached_v3
 
         from services.workers.leaderboard import MetaTaskManager
         job_id = f"global_{effective_n}_{town_hall or 'all'}"
@@ -784,18 +816,30 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         if existing_job and not force_refresh and existing_job.current_dashboard:
             return existing_job.current_dashboard
 
-        dashboard = await generate_meta_dashboard(
-            api_client=api_client,
-            redis_client=getattr(cache, "redis", None),
-            top_n=effective_n,
-            sample_size=effective_n,
-            town_hall=town_hall,
-            location_id="global",
-            force_refresh=force_refresh,
-        )
-        if not dashboard.get("isProcessing"):
-            await cache.set(cache_key, dashboard, ttl=1800)
-        return dashboard
+        try:
+            dashboard = await generate_meta_dashboard(
+                api_client=api_client,
+                redis_client=getattr(cache, "redis", None),
+                top_n=effective_n,
+                sample_size=effective_n,
+                town_hall=town_hall,
+                location_id="global",
+                force_refresh=force_refresh,
+            )
+            if not dashboard.get("isProcessing"):
+                await cache.set(cache_key, dashboard, ttl=1800)
+                await cache.set(v3_key, dashboard, ttl=1800)
+            return dashboard
+        except Exception as exc:
+            logger.exception("Error generating meta dashboard: %s", exc)
+            stale = await cache.get(cache_key) or await cache.get(v3_key)
+            if stale:
+                logger.warning("Serving stale meta dashboard fallback after error: %s", exc)
+                return stale
+            raise HTTPException(
+                status_code=500,
+                detail=f"Meta paneli oluşturulamadı: {str(exc)}",
+            )
 
     # ── Static Files & SPA Routing ───────────────────────────────────────────
     project_root = Path(__file__).resolve().parent.parent

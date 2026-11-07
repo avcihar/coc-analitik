@@ -1181,6 +1181,7 @@ class MetaBackgroundJob:
                     pass
 
         self.is_completed = True
+        total_analyzed = len(self.profiles)
         # Free memory: Discard raw player profiles and battle logs from memory
         self.profiles.clear()
         import gc
@@ -1189,19 +1190,29 @@ class MetaBackgroundJob:
         if self.current_dashboard:
             self.current_dashboard["isProcessing"] = False
             self.current_dashboard["progress"] = {
-                "processed": len(self.profiles) + self.failed_count,
+                "processed": total_analyzed + self.failed_count,
                 "target": self.target_n,
                 "percentage": 100.0,
-                "message": f"{len(self.profiles) + self.failed_count:,} / {self.target_n:,} oyuncu işlendi (%100.0)",
+                "message": f"{total_analyzed + self.failed_count:,} / {self.target_n:,} oyuncu işlendi (%100.0)",
             }
             if redis_client is not None:
-                cache_key = CacheKey.leaderboard_global(
-                    f"meta_v3_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
-                )
-                try:
-                    await redis_client.set(cache_key, json.dumps(self.current_dashboard), ex=3600)
-                except Exception:
-                    pass
+                keys_to_update = [
+                    CacheKey.leaderboard_global(
+                        f"meta_v3_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
+                    ),
+                    CacheKey.leaderboard_global(
+                        f"meta_top_analysis_{self.location_id}_top_{self.target_n}_th_{self.town_hall or 'all'}"
+                    ),
+                    CacheKey.leaderboard_global(
+                        f"meta_dashboard_top_{self.target_n}_th_{self.town_hall or 'all'}"
+                    ),
+                ]
+                payload_str = json.dumps(self.current_dashboard)
+                for k in keys_to_update:
+                    try:
+                        await redis_client.set(k, payload_str, ex=3600)
+                    except Exception:
+                        pass
 
 
 class MetaTaskManager:
@@ -1225,10 +1236,14 @@ class MetaTaskManager:
         initial_failed_count: int,
         api_client: CoCAPIClient,
         redis_client: Optional[aioredis.Redis],
+        force: bool = False,
     ) -> MetaBackgroundJob:
         existing = cls._jobs.get(job_id)
-        if existing and not existing.is_completed and existing._async_task and not existing._async_task.done():
+        if not force and existing and not existing.is_completed and existing._async_task and not existing._async_task.done():
             return existing
+
+        if existing and existing._async_task and not existing._async_task.done():
+            existing._async_task.cancel()
 
         job = MetaBackgroundJob(
             job_id=job_id,
@@ -1297,8 +1312,8 @@ async def generate_meta_dashboard(
         rate_limiter=limiter,
     )
 
-    if effective_n <= 200 or len(ranking_items) <= 200:
-        # Synchronous processing for sample sizes up to 200
+    if effective_n <= 30 or len(ranking_items) <= 30:
+        # Synchronous processing for small sample sizes up to 30
         profiles_result = await fetch_profiles_for_rankings(
             api_client,
             ranking_items[:effective_n],
@@ -1343,16 +1358,27 @@ async def generate_meta_dashboard(
         }
 
         if redis_client is not None and has_sufficient:
-            await redis_client.set(
+            keys_to_update = [
                 cache_key,
-                json.dumps(dashboard),
-                ex=1800,  # 30 minutes TTL
-            )
+                CacheKey.leaderboard_global(
+                    f"meta_top_analysis_{location_id}_top_{effective_n}_th_{town_hall or 'all'}"
+                ),
+                CacheKey.leaderboard_global(
+                    f"meta_dashboard_top_{effective_n}_th_{town_hall or 'all'}"
+                ),
+            ]
+            payload_str = json.dumps(dashboard)
+            for k in keys_to_update:
+                try:
+                    await redis_client.set(k, payload_str, ex=1800)
+                except Exception:
+                    pass
         return dashboard
 
-    # For large sample sizes (1,000 / 10,000):
-    # Fetch first 100 profiles immediately and return them without blocking
-    initial_slice = ranking_items[:100]
+    # For larger sample sizes (200, 1,000, 10,000):
+    # Fetch initial slice immediately (e.g. 30 profiles) and stream the rest via background task
+    initial_slice_size = 100 if effective_n >= 1000 else min(30, effective_n)
+    initial_slice = ranking_items[:initial_slice_size]
     initial_result = await fetch_profiles_for_rankings(
         api_client,
         initial_slice,
@@ -1403,6 +1429,7 @@ async def generate_meta_dashboard(
         initial_failed_count=initial_result.failed_count,
         api_client=api_client,
         redis_client=redis_client,
+        force=force_refresh,
     )
     job.current_dashboard = initial_dashboard
 
