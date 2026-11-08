@@ -45,6 +45,7 @@ export interface ClanMemberLeague {
     small?: string;
     tiny?: string;
     medium?: string;
+    large?: string;
   };
 }
 
@@ -61,6 +62,8 @@ export interface ClanMember {
   donations?: number;
   donationsReceived?: number;
   league?: ClanMemberLeague;
+  leagueTier?: ClanMemberLeague;
+  builderBaseLeague?: ClanMemberLeague;
 }
 
 export interface ClanDetails {

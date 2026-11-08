@@ -78,19 +78,19 @@ export default function SearchHubView({
   };
 
   return (
-    <div className={cn("w-full space-y-4", className)}>
-      {/* Top GraySegmented Sub-Tabs ("Oyuncu Ara" | "Klan Ara") */}
-      <div className="flex justify-center px-2">
+    <div className={cn("w-full -mt-3 sm:-mt-6 flex flex-col", className)}>
+      {/* Top GraySegmented Sub-Tabs ("Oyuncu Ara" | "Klan Ara") - Flush at top */}
+      <div className="w-full flex items-end pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
         <GraySegmented<SearchTabType>
           items={TAB_ITEMS}
           activeId={activeTab}
           onChange={handleTabChange}
-          className="w-full max-w-md"
+          className="w-full sm:w-auto"
         />
       </div>
 
-      {/* Tab Panels */}
-      <div className="transition-opacity duration-200">
+      {/* Tab Panels: seamlessly integrated with active tab header */}
+      <div className="w-full pt-4 sm:pt-6 transition-opacity duration-200 relative z-0">
         {activeTab === "player" ? (
           <PlayerSearchView
             initialTag={initialPlayerTag}

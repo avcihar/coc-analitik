@@ -2,14 +2,21 @@
 
 import React from "react";
 import { Swords, FileText, Globe2, Shield, MapPin, MessageSquare, Award } from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 import ClanBadge from "@/components/game/ClanBadge";
 import GameButton from "@/components/game/GameButton";
 import type { ClanDetails } from "./types";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export interface ClanHeaderCardProps {
   clan: ClanDetails;
   onScoutClanInCwl?: (clanTag: string) => void;
   onOpenWarLog?: (clanTag: string) => void;
+  className?: string;
 }
 
 function formatClanType(type?: string): string {
@@ -25,6 +32,7 @@ export default function ClanHeaderCard({
   clan,
   onScoutClanInCwl,
   onOpenWarLog,
+  className,
 }: ClanHeaderCardProps) {
   const cleanTag = clan.tag?.replace(/^#/, "") || "";
 
@@ -43,7 +51,7 @@ export default function ClanHeaderCard({
   };
 
   return (
-    <div className="clan-header-panel p-4 sm:p-6 mb-4 sm:mb-6">
+    <div className={cn("clan-header-panel p-4 sm:p-6 mb-4 sm:mb-6", className)}>
       {/* Decorative Grid and Corner Ribbon */}
       <div className="clan-header-map-grid" aria-hidden="true" />
       <div className="clan-header-ribbon" title="Klanım" aria-hidden="true" />

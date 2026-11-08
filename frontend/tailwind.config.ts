@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        game: ["var(--game-font)", "'Lilita One'", "sans-serif"],
+      },
       colors: {
         // Theme-aware tokens
         app: {

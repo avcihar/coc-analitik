@@ -1723,11 +1723,6 @@ export default function WallArtView() {
           )}
         </div>
       </div>
-
-      {/* Footer Supercell Disclaimer */}
-      <div className="text-center text-xs text-app-muted pt-3 border-t border-app-border/40">
-        Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
-      </div>
     </div>
   );
 }

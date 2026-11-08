@@ -138,16 +138,16 @@ export default function ClanDetailsView({
   }, [currentClan?.memberList, villageTab]);
 
   return (
-    <div className={cn("w-full", className)}>
-      <div className="w-full space-y-4 sm:space-y-5 overflow-x-hidden">
-        {/* 1. Üst Alt-Düğme Şeridi: Asıl Köy, İnşaatçı Üssü, Klan Başkenti */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="w-full sm:w-auto">
+    <div className={cn("w-full -mt-3 sm:-mt-6 flex flex-col", className)}>
+      <div className="w-full space-y-0 overflow-x-hidden">
+        {/* 1. Üst Alt-Düğme Şeridi: Asıl Köy, İnşaatçı Üssü, Klan Başkenti - Flush at top */}
+        <div className="w-full flex items-end justify-between gap-3 pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
+          <div className="flex-1 min-w-0">
             <GraySegmented
               items={VILLAGE_TABS}
               activeId={villageTab}
               onChange={(id) => setVillageTab(id)}
-              className="max-w-md"
+              className="w-full sm:w-auto"
             />
           </div>
 
@@ -156,18 +156,18 @@ export default function ClanDetailsView({
             type="button"
             onClick={handleManualRefresh}
             disabled={isLoading}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/10 hover:bg-black/20 text-gray-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/10 hover:bg-black/20 text-gray-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shrink-0 mb-1 mr-2 sm:mr-4"
             title="Klan verilerini yenile"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
             <span>Yenile</span>
           </button>
         </div>
 
         {/* 2. Yükleme Durumu */}
         {isLoading && !currentClan && (
-          <div className="space-y-4">
-            <SkeletonBlock height="240px" className="rounded-2xl" />
+          <div className="space-y-4 mt-3">
+            <SkeletonBlock height="240px" className="rounded-2xl rounded-tl-none" />
             <SkeletonBlock height="48px" className="rounded-xl" />
             <div className="space-y-2">
               {[...Array(6)].map((_, i) => (
@@ -179,7 +179,7 @@ export default function ClanDetailsView({
 
         {/* 3. Hata Durumu */}
         {errorMessage && !isLoading && (
-          <div className="p-5 rounded-2xl bg-rose-900/15 border-2 border-rose-500/40 text-center space-y-3">
+          <div className="p-5 rounded-2xl bg-rose-900/15 border-2 border-rose-500/40 text-center space-y-3 mt-3">
             <div className="flex items-center justify-center gap-2 text-rose-700 font-bold">
               <AlertCircle className="w-5 h-5" />
               <span className="text-base font-black">Klan Bilgisi Yüklenemedi</span>
@@ -195,12 +195,13 @@ export default function ClanDetailsView({
 
         {/* 4. Başarılı Durum: Klan İçeriği */}
         {currentClan && !isLoading && (
-          <>
+          <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-6">
             {/* Üst Bilgi Bloğu (Mavi-Gri / Harita zeminli panel) */}
             <ClanHeaderCard
               clan={currentClan}
               onScoutClanInCwl={onScoutClanInCwl}
               onOpenWarLog={handleOpenWarLog}
+              className={villageTab === "home" ? "rounded-tl-none mt-0" : "mt-0"}
             />
 
             {/* Klan Başkenti Görünümü */}
@@ -239,6 +240,7 @@ export default function ClanDetailsView({
                 maxMembers={50}
                 highlightPlayerTag={highlightPlayerTag}
                 onSelectPlayer={onSelectPlayer}
+                villageTab={villageTab}
               />
             )}
 
@@ -250,7 +252,7 @@ export default function ClanDetailsView({
                 onClose={() => setIsWarLogOpen(false)}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

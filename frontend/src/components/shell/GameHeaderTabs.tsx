@@ -64,7 +64,7 @@ export default function GameHeaderTabs({
       )}
     >
       {/* Left: Brand logo link + In-Game Tabs row */}
-      <div className="flex items-end gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none pl-2 sm:pl-4">
+      <div className="flex items-end gap-1 sm:gap-1.5 pl-2 sm:pl-4 min-w-0">
         {/* Brand link */}
         <button
           type="button"
@@ -84,7 +84,7 @@ export default function GameHeaderTabs({
         </button>
 
         {/* Tab Buttons */}
-        <div className="flex items-end gap-1 sm:gap-1.5" role="tablist">
+        <div className="flex items-end gap-1 lg:gap-1.5" role="tablist">
           {SHELL_TABS.map((tab) => {
             const isActive = activeTab === tab.key;
             const Icon = tab.icon;
@@ -102,15 +102,15 @@ export default function GameHeaderTabs({
                 aria-selected={isActive}
                 onClick={() => onTabChange(tab.key)}
                 className={cn(
-                  "game-tab text-xs xl:text-sm font-black transition-all cursor-pointer",
-                  "px-3 lg:px-3.5 xl:px-5 py-2",
+                  "game-tab text-xs xl:text-sm font-black transition-all cursor-pointer shrink-0",
+                  "px-2.5 lg:px-3.5 xl:px-4.5 py-2",
                   isActive
                     ? activeClass
                     : "game-tab-stone-inactive hover:brightness-110"
                 )}
               >
                 <Icon
-                  size={16}
+                  size={15}
                   className={cn(
                     "shrink-0",
                     isActive ? "text-stone-900" : "text-stone-300"

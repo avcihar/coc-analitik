@@ -27,6 +27,11 @@ import { twMerge } from "tailwind-merge";
 import { buildCopyArmyLink } from "@/lib/armyLink";
 import { safeFetchJson } from "@/lib/apiClient";
 import UnitIcon from "@/components/common/UnitIcon";
+import {
+  GameButton,
+  GameInput,
+  TownHallImage,
+} from "@/components/game";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -206,8 +211,6 @@ interface CwlScoutReport {
   opponents: ScoutData[];
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
 const UnitCard = ({
   unit,
   type,
@@ -215,21 +218,23 @@ const UnitCard = ({
   unit: Unit;
   type: "troop" | "spell" | "siege" | "cc";
 }) => {
-  const badgeColors = {
-    troop: "bg-blue-600 text-white",
-    spell: "bg-purple-600 text-white",
-    siege: "bg-amber-600 text-white",
-    cc: "bg-emerald-600 text-white",
+  const badgeTheme = {
+    troop: "bg-gradient-to-b from-[#3399E8] to-[#1B72C6] text-white border-[#104C8A]",
+    spell: "bg-gradient-to-b from-[#A238D6] to-[#71199E] text-white border-[#4A0969]",
+    siege: "bg-gradient-to-b from-[#F5B824] to-[#C97F08] text-stone-950 border-[#663F02]",
+    cc: "bg-gradient-to-b from-[#72BD36] to-[#438719] text-white border-[#24540A]",
   };
 
   return (
-    <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 flex items-center justify-between gap-3 shadow-sm hover:border-blue-500/50 transition-all">
-      <div className="flex items-center gap-2.5">
-        <UnitIcon name={unit.name} size="xs" />
-        <div>
-          <div className="text-xs font-bold text-app-text">{unit.name}</div>
+    <div className="bg-[#241710] border-2 border-[#3D2517] rounded-xl p-2.5 flex items-center justify-between gap-2.5 shadow-md hover:border-amber-500/50 transition-all select-none">
+      <div className="flex items-center gap-2.5 min-w-0">
+        <UnitIcon name={unit.name} size="sm" />
+        <div className="truncate">
+          <div className="text-xs font-game text-white tracking-wide truncate drop-shadow-sm">
+            {unit.name}
+          </div>
           {unit.housingSpace && (
-            <div className="text-[10px] text-app-muted font-semibold">
+            <div className="text-[10px] text-amber-200/70 font-bold truncate">
               {unit.housingSpace * unit.count} Alan Kapasitesi
             </div>
           )}
@@ -237,8 +242,8 @@ const UnitCard = ({
       </div>
       <span
         className={cn(
-          "px-2.5 py-1 rounded-lg text-xs font-black shadow-sm",
-          badgeColors[type]
+          "px-2.5 py-0.5 rounded-lg text-xs font-game shadow-sm border shrink-0",
+          badgeTheme[type]
         )}
       >
         x{unit.count}
@@ -308,60 +313,60 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full bg-app-card rounded-2xl border-2 border-app-border shadow-sm overflow-hidden space-y-0"
+      className="w-full game-panel-wood rounded-2xl border-4 border-[#2C180E] shadow-2xl overflow-hidden space-y-0 text-stone-100"
     >
       {/* Header Bar */}
-      <div className="bg-app-cardSubtle px-6 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center border-b-2 border-app-border gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-red-600/10 rounded-2xl border-2 border-red-500/40 flex flex-col items-center justify-center text-red-600 dark:text-red-400 shadow-sm">
-            <span className="text-[10px] uppercase font-black tracking-widest leading-none">
-              BELEDİYE
-            </span>
-            <span className="text-2xl font-black leading-none mt-0.5">
-              {player.townHallLevel}
+      <div className="game-panel-header px-5 py-4 sm:px-6 sm:py-5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+          <div className="relative shrink-0 flex flex-col items-center">
+            <TownHallImage level={player.townHallLevel} size={58} className="drop-shadow-lg" />
+            <span className="mt-1 px-2 py-0.2 rounded-md bg-amber-500/25 border border-amber-400/40 text-amber-300 font-game text-[10px] font-black leading-none">
+              BB {player.townHallLevel}
             </span>
           </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2 className="text-2xl font-black text-app-text tracking-wide">
+
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="game-text-stroke-gold text-lg sm:text-2xl font-black tracking-wide truncate">
                 #{player.mapPosition || 1} {player.opponentName}
               </h2>
               {player.playerTag && (
-                <span className="text-xs font-bold text-app-muted">
+                <span className="text-xs font-bold text-amber-200/70">
                   ({player.playerTag})
                 </span>
               )}
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+              <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-game font-black bg-amber-500/20 text-amber-300 border border-amber-500/40">
                 TH{player.townHallLevel}
               </span>
               <span
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold border",
+                  "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-game font-black border",
                   hasDetectedArmy
-                    ? "bg-blue-600/10 text-blue-600 dark:text-blue-400 border-blue-500/30"
-                    : "bg-gray-500/10 text-app-muted border-app-border"
+                    ? "bg-sky-950/80 text-sky-200 border-sky-500/40"
+                    : "bg-stone-900/80 text-stone-300 border-stone-700"
                 )}
               >
                 {currentArmyName}
               </span>
               <span
                 className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold border",
+                  "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-game font-black border",
                   hasDetectedArmy
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
-                    : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30"
+                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-500/40"
+                    : "bg-rose-950/80 text-rose-300 border-rose-600/40"
                 )}
               >
                 {currentSourceLabel}
               </span>
             </div>
-            <div className="flex flex-wrap gap-4 text-xs font-bold text-app-muted mt-1.5">
-              <span className="flex items-center gap-1.5">
-                <Trophy size={14} className="text-amber-500" /> {player.trophies} Kupa
+
+            <div className="flex flex-wrap items-center gap-2.5 text-xs font-bold text-amber-200/90 mt-2">
+              <span className="game-stat-pill">
+                <Trophy size={13} className="text-amber-400" /> {player.trophies} Kupa
               </span>
               {player.activeSuperTroops && player.activeSuperTroops.length > 0 && (
-                <span className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
-                  <Flame size={14} /> Aktif Süper Birlik:{" "}
+                <span className="game-stat-pill text-rose-300 border-rose-800/40">
+                  <Flame size={13} className="text-rose-400" /> Aktif Süper Birlik:{" "}
                   {player.activeSuperTroops.join(", ")}
                 </span>
               )}
@@ -370,72 +375,66 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
         </div>
 
         {/* Action Buttons & Stars */}
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
           {hasDetectedArmy && (
             <>
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-start lg:items-end">
                 <div className="flex gap-1 items-center">
                   {[...Array(3)].map((_, i) => {
                     const starsCount = activeOption?.stars ?? player.stars ?? 0;
                     return (
                       <Star
                         key={i}
-                        size={18}
-                        fill={i < starsCount ? "#F59E0B" : "transparent"}
+                        size={20}
+                        fill={i < starsCount ? "#FFD200" : "transparent"}
                         className={
                           i < starsCount
-                            ? "text-amber-500"
-                            : "text-gray-400 dark:text-gray-600"
+                            ? "text-[#FFD200] filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                            : "text-stone-700"
                         }
                       />
                     );
                   })}
                 </div>
-                <div className="text-xs font-black text-app-text mt-0.5">
+                <div className="font-game text-xs text-amber-200 tracking-wide mt-0.5">
                   %{activeOption?.destructionPercentage ?? player.destruction ?? 0} Yıkım
                 </div>
               </div>
 
-              <a
-                href={currentCopyLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-2 border-2 bg-blue-600 hover:bg-blue-700 border-blue-500 text-white shadow-md"
-              >
-                <ExternalLink size={15} /> Ordu Kopyala
-              </a>
+              <div className="flex flex-wrap items-center gap-2">
+                <GameButton
+                  variant="green"
+                  size="md"
+                  href={currentCopyLink}
+                  target="_blank"
+                  icon={<ExternalLink size={15} />}
+                  className="px-3.5 py-2 text-xs sm:text-sm font-game"
+                  title="Doğrudan Clash of Clans oyununda aç"
+                >
+                  Orduyu Kopyala
+                </GameButton>
 
-              <button
-                type="button"
-                onClick={handleCopyCode}
-                className={cn(
-                  "px-3.5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 border-2 cursor-pointer",
-                  copiedCode
-                    ? "bg-emerald-600 border-emerald-500 text-white"
-                    : "bg-app-card hover:bg-app-cardSubtle border-app-border text-app-text"
-                )}
-              >
-                {copiedCode ? (
-                  <>
-                    <Check size={14} /> Kopyalandı
-                  </>
-                ) : (
-                  <>
-                    <Copy size={14} /> Kodu Kopyala
-                  </>
-                )}
-              </button>
+                <GameButton
+                  variant={copiedCode ? "green" : "gold"}
+                  size="md"
+                  onClick={handleCopyCode}
+                  icon={copiedCode ? <Check size={14} /> : <Copy size={14} />}
+                  className="px-3 py-2 text-xs sm:text-sm font-game"
+                >
+                  {copiedCode ? "Kopyalandı" : "Kodu Kopyala"}
+                </GameButton>
+              </div>
             </>
           )}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="p-6 space-y-8">
+      <div className="p-4 sm:p-6 space-y-6">
         {/* Selector for up to 3 recent distinct attack armies */}
         {recentArmies.length > 1 && (
-          <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-wider text-app-text">
+          <div className="game-slot-well p-3.5 flex flex-wrap items-center justify-between gap-3">
+            <span className="font-game text-xs uppercase tracking-wider text-amber-200">
               Son {recentArmies.length} Farklı Saldırı Ordusu (Seçilebilir):
             </span>
             <div className="flex flex-wrap gap-2">
@@ -445,10 +444,10 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                   type="button"
                   onClick={() => setSelectedArmyIdx(idx)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-black border transition-all cursor-pointer",
+                    "game-btn text-xs py-1.5 px-3",
                     selectedArmyIdx === idx
-                      ? "bg-blue-600 text-white border-blue-500 shadow-sm"
-                      : "bg-app-card text-app-text border-app-border hover:border-blue-500/40"
+                      ? "game-btn-blue scale-[1.02]"
+                      : "game-btn-silver opacity-85 hover:opacity-100"
                   )}
                 >
                   #{idx + 1} {opt.armyName} ({opt.stars}★ %{opt.destructionPercentage})
@@ -459,49 +458,49 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
         )}
 
         {/* Section 1: Player Profile Heroes & Equipments */}
-        <div>
-          <div className="flex items-center justify-between mb-4 border-b-2 border-app-border pb-2">
-            <h3 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2">
-              <Shield size={16} className="text-blue-600 dark:text-blue-400" />{" "}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between border-b-2 border-[#3D2517] pb-2">
+            <h3 className="font-game text-xs sm:text-sm uppercase text-amber-200 tracking-widest flex items-center gap-2">
+              <Shield size={16} className="text-sky-400" />{" "}
               Oyuncu Profili Kahraman & Ekipman Seviyeleri
             </h3>
-            <span className="text-[11px] font-bold text-app-muted">
+            <span className="text-[11px] font-bold text-amber-200/70">
               Resmi `/players/{player.playerTag}` Verisi
             </span>
           </div>
 
           {(player.profileHeroes || player.heroes || []).length === 0 ? (
-            <div className="text-xs font-bold text-app-muted">
+            <div className="text-xs font-bold text-stone-400 p-3 rounded-xl bg-[#241710] border border-[#3D2517]">
               Bu oyuncu için kahraman bilgisi bulunamadı.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3.5">
               {(player.profileHeroes || player.heroes).map((hero) => (
                 <div
                   key={hero.id || hero.name}
-                  className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-4 flex flex-col justify-between shadow-sm"
+                  className="bg-[#241710] border-2 border-[#3D2517] rounded-xl p-3 flex flex-col justify-between shadow-md hover:border-amber-500/40 transition-all"
                 >
                   <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2 font-extrabold text-sm text-app-text">
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2 font-game text-xs text-white tracking-wide truncate">
                         <UnitIcon name={hero.name} size="xs" />
-                        <span>{hero.name}</span>
+                        <span className="truncate">{hero.name}</span>
                       </div>
                       {hero.level !== undefined && (
-                        <span className="px-2 py-0.5 rounded bg-blue-600 text-white text-xs font-black">
+                        <span className="px-1.5 py-0.5 rounded bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 font-game text-[11px] font-black border border-amber-300 shadow-sm shrink-0">
                           Lv.{hero.level}
                         </span>
                       )}
                     </div>
 
                     {hero.pet && (
-                      <div className="mb-3 p-2 rounded-lg bg-app-card border border-app-border flex items-center justify-between text-xs font-bold text-app-text">
-                        <span className="text-app-muted flex items-center gap-1.5">
+                      <div className="mb-2.5 p-1.5 rounded-lg bg-[#180E09] border border-[#3A2216] flex items-center justify-between text-xs font-bold">
+                        <span className="text-cyan-300 font-game flex items-center gap-1.5 text-xs truncate">
                           <UnitIcon name={hero.pet.name} size="xs" />
-                          <span>{hero.pet.name}</span>
+                          <span className="truncate">{hero.pet.name}</span>
                         </span>
                         {hero.pet.level !== undefined && (
-                          <span className="text-[11px] font-extrabold text-cyan-600 dark:text-cyan-400">
+                          <span className="text-[10px] font-game text-cyan-200 px-1.5 py-0.2 rounded bg-cyan-950 border border-cyan-500/40 shrink-0">
                             Lv.{hero.pet.level}
                           </span>
                         )}
@@ -509,38 +508,46 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                     )}
                   </div>
 
-                  <div className="space-y-1.5 pt-2 border-t border-app-border">
-                    <div className="text-[10px] font-extrabold text-app-muted uppercase tracking-wider">
+                  <div className="space-y-1 pt-2 border-t border-[#3D2517]">
+                    <div className="text-[10px] font-game text-amber-300/80 uppercase tracking-wider">
                       Ekipmanlar:
                     </div>
                     {(hero.equipments || []).length === 0 ? (
-                      <div className="text-[11px] font-semibold text-app-muted">
+                      <div className="text-[11px] font-semibold text-stone-400">
                         Kuşanılmış ekipman yok
                       </div>
                     ) : (
-                      (hero.equipments || []).map((eq, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between text-xs py-1 px-2 rounded bg-app-card border border-app-border font-bold text-app-text"
-                        >
-                          <div className="flex items-center gap-1.5 truncate pr-2">
-                            <UnitIcon name={eq.name} size="xs" isEpic={eq.isEpic || eq.rarity === "Epic"} />
-                            <span className="truncate">{eq.name}</span>
+                      (hero.equipments || []).map((eq, i) => {
+                        const isEpic = eq.isEpic || eq.rarity === "Epic";
+                        return (
+                          <div
+                            key={i}
+                            className={cn(
+                              "flex items-center justify-between text-xs py-1 px-1.5 rounded border font-bold transition-colors",
+                              isEpic
+                                ? "bg-purple-950/50 border-purple-500/60 text-purple-200 shadow-[0_0_6px_rgba(168,85,247,0.2)]"
+                                : "bg-[#180E09] border-[#3A2216] text-stone-200"
+                            )}
+                          >
+                            <div className="flex items-center gap-1.5 truncate pr-1">
+                              <UnitIcon name={eq.name} size="xs" isEpic={isEpic} />
+                              <span className="truncate text-[11px] font-game">{eq.name}</span>
+                            </div>
+                            {eq.level !== undefined && (
+                              <span
+                                className={cn(
+                                  "text-[10px] px-1 py-0.2 rounded font-game font-black shrink-0",
+                                  isEpic
+                                    ? "bg-purple-800/80 text-purple-100 border border-purple-400/50"
+                                    : "bg-black/40 text-stone-300 border border-stone-700/60"
+                                )}
+                              >
+                                Lv.{eq.level}
+                              </span>
+                            )}
                           </div>
-                          {eq.level !== undefined && (
-                            <span
-                              className={cn(
-                                "text-[10px] px-1.5 py-0.5 rounded font-black shrink-0",
-                                eq.isEpic || eq.rarity === "Epic"
-                                  ? "bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-500/30"
-                                  : "bg-app-cardSubtle text-app-muted"
-                              )}
-                            >
-                              Lv.{eq.level}
-                            </span>
-                          )}
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -551,13 +558,13 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
 
         {/* Section 2: Decoded Attack Army OR Specific Failure Reason */}
         {!hasDetectedArmy ? (
-          <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-5 flex items-center gap-3 text-sm font-black text-app-muted">
-            <AlertCircle size={20} className="text-amber-500 shrink-0" />
+          <div className="bg-[#241710] border-2 border-[#3D2517] rounded-xl p-4 flex items-center gap-3 text-sm font-bold text-amber-200 shadow-md">
+            <AlertCircle size={20} className="text-amber-400 shrink-0" />
             <div>
-              <div className="text-app-text font-black text-sm">
+              <div className="font-game text-white text-sm tracking-wide">
                 {currentSourceLabel}
               </div>
-              <div className="text-xs font-semibold text-app-muted mt-0.5">
+              <div className="text-xs font-semibold text-amber-200/80 mt-0.5">
                 {currentSourceLabel === "Ranked kayıt yok"
                   ? "Oyuncunun Battle Log geçmişinde ranked türünde bir savaş kaydı bulunamadı."
                   : currentSourceLabel === "Battle log boş"
@@ -574,40 +581,48 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
           <>
             {/* Decoded Attack Heroes from armyShareCode */}
             {activeOption && activeOption.heroes && activeOption.heroes.length > 0 && (
-              <div>
-                <div className="flex items-center justify-between mb-3 border-b-2 border-app-border pb-2">
-                  <h3 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2">
-                    <Sparkles size={15} className="text-amber-500" /> Saldırıda Kullanılan Kahraman, Pet ve Ekipman Dizilimi (`armyShareCode`)
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b-2 border-[#3D2517] pb-2">
+                  <h3 className="font-game text-xs sm:text-sm uppercase text-amber-200 tracking-widest flex items-center gap-2">
+                    <Sparkles size={15} className="text-amber-400" /> Saldırıda Kullanılan Kahraman, Pet ve Ekipman Dizilimi (`armyShareCode`)
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {activeOption.heroes.map((h) => (
                     <div
                       key={h.id}
-                      className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 space-y-1.5"
+                      className="bg-[#241710] border-2 border-[#3D2517] rounded-xl p-3 space-y-2 shadow-md"
                     >
-                      <div className="flex items-center justify-between text-xs font-black text-app-text">
-                        <div className="flex items-center gap-1.5">
+                      <div className="flex items-center justify-between text-xs font-game text-white">
+                        <div className="flex items-center gap-1.5 truncate">
                           <UnitIcon name={h.name} size="xs" />
-                          <span>{h.name}</span>
+                          <span className="truncate">{h.name}</span>
                         </div>
                         {h.pet && (
-                          <div className="flex items-center gap-1 text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                          <div className="flex items-center gap-1 text-[11px] font-bold text-cyan-300 shrink-0">
                             <UnitIcon name={h.pet.name} size="xs" />
                             <span>{h.pet.name}</span>
                           </div>
                         )}
                       </div>
                       <div className="space-y-1">
-                        {h.equipment.map((eq) => (
-                          <div
-                            key={eq.id}
-                            className="text-xs font-bold px-2 py-1 rounded bg-app-card border border-app-border text-app-text flex items-center gap-1.5"
-                          >
-                            <UnitIcon name={eq.name} size="xs" isEpic={eq.rarity === "Epic"} />
-                            <span>{eq.name}</span>
-                          </div>
-                        ))}
+                        {h.equipment.map((eq) => {
+                          const isEpic = eq.rarity === "Epic";
+                          return (
+                            <div
+                              key={eq.id}
+                              className={cn(
+                                "text-xs font-game px-2 py-1 rounded border flex items-center gap-1.5",
+                                isEpic
+                                  ? "bg-purple-950/50 border-purple-500/50 text-purple-200 shadow-[0_0_6px_rgba(168,85,247,0.2)]"
+                                  : "bg-[#180E09] border-[#3A2216] text-stone-200"
+                              )}
+                            >
+                              <UnitIcon name={eq.name} size="xs" isEpic={isEpic} />
+                              <span className="truncate">{eq.name}</span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ))}
@@ -616,17 +631,17 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
             )}
 
             {/* Deployed Troops Grid */}
-            <div>
-              <div className="flex items-center justify-between mb-4 border-b-2 border-app-border pb-2">
-                <h3 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2">
-                  <Swords size={16} className="text-red-500" /> Tespit Edilen Saldırı Ordusu Birlikleri ({currentArmyName})
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b-2 border-[#3D2517] pb-2">
+                <h3 className="font-game text-xs sm:text-sm uppercase text-amber-200 tracking-widest flex items-center gap-2">
+                  <Swords size={16} className="text-amber-400" /> Tespit Edilen Saldırı Ordusu Birlikleri ({currentArmyName})
                 </h3>
-                <span className="text-[11px] font-bold text-app-muted">
+                <span className="text-[11px] font-bold text-amber-200/70">
                   Kaynak: {currentSourceLabel}
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {displayedTroops.map((troop, idx) => (
                   <UnitCard
                     key={`${troop.id}-${idx}`}
@@ -638,10 +653,10 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
             </div>
 
             {/* Spells, Siege & Clan Castle */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
-              <div className="space-y-3">
-                <h4 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2 border-b-2 border-app-border pb-2">
-                  <Zap size={15} className="text-purple-500" /> Büyüler
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+              <div className="space-y-2.5">
+                <h4 className="font-game text-xs uppercase text-purple-300 tracking-widest flex items-center gap-2 border-b-2 border-[#3D2517] pb-2">
+                  <Zap size={15} className="text-purple-400" /> Büyüler
                 </h4>
                 <div className="space-y-2">
                   {displayedSpells.map((spell, idx) => (
@@ -654,24 +669,28 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <h4 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2 border-b-2 border-app-border pb-2">
-                  <Shield size={15} className="text-amber-500" /> Kuşatma Makinesi
+              <div className="space-y-2.5">
+                <h4 className="font-game text-xs uppercase text-amber-300 tracking-widest flex items-center gap-2 border-b-2 border-[#3D2517] pb-2">
+                  <Shield size={15} className="text-amber-400" /> Kuşatma Makinesi
                 </h4>
                 {displayedSiege ? (
                   <UnitCard unit={displayedSiege} type="siege" />
                 ) : (
-                  <div className="text-xs font-bold text-app-muted">Yok</div>
+                  <div className="text-xs font-bold text-stone-400 p-3 rounded-xl bg-[#241710] border border-[#3D2517]">
+                    Yok
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-3">
-                <h4 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2 border-b-2 border-app-border pb-2">
-                  <ScrollText size={15} className="text-emerald-500" /> Klan Kalesi
+              <div className="space-y-2.5">
+                <h4 className="font-game text-xs uppercase text-emerald-300 tracking-widest flex items-center gap-2 border-b-2 border-[#3D2517] pb-2">
+                  <ScrollText size={15} className="text-emerald-400" /> Klan Kalesi
                 </h4>
                 <div className="space-y-2">
                   {displayedCc.length === 0 ? (
-                    <div className="text-xs font-bold text-app-muted">Yok</div>
+                    <div className="text-xs font-bold text-stone-400 p-3 rounded-xl bg-[#241710] border border-[#3D2517]">
+                      Yok
+                    </div>
                   ) : (
                     displayedCc.map((unit, idx) => (
                       <UnitCard
@@ -689,27 +708,27 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
 
         {/* Live CWL War Attacks if present */}
         {player.warAttacks && player.warAttacks.length > 0 && (
-          <div className="pt-4 border-t-2 border-app-border">
-            <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-4 space-y-3">
-              <h4 className="text-xs uppercase text-app-text font-black tracking-widest flex items-center gap-2">
-                <Trophy size={15} className="text-amber-500" /> CWL / Savaş Saldırıları ({player.warAttacks.length})
+          <div className="pt-2 border-t-2 border-[#3D2517]">
+            <div className="game-slot-well p-4 space-y-3">
+              <h4 className="font-game text-xs uppercase text-amber-300 tracking-widest flex items-center gap-2">
+                <Trophy size={15} className="text-amber-400" /> CWL / Savaş Saldırıları ({player.warAttacks.length})
               </h4>
               <div className="space-y-2">
                 {player.warAttacks.map((atk, idx) => (
                   <div
                     key={idx}
-                    className="p-2.5 rounded-lg bg-app-card border border-app-border flex items-center justify-between text-xs font-bold text-app-text"
+                    className="p-2.5 rounded-lg bg-[#241710] border border-[#3D2517] flex items-center justify-between text-xs font-bold text-stone-200"
                   >
                     <div>
                       Hedef: #{atk.defenderMapPosition || "?"}{" "}
-                      {atk.defenderName || atk.defenderTag}
+                      <span className="font-game text-white">{atk.defenderName || atk.defenderTag}</span>
                       {atk.defenderTownHall ? ` (TH${atk.defenderTownHall})` : ""}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-500 font-black">
+                      <span className="text-amber-300 font-game text-sm">
                         {atk.stars}★
                       </span>
-                      <span className="text-app-muted">
+                      <span className="text-amber-200/70 font-bold">
                         %{atk.destructionPercentage}
                       </span>
                     </div>
@@ -721,23 +740,23 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
         )}
 
         {/* Section 4: Savunma Analizi — 3 Yıldız Yediği Ordular */}
-        <div className="pt-4 border-t-2 border-app-border space-y-3">
-          <div className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-4 space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-app-border pb-2.5">
+        <div className="pt-2 border-t-2 border-[#3D2517] space-y-3">
+          <div className="game-slot-well p-4 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-[#3D2517] pb-2.5">
               <div className="flex items-center gap-2">
                 <Shield size={16} className="text-rose-400" />
-                <h4 className="text-xs font-black uppercase tracking-wider text-app-text">
+                <h4 className="font-game text-xs sm:text-sm uppercase tracking-wider text-amber-200">
                   Savunma Analizi — 3 Yıldız Yediği Ordular ({player.threeStarDefenseCount || 0})
                 </h4>
               </div>
-              <span className="text-[11px] font-bold text-app-muted">
+              <span className="text-[11px] font-bold text-amber-200/70">
                 Toplam {player.totalRankedDefenses || 0} Ranked Savunma
               </span>
             </div>
 
             {!player.threeStarDefenses || player.threeStarDefenses.length === 0 ? (
-              <div className="text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 p-3 rounded-lg flex items-center gap-2">
-                <Check size={14} />
+              <div className="text-xs font-bold text-emerald-300 bg-emerald-950/60 border border-emerald-500/40 p-3 rounded-xl flex items-center gap-2 shadow-inner">
+                <Check size={16} className="text-emerald-400 shrink-0" />
                 <span>
                   {player.totalRankedDefenses && player.totalRankedDefenses > 0
                     ? `Bu oyuncu son ${player.totalRankedDefenses} ranked savunmasında hiç 3 yıldız yemedi.`
@@ -749,42 +768,44 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                 {player.threeStarDefenses.map((def, dIdx) => (
                   <div
                     key={`def-${dIdx}`}
-                    className="p-3.5 rounded-xl bg-app-card border-2 border-app-border space-y-2.5 text-xs shadow-sm"
+                    className="p-3.5 rounded-xl bg-[#241710] border-2 border-[#3D2517] space-y-2.5 text-xs shadow-md"
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-app-border pb-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3D2517] pb-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-black text-[10px] border border-rose-500/30">
+                        <span className="px-2 py-0.5 rounded bg-rose-950/80 text-rose-300 font-game text-[10px] border border-rose-600/50">
                           100% (3★)
                         </span>
-                        <span className="font-black text-sm text-app-text">
+                        <span className="font-game text-sm text-white drop-shadow-sm">
                           {def.armyName}
                         </span>
-                        <span className="text-[11px] font-bold text-app-muted">
-                          (Saldıran: <strong className="text-app-text">{def.opponentName}</strong> • TH{def.opponentTownHallLevel || "?"})
+                        <span className="text-[11px] font-bold text-amber-200/70">
+                          (Saldıran: <strong className="text-white font-game">{def.opponentName}</strong> • TH{def.opponentTownHallLevel || "?"})
                         </span>
                       </div>
                       {def.armyLink && (
-                        <a
+                        <GameButton
+                          variant="green"
+                          size="sm"
                           href={def.armyLink}
                           target="_blank"
-                          rel="noreferrer"
-                          className="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-sm"
+                          icon={<Copy size={11} />}
+                          className="px-2.5 py-1 text-[10px] font-game"
                         >
-                          <Copy size={11} /> Orduyu Kopyala
-                        </a>
+                          Orduyu Kopyala
+                        </GameButton>
                       )}
                     </div>
                     {/* Unit details */}
                     {def.troops && def.troops.length > 0 && (
                       <div className="space-y-1">
-                        <div className="text-[10px] font-black uppercase text-app-muted tracking-wider">
+                        <div className="text-[10px] font-game uppercase text-amber-300/80 tracking-wider">
                           Kullanılan Birlikler & Büyüler:
                         </div>
                         <div className="flex flex-wrap gap-1.5">
                           {def.troops.map((u, uIdx) => (
                             <span
                               key={`tu-${uIdx}`}
-                              className="px-2 py-0.5 rounded-md bg-app-cardSubtle border border-app-border text-[10px] font-bold text-app-text"
+                              className="px-2 py-0.5 rounded-md bg-[#180E09] border border-[#3A2216] text-[10px] font-bold text-stone-200"
                             >
                               {u.count}x {u.name}
                             </span>
@@ -793,7 +814,7 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                             def.spells.map((s, sIdx) => (
                               <span
                                 key={`ts-${sIdx}`}
-                                className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/25 text-[10px] font-bold text-purple-400"
+                                className="px-2 py-0.5 rounded-md bg-purple-950/60 border border-purple-500/40 text-[10px] font-bold text-purple-300"
                               >
                                 {s.count}x {s.name}
                               </span>
@@ -802,7 +823,7 @@ const PlayerScoutCardDetail = ({ player }: { player: ScoutData }) => {
                             def.siegeMachines.map((sg, sgIdx) => (
                               <span
                                 key={`tsg-${sgIdx}`}
-                                className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/25 text-[10px] font-bold text-amber-400"
+                                className="px-2 py-0.5 rounded-md bg-amber-950/60 border border-amber-500/40 text-[10px] font-bold text-amber-300"
                               >
                                 {sg.name}
                               </span>
@@ -1007,69 +1028,85 @@ export default function ScoutedArmyCard({
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6 font-sans">
+    <div className="game-theme w-full max-w-6xl mx-auto space-y-6 font-sans">
       {/* Top CWL Clan Tag Search & Roster Control Bar */}
-      <div className="bg-app-card rounded-2xl border-2 border-app-border p-5 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 flex-1">
-            <Search
-              size={18}
-              className="text-amber-600 dark:text-amber-400 shrink-0"
-            />
-            <input
-              type="text"
-              value={clanTagInput}
-              onChange={(e) => setClanTagInput(e.target.value)}
+      <div className="game-panel-wood rounded-2xl border-4 border-[#2C180E] p-4 sm:p-6 shadow-2xl space-y-4">
+        {/* Panel Header Strip */}
+        <div className="game-panel-header -mx-4 -mt-4 sm:-mx-6 sm:-mt-6 mb-2 px-4 py-3 sm:px-6 sm:py-3.5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <Swords className="w-5 h-5 sm:w-6 sm:h-6 text-amber-300 drop-shadow" />
+            <h1 className="game-text-stroke-gold text-lg sm:text-2xl font-black tracking-wide">
+              CWL Savaş Keşfi
+            </h1>
+          </div>
+          {report && (
+            <div className="flex items-center gap-2">
+              <span className="game-stat-pill text-amber-200">
+                <Shield size={12} className="text-amber-400" /> Tur {report.roundNumber || 1}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Search Input and Action Buttons */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-1">
+          <div className="flex-1">
+            <GameInput
+              prefixTag="#"
+              value={clanTagInput.replace(/^#/, "")}
+              onChange={(e) => setClanTagInput(`#${e.target.value.replace(/^#/, "")}`)}
               onKeyDown={(e) =>
                 e.key === "Enter" && handleScoutClan(clanTagInput, false)
               }
-              placeholder="CWL Klan Etiketi Girin (Örn: #2PP)"
-              className="w-full px-4 py-2.5 rounded-xl bg-app-cardSubtle border-2 border-app-border text-sm font-bold text-app-text focus:outline-none focus:border-amber-500"
+              placeholder="CWL Klan Etiketi (Örn: 2PP)"
+              containerClassName="w-full"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
+            <GameButton
+              variant="green"
+              size="md"
               onClick={() => handleScoutClan(clanTagInput, false)}
               disabled={loading}
-              className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black uppercase tracking-wider border-2 border-amber-500 shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-60"
+              icon={<Swords size={16} />}
+              className="px-4 py-2 text-xs sm:text-sm font-game"
             >
-              <Swords size={15} />
-              {loading ? "Taranıyor..." : "CWL Rakip Kadrosunu Çek"}
-            </button>
+              {loading ? "Taranıyor..." : "Keşfet"}
+            </GameButton>
 
             <button
+              type="button"
               onClick={() => handleScoutClan(clanTagInput, true)}
               disabled={loading}
               title="Önbelleği Atla ve Canlı Yenile"
-              className="p-2.5 rounded-xl bg-app-cardSubtle hover:bg-app-card border-2 border-app-border text-app-text cursor-pointer"
+              className="clan-sort-button p-2.5 shrink-0"
+              aria-label="Yenile"
             >
-              <RefreshCw size={15} className={cn(loading && "animate-spin")} />
+              <RefreshCw size={16} className={cn(loading && "animate-spin text-amber-600")} />
             </button>
 
             {/* View Toggle: Single Player vs All Roster Cards */}
-            <div className="flex items-center bg-app-cardSubtle p-1 rounded-xl border-2 border-app-border">
+            <div className="game-segmented-bar shrink-0">
               <button
+                type="button"
                 onClick={() => setViewMode("single")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 cursor-pointer",
-                  viewMode === "single"
-                    ? "bg-blue-600 text-white"
-                    : "text-app-muted hover:text-app-text"
+                  "game-segmented-item text-xs py-1.5 px-3 min-h-[38px]",
+                  viewMode === "single" && "game-segmented-item-active"
                 )}
               >
-                <User size={13} /> Seçili Oyuncu
+                <User size={13} className="mr-1 inline" /> Seçili Oyuncu
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode("all")}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 cursor-pointer",
-                  viewMode === "all"
-                    ? "bg-blue-600 text-white"
-                    : "text-app-muted hover:text-app-text"
+                  "game-segmented-item text-xs py-1.5 px-3 min-h-[38px]",
+                  viewMode === "all" && "game-segmented-item-active"
                 )}
               >
-                <LayoutGrid size={13} /> Tüm Kadro ({sortedOpponents.length})
+                <LayoutGrid size={13} className="mr-1 inline" /> Tüm Kadro ({sortedOpponents.length})
               </button>
             </div>
           </div>
@@ -1077,7 +1114,7 @@ export default function ScoutedArmyCard({
 
         {/* Round / Battle Day Switcher Bar */}
         {report && report.roundsSummary && report.roundsSummary.length > 0 && (
-          <div className="pt-3 border-t-2 border-app-border flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          <div className="pt-3 border-t-2 border-[#3D2517] flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
             {/* Segmented control: Savaş Günü vs Hazırlık Günü */}
             <div className="flex flex-wrap items-center gap-2">
               {/* Savaş Günü Tab */}
@@ -1097,15 +1134,15 @@ export default function ScoutedArmyCard({
                       }
                     }}
                     className={cn(
-                      "px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 border-2 transition-all cursor-pointer",
+                      "game-btn text-xs px-3.5 py-2",
                       isSelected
-                        ? "bg-blue-600 border-blue-500 text-white shadow-md scale-[1.02]"
+                        ? "game-btn-green scale-[1.02]"
                         : inWarRound
-                        ? "bg-app-cardSubtle border-app-border text-app-text hover:border-blue-500/50"
-                        : "opacity-40 cursor-not-allowed bg-app-cardSubtle border-app-border text-app-muted"
+                        ? "game-btn-gold opacity-85 hover:opacity-100"
+                        : "game-btn-silver opacity-45 cursor-not-allowed"
                     )}
                   >
-                    <Swords size={14} className={isSelected ? "text-amber-300" : "text-blue-500"} />
+                    <Swords size={14} className="mr-1.5 inline text-amber-200" />
                     <span>
                       {inWarRound
                         ? `Savaş Günü – Tur ${inWarRound.roundNumber} vs ${inWarRound.opponentClan?.name || "Rakip"}`
@@ -1132,15 +1169,15 @@ export default function ScoutedArmyCard({
                       }
                     }}
                     className={cn(
-                      "px-3.5 py-2 rounded-xl text-xs font-black flex items-center gap-2 border-2 transition-all cursor-pointer",
+                      "game-btn text-xs px-3.5 py-2",
                       isSelected
-                        ? "bg-amber-600 border-amber-500 text-white shadow-md scale-[1.02]"
+                        ? "game-btn-blue scale-[1.02]"
                         : prepRound
-                        ? "bg-app-cardSubtle border-app-border text-app-text hover:border-amber-500/50"
-                        : "opacity-50 cursor-not-allowed bg-app-cardSubtle border-app-border text-app-muted"
+                        ? "game-btn-silver opacity-85 hover:opacity-100"
+                        : "game-btn-silver opacity-45 cursor-not-allowed"
                     )}
                   >
-                    <Shield size={14} className={isSelected ? "text-amber-200" : "text-amber-500"} />
+                    <Shield size={14} className="mr-1.5 inline text-sky-200" />
                     <span>
                       {prepRound
                         ? `Hazırlık Günü – Tur ${prepRound.roundNumber} vs ${prepRound.opponentClan?.name || "Rakip"}`
@@ -1152,8 +1189,8 @@ export default function ScoutedArmyCard({
             </div>
 
             {/* Dropdown: Tur Seç (Tur 1-7) */}
-            <div className="flex items-center gap-2 self-end md:self-auto">
-              <span className="text-[11px] font-black uppercase text-app-muted tracking-wider">
+            <div className="flex items-center gap-2 self-end md:self-auto shrink-0">
+              <span className="font-game text-xs text-amber-200/90 tracking-wider uppercase">
                 Tur Seç:
               </span>
               <select
@@ -1165,13 +1202,14 @@ export default function ScoutedArmyCard({
                   }
                 }}
                 disabled={loading}
-                className="px-3 py-1.5 rounded-xl bg-app-cardSubtle border-2 border-app-border text-xs font-black text-app-text cursor-pointer focus:outline-none focus:border-blue-500"
+                className="px-3 py-1.5 rounded-xl bg-[#2A1B12] border-2 border-[#543621] text-xs font-game text-amber-200 cursor-pointer focus:outline-none focus:border-amber-400"
               >
                 {report.roundsSummary.map((r) => (
                   <option
                     key={r.roundNumber}
                     value={r.roundNumber}
                     disabled={r.state === "unrevealed"}
+                    className="bg-[#2A1B12] text-stone-100"
                   >
                     Tur {r.roundNumber}: {r.opponentClan?.name ? `vs ${r.opponentClan.name}` : ""}{" "}
                     ({r.stateLabel})
@@ -1184,23 +1222,24 @@ export default function ScoutedArmyCard({
 
         {/* Preparation Day Banner */}
         {report?.isPreparationDay && (
-          <div className="p-3.5 rounded-xl bg-amber-500/10 border-2 border-amber-500/30 flex items-center gap-3 text-xs font-bold text-amber-500">
-            <Shield size={18} className="shrink-0" />
+          <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-950/80 via-amber-900/60 to-amber-950/80 border-2 border-amber-600/60 flex items-center gap-3 text-xs font-bold text-amber-200 shadow-md">
+            <Shield size={20} className="text-amber-400 shrink-0" />
             <span>
-              <strong>Hazırlık Günü</strong> — Bu tur için savaş henüz başlamadı. Savaş içi saldırı sonuçları oluşmadığından yalnızca rakip kadro, Belediye Seviyesi ve ranked Battle Log analizleri gösterilmektedir.
+              <strong className="text-amber-300 font-game tracking-wide">Hazırlık Günü</strong> — Bu tur için savaş henüz başlamadı. Savaş içi saldırı sonuçları oluşmadığından yalnızca rakip kadro, Belediye Seviyesi ve ranked Battle Log analizleri gösterilmektedir.
             </span>
           </div>
         )}
 
         {statusMsg && (
-          <div className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-2">
-            {statusMsg}
+          <div className="p-3 rounded-xl bg-red-950/70 border-2 border-red-600/50 text-xs font-bold text-red-200 shadow-md flex items-center gap-2">
+            <AlertCircle size={16} className="text-red-400 shrink-0" />
+            <span>{statusMsg}</span>
           </div>
         )}
 
         {/* Opponent Roster List & Table */}
         {((report && sortedOpponents.length > 0) || loading) && (
-          <div className="pt-3 border-t-2 border-app-border space-y-4">
+          <div className="pt-3 border-t-2 border-[#3D2517] space-y-4">
             {/* Filter Buttons & Clan Info Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -1209,87 +1248,85 @@ export default function ScoutedArmyCard({
                   onClick={() => handleFilterChange("cwl")}
                   disabled={loading}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer border-2",
-                    rosterFilter === "cwl"
-                      ? "bg-amber-600 text-white border-amber-500 shadow-sm"
-                      : "bg-app-cardSubtle text-app-muted hover:text-app-text border-app-border"
+                    "game-btn text-xs px-3 py-1.5",
+                    rosterFilter === "cwl" ? "game-btn-gold" : "game-btn-silver"
                   )}
                 >
-                  <Swords size={13} /> CWL Kadrosu ({cwlCount})
+                  <Swords size={13} className="mr-1 inline" /> CWL Kadrosu ({cwlCount})
                 </button>
                 <button
                   type="button"
                   onClick={() => handleFilterChange("all")}
                   disabled={loading}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer border-2",
-                    rosterFilter === "all"
-                      ? "bg-amber-600 text-white border-amber-500 shadow-sm"
-                      : "bg-app-cardSubtle text-app-muted hover:text-app-text border-app-border"
+                    "game-btn text-xs px-3 py-1.5",
+                    rosterFilter === "all" ? "game-btn-gold" : "game-btn-silver"
                   )}
                 >
-                  <Users size={13} /> Tüm Klan Üyeleri ({allCount})
+                  <Users size={13} className="mr-1 inline" /> Tüm Klan Üyeleri ({allCount})
                 </button>
               </div>
 
               {report && (
-                <div className="text-xs font-bold text-app-muted">
+                <div className="text-xs font-bold text-amber-200/90 font-sans">
                   İncelenen Klan:{" "}
-                  <strong className="text-app-text">
-                    {report.opponentClan?.name || report.clanName || clanTagInput} (
-                    {report.opponentClan?.tag || report.clanTag || clanTagInput})
+                  <strong className="text-white font-game tracking-wide">
+                    {report.opponentClan?.name || report.clanName || clanTagInput}
                   </strong>{" "}
+                  <span className="text-amber-300 font-semibold">
+                    ({report.opponentClan?.tag || report.clanTag || clanTagInput})
+                  </span>{" "}
                   • Tur {report.roundNumber || 1} • Durum:{" "}
-                  <span className="uppercase text-blue-600 dark:text-blue-400 font-black">
+                  <span className="uppercase text-amber-300 font-game">
                     {report.warState || "preparation"}
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Compact Roster & Real Battlelog Army Table */}
-            <div className="overflow-x-auto rounded-xl border border-app-border shadow-sm">
+            {/* Compact In-Game Roster Table */}
+            <div className="overflow-x-auto rounded-xl border-2 border-[#2C180E] shadow-inner bg-[#1F140D]">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-app-cardSubtle border-b-2 border-app-border font-black uppercase tracking-wider text-app-text">
-                    <th className="py-2.5 px-3 w-12">#</th>
-                    <th className="py-2.5 px-3 min-w-[160px]">Rakip Oyuncu</th>
-                    <th className="py-2.5 px-3 w-16">TH</th>
-                    <th className="py-2.5 px-3 min-w-[240px]">Tespit Edilen Saldırı Ordusu</th>
-                    <th className="py-2.5 px-3 min-w-[200px]">Ana Birlikler</th>
-                    <th className="py-2.5 px-3 min-w-[150px]">Savunma (3★)</th>
+                  <tr className="bg-[#3A2216] border-b-2 border-[#201008] text-amber-200/90 font-game tracking-wider uppercase text-[11px]">
+                    <th className="py-2.5 px-3 w-12 text-center">#</th>
+                    <th className="py-2.5 px-3 min-w-[170px]">Rakip Oyuncu</th>
+                    <th className="py-2.5 px-3 w-16 text-center">BB</th>
+                    <th className="py-2.5 px-3 min-w-[230px]">Tespit Edilen Saldırı Ordusu</th>
+                    <th className="py-2.5 px-3 min-w-[190px]">Ana Birlikler</th>
+                    <th className="py-2.5 px-3 min-w-[140px]">Savunma (3★)</th>
                     <th className="py-2.5 px-3 text-right min-w-[160px]">İşlem</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y border-app-border font-bold text-app-text">
+                <tbody className="divide-y divide-[#3D2517]/50 font-bold text-stone-200">
                   {loading ? (
                     Array.from({ length: 6 }).map((_, sIdx) => (
                       <tr
                         key={`skeleton-${sIdx}`}
-                        className="animate-pulse border-b border-app-border"
+                        className="animate-pulse border-b border-[#3D2517]/40 bg-[#25170F]"
                       >
                         <td className="py-3 px-3">
-                          <div className="h-4 w-6 bg-app-border rounded" />
+                          <div className="h-4 w-6 bg-[#3D2517] rounded mx-auto" />
                         </td>
                         <td className="py-3 px-3">
-                          <div className="h-4 w-28 bg-app-border rounded mb-1" />
-                          <div className="h-3 w-16 bg-app-border/60 rounded" />
+                          <div className="h-4 w-28 bg-[#3D2517] rounded mb-1" />
+                          <div className="h-3 w-16 bg-[#3D2517]/60 rounded" />
                         </td>
                         <td className="py-3 px-3">
-                          <div className="h-5 w-12 bg-app-border rounded" />
+                          <div className="h-6 w-8 bg-[#3D2517] rounded mx-auto" />
                         </td>
                         <td className="py-3 px-3">
-                          <div className="h-4 w-36 bg-app-border rounded mb-1" />
-                          <div className="h-3 w-24 bg-app-border/60 rounded" />
+                          <div className="h-4 w-36 bg-[#3D2517] rounded mb-1" />
+                          <div className="h-3 w-24 bg-[#3D2517]/60 rounded" />
                         </td>
                         <td className="py-3 px-3">
-                          <div className="h-5 w-32 bg-app-border rounded" />
+                          <div className="h-5 w-32 bg-[#3D2517] rounded" />
                         </td>
                         <td className="py-3 px-3">
-                          <div className="h-5 w-24 bg-app-border rounded" />
+                          <div className="h-5 w-24 bg-[#3D2517] rounded" />
                         </td>
                         <td className="py-3 px-3 text-right">
-                          <div className="h-6 w-24 bg-app-border rounded ml-auto" />
+                          <div className="h-6 w-24 bg-[#3D2517] rounded ml-auto" />
                         </td>
                       </tr>
                     ))
@@ -1297,7 +1334,7 @@ export default function ScoutedArmyCard({
                     <tr>
                       <td
                         colSpan={7}
-                        className="py-8 text-center text-xs font-bold text-app-muted"
+                        className="py-8 text-center text-xs font-bold text-stone-400"
                       >
                         Kadroda gösterilecek oyuncu bulunamadı.
                       </td>
@@ -1328,38 +1365,45 @@ export default function ScoutedArmyCard({
                               setViewMode("single");
                             }}
                             className={cn(
-                              "cursor-pointer transition-colors hover:bg-app-cardSubtle/70",
-                              idx === selectedIndex && "bg-blue-600/5",
-                              hasNoAttacks && "opacity-60"
+                              "cursor-pointer transition-colors border-b border-[#3D2517]/40",
+                              idx % 2 === 0 ? "bg-[#2A1B12]/80" : "bg-[#23150D]/90",
+                              "hover:bg-[#3D281B]",
+                              idx === selectedIndex && "bg-[#452D1A] border-l-4 border-amber-400",
+                              hasNoAttacks && "opacity-65"
                             )}
                           >
-                            <td className="py-2.5 px-3 text-app-muted font-bold">
-                              #{opp.mapPosition || idx + 1}
+                            <td className="py-2.5 px-3 text-center">
+                              <span className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-black/40 border border-[#4A3223] font-game text-amber-300 text-xs">
+                                #{opp.mapPosition || idx + 1}
+                              </span>
                             </td>
                             <td className="py-2.5 px-3">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-black text-app-text">
+                                <span className="font-game text-white text-sm tracking-wide drop-shadow-sm">
                                   {opp.opponentName}
                                 </span>
                                 {opp.isCwl && (
-                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-[10px] font-black">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded bg-amber-500/25 text-amber-300 border border-amber-500/40 text-[10px] font-black">
                                     <Swords size={10} /> CWL
                                   </span>
                                 )}
                               </div>
-                              <div className="text-[10px] text-app-muted font-bold">
+                              <div className="text-[10px] text-amber-200/60 font-semibold">
                                 {opp.playerTag}
                               </div>
                             </td>
-                            <td className="py-2.5 px-3">
-                              <span className="px-2 py-0.5 rounded bg-red-600/10 text-red-600 dark:text-red-400 border border-red-500/30 font-black text-xs">
-                                TH{opp.townHallLevel}
-                              </span>
+                            <td className="py-2.5 px-3 text-center">
+                              <div className="flex flex-col items-center justify-center">
+                                <TownHallImage level={opp.townHallLevel} size={34} />
+                                <span className="text-[10px] font-game text-amber-300 -mt-1">
+                                  TH{opp.townHallLevel}
+                                </span>
+                              </div>
                             </td>
                             <td className="py-2.5 px-3">
                               {detected ? (
                                 <div className="space-y-1">
-                                  <div className="font-black text-blue-600 dark:text-blue-400">
+                                  <div className="font-game text-amber-300 text-xs drop-shadow-sm">
                                     {opp.armyName ||
                                       opp.inferredArchetype ||
                                       "Bilinmeyen Ordu"}
@@ -1367,25 +1411,25 @@ export default function ScoutedArmyCard({
                                   <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
                                     {opp.sourceBadge === "Ranked" ||
                                     opp.armySource === "ranked" ? (
-                                      <span className="px-1.5 py-0.5 rounded bg-blue-600/15 text-blue-700 dark:text-blue-400 border border-blue-500/30 font-black">
+                                      <span className="px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 border border-sky-500/40 font-black">
                                         Ranked
                                       </span>
                                     ) : (
-                                      <span className="px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-black">
+                                      <span className="px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40 font-black">
                                         Ganimet (ranked yok)
                                       </span>
                                     )}
                                     {opp.warning && (
-                                      <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-bold">
+                                      <span className="px-1.5 py-0.2 rounded bg-amber-950/80 text-amber-300 border border-amber-600/30 font-bold">
                                         {opp.warning}
                                       </span>
                                     )}
                                     {opp.armySummary ? (
-                                      <span className="text-app-muted font-bold">
+                                      <span className="text-amber-200/70 font-bold">
                                         {opp.armySummary}
                                       </span>
                                     ) : opp.armySourceLabel ? (
-                                      <span className="text-app-muted font-bold">
+                                      <span className="text-amber-200/70 font-bold">
                                         {opp.armySourceLabel}
                                       </span>
                                     ) : null}
@@ -1398,7 +1442,7 @@ export default function ScoutedArmyCard({
                                         if (opp.playerTag)
                                           toggleRowExpanded(opp.playerTag);
                                       }}
-                                      className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-app-cardSubtle hover:bg-app-border border border-app-border text-[10px] font-extrabold text-blue-600 dark:text-blue-400 transition-colors cursor-pointer"
+                                      className="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/40 hover:bg-black/60 border border-[#4A3223] text-[10px] font-game text-amber-300 transition-colors cursor-pointer"
                                     >
                                       <span>
                                         {isRowExpanded
@@ -1417,7 +1461,7 @@ export default function ScoutedArmyCard({
                                 </div>
                               ) : (
                                 <div className="space-y-0.5">
-                                  <div className="font-bold text-app-muted">
+                                  <div className="font-semibold text-stone-400 italic">
                                     {opp.failureReason || "Saldırı kaydı yok"}
                                   </div>
                                 </div>
@@ -1429,19 +1473,19 @@ export default function ScoutedArmyCard({
                                   {opp.troops.slice(0, 4).map((t, tIdx) => (
                                     <span
                                       key={`${t.id}-${tIdx}`}
-                                      className="px-1.5 py-0.5 rounded bg-app-cardSubtle border border-app-border text-[10px] font-bold text-app-text"
+                                      className="px-1.5 py-0.5 rounded bg-black/40 border border-[#4A3223] text-[10px] font-bold text-stone-200"
                                     >
                                       {t.name} x{t.count}
                                     </span>
                                   ))}
                                   {opp.troops.length > 4 && (
-                                    <span className="px-1 py-0.5 text-[10px] text-app-muted font-bold">
+                                    <span className="px-1 py-0.5 text-[10px] text-amber-300 font-bold">
                                       +{opp.troops.length - 4}
                                     </span>
                                   )}
                                 </div>
                               ) : (
-                                <span className="text-[11px] text-app-muted font-bold">
+                                <span className="text-[11px] text-stone-400 font-bold">
                                   -
                                 </span>
                               )}
@@ -1449,13 +1493,13 @@ export default function ScoutedArmyCard({
                             <td className="py-2.5 px-3">
                               {opp.threeStarDefenseCount && opp.threeStarDefenseCount > 0 ? (
                                 <div className="flex flex-col gap-0.5">
-                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-rose-500/15 text-rose-400 border border-rose-500/30 w-fit">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-black bg-rose-950/80 text-rose-300 border border-rose-600/50 w-fit">
                                     <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                                     {opp.threeStarDefenseCount}x 3★ Yedi
                                   </span>
                                   {opp.primaryDefenseArmy && (
                                     <span
-                                      className="text-[10px] font-bold text-app-muted truncate max-w-[150px]"
+                                      className="text-[10px] font-bold text-amber-200/70 truncate max-w-[140px]"
                                       title={opp.primaryDefenseArmy}
                                     >
                                       {opp.primaryDefenseArmy}
@@ -1463,11 +1507,11 @@ export default function ScoutedArmyCard({
                                   )}
                                 </div>
                               ) : opp.totalRankedDefenses && opp.totalRankedDefenses > 0 ? (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 w-fit">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-950/70 text-emerald-300 border border-emerald-500/40 w-fit">
                                   <Shield size={10} /> 3★ Yok ({opp.totalRankedDefenses} Savunma)
                                 </span>
                               ) : (
-                                <span className="text-[11px] text-app-muted font-bold">—</span>
+                                <span className="text-[11px] text-stone-400 font-bold">—</span>
                               )}
                             </td>
                             <td
@@ -1476,35 +1520,37 @@ export default function ScoutedArmyCard({
                             >
                               {detected && rowCopyUrl ? (
                                 <div className="inline-flex items-center gap-1.5 justify-end">
-                                  <a
+                                  <GameButton
+                                    variant="green"
+                                    size="sm"
                                     href={rowCopyUrl}
                                     target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-sm"
+                                    icon={<ExternalLink size={11} />}
+                                    className="px-2.5 py-1 text-[10px] font-game"
                                     title="Clash of Clans oyununda aç"
                                   >
-                                    <ExternalLink size={11} /> Ordu Kopyala
-                                  </a>
+                                    Kopyala
+                                  </GameButton>
                                   <button
                                     type="button"
                                     onClick={(e) =>
                                       handleCopyRowCode(e, rowCode, idx)
                                     }
-                                    className="px-2 py-1 rounded-lg bg-app-cardSubtle hover:bg-app-card border border-app-border text-app-text text-[10px] font-black inline-flex items-center gap-1 cursor-pointer"
+                                    className="p-1.5 rounded-lg bg-black/40 hover:bg-black/60 border border-[#4A3223] text-stone-200 text-[10px] font-black inline-flex items-center gap-1 cursor-pointer"
                                     title="Ordu kodunu kopyala"
                                   >
                                     {copiedRowIdx === idx ? (
                                       <Check
-                                        size={11}
-                                        className="text-emerald-500"
+                                        size={12}
+                                        className="text-emerald-400"
                                       />
                                     ) : (
-                                      <Copy size={11} />
+                                      <Copy size={12} />
                                     )}
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-[10px] text-app-muted font-bold">
+                                <span className="text-[10px] text-stone-400 font-bold">
                                   -
                                 </span>
                               )}
@@ -1513,18 +1559,18 @@ export default function ScoutedArmyCard({
 
                           {/* Accordion Row for Other Detected Armies */}
                           {isRowExpanded && hasMultipleArmies && (
-                            <tr className="bg-app-cardSubtle/40 border-b-2 border-app-border">
+                            <tr className="bg-[#1C120B]/90 border-b-2 border-[#3D2517]">
                               <td colSpan={7} className="p-3 pl-6 sm:pl-10">
-                                <div className="bg-app-card rounded-xl border-2 border-app-border p-3.5 space-y-3 shadow-sm">
-                                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-app-border pb-2 text-xs font-black text-app-text">
+                                <div className="bg-[#241710] rounded-xl border-2 border-[#3D2517] p-3.5 space-y-3 shadow-md">
+                                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3D2517] pb-2 text-xs font-game text-amber-200">
                                     <span className="flex items-center gap-1.5">
                                       <Sparkles
                                         size={13}
-                                        className="text-amber-500"
+                                        className="text-amber-400"
                                       />
                                       {opp.opponentName} için Diğer Tespit Edilen Ordular ({recentArmies.length - 1})
                                     </span>
-                                    <span className="text-[10px] text-app-muted font-bold">
+                                    <span className="text-[10px] text-amber-200/70 font-sans font-bold">
                                       Greedy Sıralaması (3★ &gt; 3★ % &gt; Ort. Yıkım)
                                     </span>
                                   </div>
@@ -1542,31 +1588,31 @@ export default function ScoutedArmyCard({
                                       return (
                                         <div
                                           key={altIdx}
-                                          className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 rounded-lg bg-app-cardSubtle border border-app-border"
+                                          className="flex flex-col md:flex-row md:items-center justify-between gap-3 p-2.5 rounded-lg bg-[#180E09] border border-[#3A2216]"
                                         >
                                           <div className="space-y-1.5">
                                             <div className="flex flex-wrap items-center gap-2">
-                                              <span className="text-xs font-black text-app-text">
+                                              <span className="text-xs font-game text-white">
                                                 {altArmy.armyName ||
                                                   `Alternatif Ordu #${altIdx + 2}`}
                                               </span>
                                               {altArmy.sourceBadge === "Ranked" ? (
-                                                <span className="px-1.5 py-0.5 rounded bg-blue-600/15 text-blue-700 dark:text-blue-400 border border-blue-500/30 text-[10px] font-black">
+                                                <span className="px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 border border-sky-500/40 text-[10px] font-black">
                                                   Ranked
                                                 </span>
                                               ) : (
-                                                <span className="px-1.5 py-0.5 rounded bg-amber-600/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-[10px] font-black">
+                                                <span className="px-1.5 py-0.2 rounded bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-black">
                                                   Ganimet (ranked yok)
                                                 </span>
                                               )}
                                               {altArmy.summary && (
-                                                <span className="text-[11px] font-bold text-app-muted">
+                                                <span className="text-[11px] font-bold text-amber-200/70">
                                                   {altArmy.summary}
                                                 </span>
                                               )}
                                               {altArmy.avgDestruction !== undefined &&
                                                 altArmy.avgDestruction > 0 && (
-                                                  <span className="text-[10px] text-app-muted font-bold">
+                                                  <span className="text-[10px] text-amber-200/70 font-bold">
                                                     • Ort. %{altArmy.avgDestruction}
                                                   </span>
                                                 )}
@@ -1580,13 +1626,13 @@ export default function ScoutedArmyCard({
                                                     .map((t, tIdx) => (
                                                       <span
                                                         key={tIdx}
-                                                        className="px-1.5 py-0.5 rounded bg-app-card border border-app-border text-[10px] font-bold text-app-text"
+                                                        className="px-1.5 py-0.5 rounded bg-black/40 border border-[#3A2216] text-[10px] font-bold text-stone-200"
                                                       >
                                                         {t.name} x{t.count}
                                                       </span>
                                                     ))}
                                                   {altArmy.troops.length > 5 && (
-                                                    <span className="px-1 py-0.5 text-[10px] text-app-muted font-bold">
+                                                    <span className="px-1 py-0.5 text-[10px] text-amber-300 font-bold">
                                                       +{altArmy.troops.length - 5}
                                                     </span>
                                                   )}
@@ -1596,14 +1642,16 @@ export default function ScoutedArmyCard({
 
                                           {altLink && (
                                             <div className="flex items-center gap-1.5 shrink-0">
-                                              <a
+                                              <GameButton
+                                                variant="green"
+                                                size="sm"
                                                 href={altLink}
                                                 target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 shadow-sm"
+                                                icon={<ExternalLink size={11} />}
+                                                className="px-2.5 py-1 text-[10px] font-game"
                                               >
-                                                <ExternalLink size={11} /> Ordu Kopyala
-                                              </a>
+                                                Ordu Kopyala
+                                              </GameButton>
                                               <button
                                                 type="button"
                                                 onClick={(e) =>
@@ -1612,15 +1660,15 @@ export default function ScoutedArmyCard({
                                                     altCode
                                                   )
                                                 }
-                                                className="px-2 py-1 rounded-lg bg-app-card hover:bg-app-cardSubtle border border-app-border text-app-text text-[10px] font-black inline-flex items-center gap-1 cursor-pointer"
+                                                className="p-1.5 rounded-lg bg-black/40 hover:bg-black/60 border border-[#3A2216] text-stone-200 text-[10px] font-black inline-flex items-center gap-1 cursor-pointer"
                                               >
                                                 {isCopied ? (
                                                   <Check
-                                                    size={11}
-                                                    className="text-emerald-500"
+                                                    size={12}
+                                                    className="text-emerald-400"
                                                   />
                                                 ) : (
-                                                  <Copy size={11} />
+                                                  <Copy size={12} />
                                                 )}
                                               </button>
                                             </div>
@@ -1641,11 +1689,11 @@ export default function ScoutedArmyCard({
               </table>
 
               {/* Table Footer Note */}
-              <div className="px-4 py-2.5 text-[11px] font-medium text-app-muted bg-app-cardSubtle/60 border-t-2 border-app-border flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div className="px-4 py-2.5 text-[11px] font-bold text-amber-200/70 bg-[#2C180E]/70 border-t-2 border-[#201008] flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span>
                   Son battle log kayıtlarına göre. Ranked saldırısı olmayan oyuncularda ganimet saldırıları gösterilir.
                 </span>
-                <span>
+                <span className="font-game text-amber-300">
                   Toplam: {sortedOpponents.length} oyuncu
                 </span>
               </div>

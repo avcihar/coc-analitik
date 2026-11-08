@@ -234,16 +234,16 @@ export default function PlayerProfileView({
   // Loading skeleton state
   if (loading && !activePlayer) {
     return (
-      <div className={cn("space-y-4 font-sans", className)}>
+      <div className={cn("w-full mt-0 p-0 font-sans flex flex-col", className)}>
         {/* Sub-tab segmented bar skeleton */}
-        <div className="flex gap-2">
-          <SkeletonBlock height="44px" className="flex-1 rounded-xl" />
-          <SkeletonBlock height="44px" className="flex-1 rounded-xl" />
-          <SkeletonBlock height="44px" className="flex-1 rounded-xl" />
+        <div className="flex gap-1.5 items-end overflow-x-auto scrollbar-none flex-nowrap">
+          <SkeletonBlock height="42px" className="w-28 rounded-t-xl rounded-b-none" />
+          <SkeletonBlock height="38px" className="w-32 rounded-t-xl rounded-b-none" />
+          <SkeletonBlock height="38px" className="w-32 rounded-t-xl rounded-b-none" />
         </div>
 
         {/* Header section skeleton */}
-        <SectionPanel className="p-4 space-y-4">
+        <SectionPanel className="p-4 space-y-4 mt-0 rounded-tl-none">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center gap-3">
               <SkeletonBlock width="52px" height="52px" className="rounded-xl shrink-0" />
@@ -311,21 +311,25 @@ export default function PlayerProfileView({
   }
 
   return (
-    <div className={cn("space-y-4 font-sans", className)}>
-      {/* 1. Üst Segmented Kontrol (Asıl Köy | İnşaatçı Üssü | Klan Başkenti) */}
-      <GraySegmented<VillageTab>
-        items={segmentedItems}
-        activeId={activeVillageTab}
-        onChange={(id) => setActiveVillageTab(id)}
-      />
+    <div className={cn("w-full -mt-3 sm:-mt-6 font-sans flex flex-col", className)}>
+      {/* 1. Üst Segmented Kontrol (Asıl Köy | İnşaatçı Üssü | Klan Başkenti) - Flush at top */}
+      <div className="w-full flex items-end pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
+        <GraySegmented<VillageTab>
+          items={segmentedItems}
+          activeId={activeVillageTab}
+          onChange={(id) => setActiveVillageTab(id)}
+          className="w-full sm:w-auto"
+        />
+      </div>
 
       {/* 2. Asıl Köy Sekmesi Görünümü */}
       {activeVillageTab === "home" && (
-        <div className="space-y-4">
+        <div className="space-y-4 pt-4 sm:pt-6">
           {/* Asıl Köy Üst Blok */}
           <PlayerHeaderSection
             player={activePlayer}
             onViewClan={onViewClan}
+            className="mt-0"
           />
 
           {/* Efsane Lig Turnuvası Paneli (YALNIZCA cevapta legendStatistics varsa gösterilir) */}
@@ -349,7 +353,9 @@ export default function PlayerProfileView({
 
       {/* 3. İnşaatçı Üssü Sekmesi Görünümü */}
       {activeVillageTab === "builderBase" && (
-        <BuilderBaseSection player={activePlayer} />
+        <div className="space-y-4 mt-0">
+          <BuilderBaseSection player={activePlayer} className="mt-0" />
+        </div>
       )}
     </div>
   );

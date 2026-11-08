@@ -21,6 +21,7 @@ const HASH_TO_TAB: Record<string, TabKey> = {
   "#/ordu": "meta",
   "#/cwl": "cwl",
   "#/cevher": "ore",
+  "#/ore": "ore",
   "#/duvar": "wall",
   "#/duvaryazisi": "wall",
   "#/wall": "wall",

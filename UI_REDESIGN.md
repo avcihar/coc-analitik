@@ -150,4 +150,10 @@ Yeni tasarımda hiçbir özellik kaybolmayacaktır:
   - TSX içinde ham hex kullanımı sıfırlandı (yalnızca CSS değişkenleri & semantic sınıflar).
   - `npm run build --prefix frontend` (Exit 0, 0 hata) ve tüm birim testleri (15/15 wall art, 4/4 normalizer) başarıyla geçti.
   - Tüm panellerin masaüstü (1920×1080) ve mobil (390×844) ekran görüntüleri alındı ve doğrulandı.
+- [x] **AŞAMA 4: Revizyon ve Eksik Panellerin CoC Temasına Geçirilmesi (4 Paralel Ajan)**
+  - **Ajan 1 (Shell & Duvar Fix):** `GameHeaderTabs` masaüstü kaydırma/scrollbar davranışı kaldırıldı. `WallArtView` altındaki mükerrer disclaimer çizgisi (`border-t border-app-border/40`) kaldırıldı.
+  - **Ajan 2 (CWL Keşif):** `ScoutedArmyCard.tsx` oyun içi ahşap savaş odası temasına uyarlandı (`game-panel-wood`, altın başlıklar, yeşil `game-btn-green` ordu kopyalama butonları, TownHall seviye görselleri).
+  - **Ajan 3 (Cevher Analizi):** `OreCalculatorView.tsx` CoC ahşap/kristal temasına geçirildi. Özel Parlak (Mavi), Işıltılı (Mor), Yıldızlı (Altın) kristal SVG rozetleri ve altın düğmeli 3D oyun kaydırıcıları eklendi.
+  - **Ajan 4 (Bütünleşik Sekmeler & Lig İkonları):** Arama ("Oyuncu Ara / Klan Ara"), Profil ve Klan ("Asıl Köy / İnşaatçı Üssü / Klan Başkenti") sub-tab'ları en üste yapışık ve alt panelle kesintisiz bütünleşik hale getirildi. `whitespace-nowrap` ile iki satıra kırılma engellendi. Klan üye listesine 37 modern lig kademe sembolü entegre edildi (`leagueHelper.ts`).
+  - Next.js production build (0 hata), `wallArtEngine.test.ts` (15/15) ve mobil 390px kontrolleri başarıyla doğrulandı.
 

@@ -3,13 +3,15 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { Trophy, ArrowUpDown, ChevronDown, Check, Shield } from "lucide-react";
 import TownHallImage from "@/components/game/TownHallImage";
-import type { ClanMember, ClanSortField, ClanSortOption } from "./types";
+import type { ClanMember, ClanSortField, ClanSortOption, ClanVillageTab } from "./types";
+import { getMemberLeagueInfo } from "./leagueHelper";
 
 export interface ClanMemberListProps {
   members: ClanMember[];
   maxMembers?: number;
   highlightPlayerTag?: string | null;
   onSelectPlayer?: (playerTag: string) => void;
+  villageTab?: ClanVillageTab;
 }
 
 const SORT_OPTIONS: ClanSortOption[] = [
@@ -38,6 +40,7 @@ export default function ClanMemberList({
   maxMembers = 50,
   highlightPlayerTag,
   onSelectPlayer,
+  villageTab,
 }: ClanMemberListProps) {
   const [sortField, setSortField] = useState<ClanSortField>("trophies");
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
@@ -153,11 +156,10 @@ export default function ClanMemberList({
                       setSortField(opt.id);
                       setIsSortDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-3.5 py-2 text-xs font-bold flex items-center justify-between transition-colors ${
-                      isSelected
+                    className={`w-full text-left px-3.5 py-2 text-xs font-bold flex items-center justify-between transition-colors ${isSelected
                         ? "bg-amber-100 text-amber-900"
                         : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <span>{opt.label}</span>
                     {isSelected && <Check className="w-4 h-4 text-amber-600" />}
@@ -185,9 +187,8 @@ export default function ClanMemberList({
                 key={member.tag || idx}
                 ref={isHighlighted ? (el) => { highlightedRowRef.current = el; } : undefined}
                 onClick={() => handleMemberClick(member.tag)}
-                className={`clan-member-row p-2.5 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                  isHighlighted ? "game-member-highlight" : ""
-                }`}
+                className={`clan-member-row p-2.5 sm:p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isHighlighted ? "game-member-highlight" : ""
+                  }`}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
@@ -205,21 +206,32 @@ export default function ClanMemberList({
                   </div>
 
                   {/* Lig İkonu */}
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
-                    {member.league?.iconUrls?.small ? (
-                      <img
-                        src={member.league.iconUrls.small}
-                        alt={member.league.name || "Lig"}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                        className="w-full h-full object-contain filter drop-shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-7 h-7 rounded-full bg-gray-300/80 border border-gray-400/80 flex items-center justify-center text-gray-500">
-                        <Shield className="w-4 h-4 opacity-70" />
+                  {(() => {
+                    const { iconUrl: leagueIconUrl, name: leagueName } = getMemberLeagueInfo(
+                      member,
+                      villageTab
+                    );
+                    return (
+                      <div
+                        className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center shrink-0"
+                        title={leagueName}
+                      >
+                        {leagueIconUrl ? (
+                          <img
+                            src={leagueIconUrl}
+                            alt={leagueName}
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-contain filter drop-shadow-sm"
+                          />
+                        ) : (
+                          <div className="w-7 h-7 rounded-full bg-gray-300/80 border border-gray-400/80 flex items-center justify-center text-gray-500">
+                            <Shield className="w-4 h-4 opacity-70" />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
+                    );
+                  })()}
 
                   {/* Belediye Binası Görseli */}
                   <div className="shrink-0">

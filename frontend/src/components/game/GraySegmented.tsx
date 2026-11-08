@@ -35,7 +35,13 @@ export default function GraySegmented<T extends string = string>({
   className,
 }: GraySegmentedProps<T>) {
   return (
-    <div className={cn("game-segmented-bar", className)} role="tablist">
+    <div
+      className={cn(
+        "game-segmented-bar w-full max-w-full overflow-x-auto scrollbar-none flex-nowrap",
+        className
+      )}
+      role="tablist"
+    >
       {items.map((item) => {
         const isActive = activeId === item.id;
         return (
@@ -50,13 +56,18 @@ export default function GraySegmented<T extends string = string>({
               if (!item.disabled) onChange(item.id);
             }}
             className={cn(
-              "game-segmented-item",
+              "game-segmented-item shrink-0 whitespace-nowrap",
               isActive && "game-segmented-item-active",
               item.disabled && "opacity-45 cursor-not-allowed hover:brightness-100"
             )}
           >
             {item.icon && <span className="inline-flex shrink-0">{item.icon}</span>}
-            <span className={isActive ? "game-text-stroke-sm text-[#2D251E]" : "text-[#D3CDC4]"}>
+            <span
+              className={cn(
+                "whitespace-nowrap select-none",
+                isActive ? "game-text-stroke-sm text-[#2D251E]" : "text-[#D3CDC4]"
+              )}
+            >
               {item.label}
             </span>
           </button>

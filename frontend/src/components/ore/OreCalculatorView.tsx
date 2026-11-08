@@ -21,12 +21,17 @@ import {
   Flame,
   Award,
   AlertTriangle,
+  ChevronDown,
+  Info,
+  Calendar,
+  Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { ImportedPlayerForOre } from "@/components/player";
 import UnitIcon from "@/components/common/UnitIcon";
+import { GamePanel, GameButton } from "@/components/game";
 import {
   detectEquipmentRarity,
   computeEquipmentUpgradeCost,
@@ -58,7 +63,193 @@ import {
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-  }
+}
+
+// ============================================================================
+// IN-GAME ORE SVG ICONS (Faceted Clash of Clans Crystal Gems)
+// ============================================================================
+
+export function ShinyOreIcon({
+  className = "w-5 h-5",
+  size,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("shrink-0 drop-shadow-[0_2px_4px_rgba(2,132,199,0.5)]", className)}
+      style={size ? { width: size, height: size } : undefined}
+    >
+      <defs>
+        <linearGradient id="shinyGrad1" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#7DD3FC" />
+          <stop offset="45%" stopColor="#0284C7" />
+          <stop offset="100%" stopColor="#0369A1" />
+        </linearGradient>
+        <linearGradient id="shinyGrad2" x1="16" y1="2" x2="16" y2="30" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#E0F2FE" />
+          <stop offset="100%" stopColor="#38BDF8" />
+        </linearGradient>
+      </defs>
+      {/* Outer Crystalline Facets */}
+      <path
+        d="M16 2L27 9L23 26L16 30L9 26L5 9L16 2Z"
+        fill="url(#shinyGrad1)"
+        stroke="#082F49"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      {/* Upper Reflective Table Facet */}
+      <path d="M16 2L22 10L16 19L10 10L16 2Z" fill="url(#shinyGrad2)" opacity="0.9" />
+      {/* Lower Shadowed Pavilion */}
+      <path d="M16 19L23 26L16 30L9 26L16 19Z" fill="#075985" opacity="0.95" />
+      {/* Side Glints */}
+      <path d="M5 9L10 10L9 26L5 9Z" fill="#0284C7" opacity="0.8" />
+      <path d="M27 9L23 26L22 10L27 9Z" fill="#BAE6FD" opacity="0.9" />
+      {/* Specular Sparkle */}
+      <circle cx="14" cy="7.5" r="1.5" fill="#FFFFFF" opacity="0.95" />
+    </svg>
+  );
+}
+
+export function GlowyOreIcon({
+  className = "w-5 h-5",
+  size,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("shrink-0 drop-shadow-[0_2px_4px_rgba(192,38,211,0.5)]", className)}
+      style={size ? { width: size, height: size } : undefined}
+    >
+      <defs>
+        <linearGradient id="glowyGrad1" x1="6" y1="4" x2="26" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#F0ABFC" />
+          <stop offset="50%" stopColor="#C026D3" />
+          <stop offset="100%" stopColor="#701A75" />
+        </linearGradient>
+        <linearGradient id="glowyGrad2" x1="16" y1="3" x2="16" y2="29" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FDF4FF" />
+          <stop offset="100%" stopColor="#E879F9" />
+        </linearGradient>
+      </defs>
+      {/* Outer Hex Crystal */}
+      <path
+        d="M16 2.5L27 8L28 21L16 29.5L4 21L5 8L16 2.5Z"
+        fill="url(#glowyGrad1)"
+        stroke="#2E0854"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      {/* Central Facet */}
+      <path d="M16 2.5L22 9.5L16 18L10 9.5L16 2.5Z" fill="url(#glowyGrad2)" opacity="0.92" />
+      {/* Bottom Facets */}
+      <path d="M16 18L28 21L16 29.5L4 21L16 18Z" fill="#4A044E" opacity="0.9" />
+      {/* Side Highlights */}
+      <path d="M5 8L10 9.5L4 21L5 8Z" fill="#86198F" opacity="0.75" />
+      <path d="M27 8L28 21L22 9.5L27 8Z" fill="#F5D0FE" opacity="0.9" />
+      {/* Specular Highlight */}
+      <circle cx="14.5" cy="7.5" r="1.5" fill="#FFFFFF" opacity="0.95" />
+    </svg>
+  );
+}
+
+export function StarryOreIcon({
+  className = "w-5 h-5",
+  size,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn("shrink-0 drop-shadow-[0_2px_4px_rgba(245,158,11,0.6)]", className)}
+      style={size ? { width: size, height: size } : undefined}
+    >
+      <defs>
+        <linearGradient id="starryGrad1" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FDE047" />
+          <stop offset="45%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#92400E" />
+        </linearGradient>
+        <linearGradient id="starryGrad2" x1="16" y1="3" x2="16" y2="29" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="#FEF9C3" />
+          <stop offset="100%" stopColor="#FBBF24" />
+        </linearGradient>
+      </defs>
+      {/* 8-Pointed Starry Crystal */}
+      <path
+        d="M16 2L19.5 11L28.5 7.5L23.5 16L28.5 24.5L19.5 21L16 30L12.5 21L3.5 24.5L8.5 16L3.5 7.5L12.5 11L16 2Z"
+        fill="url(#starryGrad1)"
+        stroke="#451A03"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      {/* Central Gem Core */}
+      <path d="M16 9.5L21 16L16 22.5L11 16L16 9.5Z" fill="url(#starryGrad2)" stroke="#78350F" strokeWidth="1" />
+      {/* Center Star Glimmer */}
+      <circle cx="16" cy="16" r="2.2" fill="#FFFFFF" opacity="0.95" />
+    </svg>
+  );
+}
+
+// Inline Mini Ore Pill for Tables & Equipment Cards
+function OreBadge({
+  type,
+  amount,
+  suffix,
+  className,
+}: {
+  type: "shiny" | "glowy" | "starry";
+  amount: number | string;
+  suffix?: string;
+  className?: string;
+}) {
+  const config = {
+    shiny: {
+      icon: <ShinyOreIcon className="w-3.5 h-3.5" />,
+      textClass: "text-sky-300",
+      wellClass: "bg-[#0E1F33] border-[#1D3E64]",
+    },
+    glowy: {
+      icon: <GlowyOreIcon className="w-3.5 h-3.5" />,
+      textClass: "text-fuchsia-300",
+      wellClass: "bg-[#231030] border-[#4A1E63]",
+    },
+    starry: {
+      icon: <StarryOreIcon className="w-3.5 h-3.5" />,
+      textClass: "text-amber-300",
+      wellClass: "bg-[#291708] border-[#5E3612]",
+    },
+  }[type];
+
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border font-game text-xs tracking-tight shadow-sm select-none",
+        config.wellClass,
+        config.textClass,
+        className
+      )}
+    >
+      {config.icon}
+      <span>{typeof amount === "number" ? amount.toLocaleString("tr-TR") : amount}</span>
+      {suffix && <span className="text-[10px] opacity-75 font-sans font-semibold">{suffix}</span>}
+    </div>
+  );
+}
 
 interface OreDeficit {
   shiny: number;
@@ -157,54 +348,6 @@ const TH_META_BY_LEVEL: Record<number, THMetaCap> = {
     deficit: { shiny: 182000, glowy: 9800, starry: 1480 },
   },
 };
-
-// --- Stat Card Component ---
-const StatCard = ({
-  title,
-  value,
-  subValue,
-  icon,
-  borderAccent,
-  badgeText,
-}: {
-  title: string;
-  value: string;
-  subValue?: string;
-  icon: React.ReactNode;
-  borderAccent: string;
-  badgeText: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    className={cn(
-      "bg-app-card border-2 rounded-2xl p-5 shadow-sm transition-all relative overflow-hidden",
-      borderAccent
-    )}
-  >
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2.5">
-        <div className="p-2.5 rounded-xl bg-app-cardSubtle border border-app-border">
-          {icon}
-        </div>
-        <h4 className="text-app-muted font-bold text-xs uppercase tracking-wider">
-          {title}
-        </h4>
-      </div>
-      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-app-cardSubtle border border-app-border text-app-muted">
-        {badgeText}
-      </span>
-    </div>
-    <div className="text-3xl font-black text-app-text tracking-tight">
-      {value}
-    </div>
-    {subValue && (
-      <div className="text-[11px] font-semibold text-app-muted mt-1.5">
-        {subValue}
-      </div>
-    )}
-  </motion.div>
-);
 
 export default function OreCalculatorView({
   importedPlayer = null,
@@ -409,657 +552,852 @@ export default function OreCalculatorView({
     shiny: "Parlak Cevher (Shiny)",
   }[estimated.bottleneckOre];
 
+  const bottleneckOreType = estimated.bottleneckOre;
+
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 font-sans">
-      {/* Imported Player Profile Banner */}
+    <div className="game-theme w-full max-w-6xl mx-auto space-y-6 pb-6 select-none font-sans">
+      {/* 1. IMPORTED PLAYER PROFILE BANNER */}
       {importedPlayer && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-emerald-600/10 border-2 border-emerald-500/40 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          className="game-panel-wood rounded-2xl p-4 sm:p-5 border-3 border-[#2C180E] shadow-[0_6px_16px_rgba(0,0,0,0.6)] relative overflow-hidden"
         >
-          <div className="flex items-center gap-3.5">
-            <div className="p-3 rounded-xl bg-emerald-600 text-white">
-              <UserCheck size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-black text-app-text">
-                  Aktarılan Oyuncu Ekipmanları: {importedPlayer.name} (
-                  {importedPlayer.tag})
-                </span>
-                <span className="text-xs font-black px-2 py-0.5 rounded bg-emerald-600 text-white">
-                  TH {importedPlayer.townHallLevel}
-                </span>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-b from-[#2E6A3B] to-[#173F20] border-2 border-[#4ED16F] flex items-center justify-center text-white shadow-inner shrink-0">
+                <UserCheck size={26} className="text-emerald-200" />
               </div>
-              <p className="text-xs font-bold text-app-muted mt-0.5">
-                {activeDeficitAndItems.items.length} adet ekipmanın gerçek seviyeleri üzerinden net cevher ihtiyacı hesaplandı.
-              </p>
+              <div>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <span className="font-game text-base sm:text-lg text-amber-100 game-text-stroke-sm tracking-wide">
+                    {importedPlayer.name} ({importedPlayer.tag})
+                  </span>
+                  <span className="font-game text-xs px-2.5 py-0.5 rounded-md bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 border border-amber-300 font-bold shadow-sm">
+                    TH {importedPlayer.townHallLevel}
+                  </span>
+                </div>
+                <p className="text-xs font-semibold text-amber-200/80 mt-0.5">
+                  <strong className="text-white">{activeDeficitAndItems.items.length}</strong> adet ekipmanın gerçek seviyeleri üzerinden net cevher ihtiyacı hesaplandı.
+                </p>
+              </div>
             </div>
+
+            {onClearImportedPlayer && (
+              <GameButton
+                variant="red"
+                size="sm"
+                onClick={onClearImportedPlayer}
+                className="shrink-0 flex items-center gap-1.5 self-end sm:self-center"
+              >
+                <X size={14} /> Varsayılan Simülasyona Dön
+              </GameButton>
+            )}
           </div>
-          {onClearImportedPlayer && (
-            <button
-              onClick={onClearImportedPlayer}
-              className="px-3.5 py-2 rounded-xl bg-app-card border-2 border-app-border text-xs font-black text-app-text hover:border-red-500/50 flex items-center gap-1.5 cursor-pointer"
-            >
-              <X size={14} /> Varsayılan Simülasyona Dön
-            </button>
-          )}
         </motion.div>
       )}
 
-      {/* Top Title Banner */}
-      <div className="bg-app-card border-2 border-app-border rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="p-3.5 bg-blue-600/10 border-2 border-blue-500/30 rounded-2xl text-blue-600 dark:text-blue-400">
-            <TrendingUp size={30} />
+      {/* 2. TOP BANNER / HEADER */}
+      <div className="game-panel-wood rounded-2xl p-4 sm:p-6 border-3 border-[#2C180E] shadow-[0_8px_20px_rgba(0,0,0,0.65)] relative overflow-hidden">
+        {/* Soft golden top highlight */}
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-amber-400/40 to-transparent pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 sm:gap-4.5">
+            {/* 3 Ore Cluster Mascot Icon */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-b from-[#3B2214] to-[#1E0F08] border-2 border-[#6D4229] p-2 flex items-center justify-center relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] shrink-0">
+              <div className="relative w-full h-full flex items-center justify-center">
+                <ShinyOreIcon className="w-7 h-7 absolute -top-1 -left-1" />
+                <GlowyOreIcon className="w-7 h-7 absolute -top-1 -right-1" />
+                <StarryOreIcon className="w-8 h-8 absolute -bottom-1" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="font-game text-xl sm:text-2xl md:text-3xl text-amber-100 game-title-stroke tracking-wide">
+                  Cevher Gelişim ve Tahmin Motoru
+                </h1>
+                <span className="font-game text-xs px-2.5 py-0.5 rounded-full bg-gradient-to-b from-amber-500 to-amber-700 text-white border border-amber-300/60 shadow-sm">
+                  TH11–TH18 Meta
+                </span>
+              </div>
+              <p className="text-amber-200/75 text-xs sm:text-sm mt-1 max-w-3xl leading-relaxed">
+                37 Çok oyunculu lig, klan savaşları, CWL, baskın madalyası ve epik ekipman etkinlik gelirleriyle net fulleme süresi.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-app-text tracking-wide flex items-center gap-3 flex-wrap">
-              Cevher Gelişim ve Tahmin Motoru (TH18 Meta)
-              <span className="text-xs bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold">
-                TH11–TH18 Dinamik Simülasyon
-              </span>
-            </h1>
-            <p className="text-app-muted text-sm mt-1">
-              37 Çok oyunculu lig, klan savaşları, CWL, baskın madalyası ve takvime bağlı epik ekipman etkinlik gelirleriyle net zaman tahmini.
-            </p>
-          </div>
+
+          {/* Town Hall Selector (When no player is imported, user can pick TH11-TH18) */}
+          {!importedPlayer && (
+            <div className="flex items-center gap-2 self-end sm:self-center bg-[#24130A] p-1.5 rounded-xl border border-[#442314] shadow-inner shrink-0">
+              <span className="font-game text-xs text-amber-200/80 px-1">Hedef TH:</span>
+              <div className="flex items-center gap-1">
+                {[14, 15, 16, 17, 18].map((lvl) => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setThLevel(lvl)}
+                    className={cn(
+                      "px-2 py-1 rounded-lg font-game text-xs transition-all cursor-pointer",
+                      thLevel === lvl
+                        ? "bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 font-black shadow-[0_2px_0_#6D3E08] border border-amber-300"
+                        : "bg-[#331C0F] text-amber-200/70 hover:text-white hover:bg-[#432514] border border-[#261309]"
+                    )}
+                  >
+                    TH{lvl}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Main Grid: Controls + Summary Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Configuration Controls */}
-        <div className="lg:col-span-5 bg-app-card border-2 border-app-border rounded-2xl p-6 shadow-sm space-y-6">
-          <div className="border-b-2 border-app-border pb-3 flex items-center justify-between">
-            <h3 className="text-xs font-black text-app-text uppercase tracking-widest flex items-center gap-2">
-              <Settings size={18} className="text-blue-600 dark:text-blue-400" />{" "}
-              Simülasyon Ayarları
-            </h3>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded bg-blue-600/10 text-blue-600 dark:text-blue-400 border border-blue-500/30">
-              TH {thLevel}
-            </span>
-          </div>
-
-          {/* 5. Inventory Inputs (Envanter Girişi) */}
-          <div className="space-y-3 bg-app-cardSubtle p-4 rounded-xl border border-app-border">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-app-text uppercase tracking-wider flex items-center gap-1.5">
-                <Package size={14} className="text-amber-500" /> Mevcut Envanter
-              </label>
-              <span className="text-[10px] font-bold text-app-muted">
-                Boş bırakılırsa 0 kabul edilir
-              </span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 block mb-1">
-                  Parlak
+      {/* 3. MAIN GRID: CONFIGURATION CONTROLS (LEFT) + SIMULATION RESULTS (RIGHT) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+        {/* ==================================================================
+            LEFT COLUMN: SİMÜLASYON AYARLARI (Controls)
+            ================================================================== */}
+        <div className="lg:col-span-5">
+          <GamePanel
+            variant="wood"
+            title={
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Settings size={18} className="text-amber-300" />
+                  <span className="font-game text-sm sm:text-base text-white game-text-stroke-sm tracking-wide">
+                    SİMÜLASYON AYARLARI
+                  </span>
+                </div>
+                <span className="font-game text-xs px-2 py-0.5 rounded bg-[#27150C] text-amber-300 border border-[#4E2B17]">
+                  TH {thLevel}
                 </span>
-                <input
-                  type="text"
-                  value={invShinyInput}
-                  onChange={(e) => setInvShinyInput(e.target.value)}
-                  placeholder="0"
-                  className="w-full bg-app-card border border-app-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-app-text focus:outline-none focus:border-emerald-500"
-                />
               </div>
-              <div>
-                <span className="text-[10px] font-extrabold text-cyan-600 dark:text-cyan-400 block mb-1">
-                  Işıltılı
+            }
+            bodyClassName="space-y-4 p-3.5 sm:p-5"
+          >
+            {/* A. MEVCUT ENVANTER GİRİŞİ */}
+            <div className="game-slot-well p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="font-game text-xs text-amber-200 flex items-center gap-1.5 uppercase tracking-wide">
+                  <Package size={15} className="text-amber-400" /> Mevcut Envanter
+                </label>
+                <span className="text-[10px] text-amber-300/60 font-semibold">
+                  Boş bırakılırsa 0 kabul edilir
                 </span>
-                <input
-                  type="text"
-                  value={invGlowyInput}
-                  onChange={(e) => setInvGlowyInput(e.target.value)}
-                  placeholder="0"
-                  className="w-full bg-app-card border border-app-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-app-text focus:outline-none focus:border-cyan-500"
-                />
               </div>
-              <div>
-                <span className="text-[10px] font-extrabold text-purple-600 dark:text-purple-400 block mb-1">
-                  Yıldızlı
-                </span>
-                <input
-                  type="text"
-                  value={invStarryInput}
-                  onChange={(e) => setInvStarryInput(e.target.value)}
-                  placeholder="0"
-                  className="w-full bg-app-card border border-app-border rounded-lg px-2.5 py-1.5 text-xs font-bold text-app-text focus:outline-none focus:border-purple-500"
-                />
-              </div>
-            </div>
-          </div>
 
-          {/* 1. Multiplayer League Select (37 Tiers: low to high) */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <label className="text-xs font-bold text-app-text uppercase tracking-wider flex items-center gap-1.5">
-                {selectedLeagueTier.iconSmall && (
-                  <img
-                    src={selectedLeagueTier.iconSmall}
-                    alt={selectedLeagueTier.name}
-                    className="w-4 h-4 object-contain inline-block"
-                  />
-                )}
-                Çok Oyunculu Lig (Yıldız Bonusu)
-              </label>
-              <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">
-                +{selectedLeagueTier.dailyShiny} P, +{selectedLeagueTier.dailyGlowy} I, +{selectedLeagueTier.dailyStarry} Y / gün
-              </span>
-            </div>
-            <select
-              value={leagueTierId}
-              onChange={(e) => setLeagueTierId(Number(e.target.value))}
-              className="w-full bg-app-cardSubtle border-2 border-app-border text-app-text rounded-xl p-3 text-xs font-bold outline-none focus:border-blue-500 transition-colors cursor-pointer"
-            >
-              {LEAGUE_TIERS.map((tier) => (
-                <option key={tier.id} value={tier.id} className="bg-app-card text-app-text">
-                  {tier.nameTr} ({tier.name}) [ID: {tier.id}]
-                  {tier.isUnknown
-                    ? " — Veri yok, 0 kabul edildi"
-                    : ` — (${tier.dailyShiny}, ${tier.dailyGlowy}, ${tier.dailyStarry})`}
-                </option>
-              ))}
-            </select>
-            {selectedLeagueTier.isUnknown && (
-              <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
-                Veri yok, günlük yıldız bonusu 0 kabul edildi.
-              </p>
-            )}
-          </div>
-
-          {/* 2. Clan War (CW) Controls */}
-          <div className="space-y-3 bg-app-cardSubtle p-4 rounded-xl border border-app-border">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-black text-app-text uppercase tracking-wider flex items-center gap-1.5">
-                <Swords size={14} className="text-blue-500" /> Klan Savaşı (CW)
-              </span>
-              <span className="px-2 py-0.5 bg-blue-600 text-white rounded font-extrabold text-xs">
-                {monthlyCwCount} Savaş / Ay ({cwWinCount} Galibiyet)
-              </span>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-app-muted">
-                <span>Aylık Savaş Sayısı (0–14)</span>
-                <span>{monthlyCwCount} savaş</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max="14"
-                step="1"
-                value={monthlyCwCount}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  setMonthlyCwCount(val);
-                  if (cwWinCount > val) setCwWinCount(val);
-                }}
-                className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-[11px] font-bold text-app-muted">
-                <span>Kazanılan Savaş Sayısı</span>
-                <span>{cwWinCount} galibiyet / {monthlyCwCount - cwWinCount} mağlubiyet</span>
-              </div>
-              <input
-                type="range"
-                min="0"
-                max={monthlyCwCount}
-                step="1"
-                value={cwWinCount}
-                onChange={(e) => setCwWinCount(Number(e.target.value))}
-                className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-              />
-            </div>
-
-            {/* Custom Per-War Ore Inputs */}
-            <div className="pt-2 border-t border-app-border space-y-1.5">
-              <span className="text-[10px] font-bold text-app-muted block">
-                Savaş Başına Kazanç (Varsayılan: 2220, 78, 12 — Kayıp yarısı taban alınır):
-              </span>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">P (Win)</span>
+              <div className="grid grid-cols-3 gap-2">
+                {/* Parlak Input */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-[11px] font-game text-sky-300">
+                    <ShinyOreIcon className="w-3.5 h-3.5" />
+                    <span>Parlak</span>
+                  </div>
                   <input
-                    type="number"
-                    value={cwWinShiny}
-                    onChange={(e) => setCwWinShiny(Number(e.target.value) || 0)}
-                    className="w-full bg-app-card border border-app-border rounded px-2 py-1 text-xs font-bold"
+                    type="text"
+                    inputMode="numeric"
+                    value={invShinyInput}
+                    onChange={(e) => setInvShinyInput(e.target.value)}
+                    placeholder="0"
+                    className="w-full bg-[#180E09] border-2 border-[#22446A] rounded-lg px-2.5 py-1.5 font-game text-xs sm:text-sm text-sky-200 focus:outline-none focus:border-sky-400 shadow-inner"
                   />
                 </div>
-                <div>
-                  <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-bold block">I (Win)</span>
+
+                {/* Işıltılı Input */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-[11px] font-game text-fuchsia-300">
+                    <GlowyOreIcon className="w-3.5 h-3.5" />
+                    <span>Işıltılı</span>
+                  </div>
                   <input
-                    type="number"
-                    value={cwWinGlowy}
-                    onChange={(e) => setCwWinGlowy(Number(e.target.value) || 0)}
-                    className="w-full bg-app-card border border-app-border rounded px-2 py-1 text-xs font-bold"
+                    type="text"
+                    inputMode="numeric"
+                    value={invGlowyInput}
+                    onChange={(e) => setInvGlowyInput(e.target.value)}
+                    placeholder="0"
+                    className="w-full bg-[#180E09] border-2 border-[#54216E] rounded-lg px-2.5 py-1.5 font-game text-xs sm:text-sm text-fuchsia-200 focus:outline-none focus:border-fuchsia-400 shadow-inner"
                   />
                 </div>
-                <div>
-                  <span className="text-[10px] text-purple-600 dark:text-purple-400 font-bold block">★ (Win)</span>
+
+                {/* Yıldızlı Input */}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-[11px] font-game text-amber-300">
+                    <StarryOreIcon className="w-3.5 h-3.5" />
+                    <span>Yıldızlı</span>
+                  </div>
                   <input
-                    type="number"
-                    value={cwWinStarry}
-                    onChange={(e) => setCwWinStarry(Number(e.target.value) || 0)}
-                    className="w-full bg-app-card border border-app-border rounded px-2 py-1 text-xs font-bold"
+                    type="text"
+                    inputMode="numeric"
+                    value={invStarryInput}
+                    onChange={(e) => setInvStarryInput(e.target.value)}
+                    placeholder="0"
+                    className="w-full bg-[#180E09] border-2 border-[#6E3C0F] rounded-lg px-2.5 py-1.5 font-game text-xs sm:text-sm text-amber-200 focus:outline-none focus:border-amber-400 shadow-inner"
                   />
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 3. Clan War League (CWL) Controls */}
-          <div className="space-y-3 bg-app-cardSubtle p-4 rounded-xl border border-app-border">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-black text-app-text uppercase tracking-wider flex items-center gap-1.5">
-                <Trophy size={14} className="text-amber-500" /> CWL (Klan Savaşı Ligi)
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-app-muted">Katılım:</span>
-                <button
-                  type="button"
-                  onClick={() => setParticipatesCwl(!participatesCwl)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-lg text-xs font-black transition-colors cursor-pointer",
-                    participatesCwl
-                      ? "bg-amber-600 text-white"
-                      : "bg-app-card border border-app-border text-app-muted"
+            {/* B. ÇOK OYUNCULU LİG (YILDIZ BONUSU) */}
+            <div className="game-slot-well p-3.5 space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="font-game text-xs text-amber-200 uppercase tracking-wide flex items-center gap-1.5">
+                  {selectedLeagueTier.iconSmall ? (
+                    <img
+                      src={selectedLeagueTier.iconSmall}
+                      alt={selectedLeagueTier.name}
+                      className="w-4 h-4 object-contain inline-block drop-shadow"
+                    />
+                  ) : (
+                    <Trophy size={14} className="text-amber-400" />
                   )}
+                  Çok Oyunculu Lig (Yıldız Bonusu)
+                </label>
+              </div>
+
+              <div className="relative">
+                <select
+                  value={leagueTierId}
+                  onChange={(e) => setLeagueTierId(Number(e.target.value))}
+                  className="w-full bg-[#1A0F0A] border-2 border-[#4A2614] text-amber-100 rounded-xl p-2.5 pr-8 font-game text-xs sm:text-sm outline-none focus:border-amber-400 transition-colors cursor-pointer appearance-none shadow-inner"
                 >
-                  {participatesCwl ? "Evet" : "Hayır"}
-                </button>
+                  {LEAGUE_TIERS.map((tier) => (
+                    <option key={tier.id} value={tier.id} className="bg-[#24140C] text-amber-100 font-sans">
+                      {tier.nameTr} ({tier.name}) [ID: {tier.id}]
+                      {tier.isUnknown
+                        ? " — Veri yok, 0 kabul edildi"
+                        : ` — (+${tier.dailyShiny} P, +${tier.dailyGlowy} I, +${tier.dailyStarry} ★)`}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-amber-300">
+                  <ChevronDown size={16} />
+                </div>
+              </div>
+
+              {/* Selected League Daily Reward Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                <OreBadge type="shiny" amount={`+${selectedLeagueTier.dailyShiny}`} suffix="/ gün" />
+                <OreBadge type="glowy" amount={`+${selectedLeagueTier.dailyGlowy}`} suffix="/ gün" />
+                <OreBadge type="starry" amount={`+${selectedLeagueTier.dailyStarry}`} suffix="/ gün" />
               </div>
             </div>
 
-            {participatesCwl && (
-              <div className="space-y-2 pt-1">
-                <div className="flex justify-between text-[11px] font-bold text-app-muted">
-                  <span>Kazanılan CWL Savaşı (0–7)</span>
-                  <span className="text-app-text">{cwlWinCount} / 7 Savaş</span>
+            {/* C. KLAN SAVAŞI (CW) */}
+            <div className="game-slot-well p-3.5 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-game text-xs text-amber-200 uppercase tracking-wide flex items-center gap-1.5">
+                  <Swords size={15} className="text-amber-400" /> Klan Savaşı (CW)
+                </span>
+                <span className="font-game text-xs px-2 py-0.5 bg-gradient-to-b from-amber-500 to-amber-700 text-white rounded border border-amber-300/50 shadow-sm">
+                  {monthlyCwCount} Savaş / Ay
+                </span>
+              </div>
+
+              {/* Monthly Wars Slider */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-semibold text-amber-200/80">
+                  <span>Aylık Savaş Sayısı</span>
+                  <span className="font-game text-amber-100">{monthlyCwCount} savaş</span>
                 </div>
                 <input
                   type="range"
                   min="0"
-                  max="7"
+                  max="14"
                   step="1"
-                  value={cwlWinCount}
-                  onChange={(e) => setCwlWinCount(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-300 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                  value={monthlyCwCount}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setMonthlyCwCount(val);
+                    if (cwWinCount > val) setCwWinCount(val);
+                  }}
+                  className="game-slider"
                 />
-                <div className="text-[10px] text-app-muted">
-                  Savaş Başı Kazanç: (1110, 39, 6) • Kayıp: (555, 19, 3)
-                </div>
               </div>
-            )}
 
-            {showCwConflictWarning && (
-              <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px] font-bold">
-                <AlertTriangle size={14} className="shrink-0 mt-0.5" />
-                <span>
-                  CWL süresince (10 gün) normal CW başlamaz. Kalan 20 günde en fazla ~10 normal savaş yapılabilir.
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* 4. Raid Medals Toggle */}
-          <div className="bg-app-cardSubtle p-3.5 rounded-xl border border-app-border">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div className="space-y-0.5">
-                <span className="text-xs font-bold text-app-text block">
-                  Baskın Madalyaları Geliri
-                </span>
-                <span className="text-[11px] font-semibold text-app-muted block">
-                  Haftalık: +100 Işıltılı, +10 Yıldızlı (Günlük ortalama: +14.3 I, +1.4 ★)
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={includeRaidMedals}
-                onChange={(e) => setIncludeRaidMedals(e.target.checked)}
-                className="w-5 h-5 rounded border-2 border-app-border text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600"
-              />
-            </label>
-          </div>
-
-          {/* 6. Bi-Monthly Future Epic Equipment & Event Toggles */}
-          <div className="bg-app-cardSubtle p-4 rounded-xl border border-app-border space-y-3">
-            <label className="flex items-center justify-between cursor-pointer">
-              <div className="space-y-0.5">
-                <span className="text-xs font-black text-app-text block">
-                  Gelecek Epik Ekipmanları Dahil Et
-                </span>
-                <span className="text-[10px] font-bold text-app-muted block">
-                  2 ayda bir (Şub, Nis, Haz, Ağu, Eki, Ara) +56.060 Parlak, +3.720 Işıltılı, +480 Yıldızlı
-                </span>
-              </div>
-              <input
-                type="checkbox"
-                checked={includeFutureEpics}
-                onChange={(e) => setIncludeFutureEpics(e.target.checked)}
-                className="w-5 h-5 rounded border-2 border-app-border text-purple-600 focus:ring-purple-500 cursor-pointer accent-purple-600"
-              />
-            </label>
-
-            {includeFutureEpics && (
-              <div className="pt-2 border-t border-app-border space-y-2">
-                <div className="text-[10px] font-bold text-app-muted">
-                  Etkinlik Gelirleri (Her yeni epik ekipmanla gelen etkinlik):
-                </div>
-
-                <label className="flex items-center justify-between p-2 rounded-lg bg-app-card border border-app-border cursor-pointer">
-                  <span className="text-[11px] font-bold text-app-text">
-                    Etkinlik Bileti Aldım (Pass) (+600 Işıltılı, +80 Yıldızlı)
+              {/* CW Wins Slider */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-semibold text-amber-200/80">
+                  <span>Kazanılan Savaş Sayısı</span>
+                  <span className="font-game text-amber-300">
+                    {cwWinCount} Galibiyet / {monthlyCwCount - cwWinCount} Mağlubiyet
                   </span>
-                  <input
-                    type="checkbox"
-                    checked={hasEventPass}
-                    onChange={(e) => setHasEventPass(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 accent-blue-600 cursor-pointer"
-                  />
-                </label>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max={monthlyCwCount}
+                  step="1"
+                  value={cwWinCount}
+                  onChange={(e) => setCwWinCount(Number(e.target.value))}
+                  className="game-slider"
+                />
+              </div>
 
-                <label className="flex items-center justify-between p-2 rounded-lg bg-app-card border border-app-border cursor-pointer">
-                  <span className="text-[11px] font-bold text-app-text">
-                    Etkinlik Madalyası Aldım (+600 Işıltılı, +80 Yıldızlı)
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={hasEventMedals}
-                    onChange={(e) => setHasEventMedals(e.target.checked)}
-                    className="w-4 h-4 rounded text-blue-600 accent-blue-600 cursor-pointer"
-                  />
-                </label>
-
-                <div className="text-[10px] font-semibold text-app-muted pt-1">
-                  Ücretsiz Plan (5.000 Parlak, 400 Işıltılı) her etkinliğe otomatik dahildir.
+              {/* Custom Per-War Ore Inputs */}
+              <div className="pt-2 border-t border-[#3B2215] space-y-1.5">
+                <span className="text-[10px] font-semibold text-amber-300/70 block">
+                  Savaş Başına Galibiyet Kazancı (Mağlubiyette yarısı):
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <span className="text-[10px] text-sky-300 font-game block">P (Win)</span>
+                    <input
+                      type="number"
+                      value={cwWinShiny}
+                      onChange={(e) => setCwWinShiny(Number(e.target.value) || 0)}
+                      className="w-full bg-[#180E09] border border-[#22446A] rounded px-2 py-1 font-game text-xs text-sky-200 shadow-inner"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-fuchsia-300 font-game block">I (Win)</span>
+                    <input
+                      type="number"
+                      value={cwWinGlowy}
+                      onChange={(e) => setCwWinGlowy(Number(e.target.value) || 0)}
+                      className="w-full bg-[#180E09] border border-[#54216E] rounded px-2 py-1 font-game text-xs text-fuchsia-200 shadow-inner"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-amber-300 font-game block">★ (Win)</span>
+                    <input
+                      type="number"
+                      value={cwWinStarry}
+                      onChange={(e) => setCwWinStarry(Number(e.target.value) || 0)}
+                      className="w-full bg-[#180E09] border border-[#6E3C0F] rounded px-2 py-1 font-game text-xs text-amber-200 shadow-inner"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right Column: Single Unified Primary Result Card */}
-        <div className="lg:col-span-7 flex flex-col gap-5">
-          <div className="bg-app-card border border-app-border rounded-2xl p-6 md:p-8 shadow-sm space-y-6">
-            {/* Header & Bottleneck Badge */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-app-border">
-              <span className="text-xs uppercase font-bold tracking-wider text-app-muted">
-                TH{thLevel} Demirci Fulleme Projeksiyonu
-              </span>
-              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 bg-purple-500/10 border border-purple-500/25 px-3 py-1 rounded-full">
-                <ShieldAlert size={14} /> Darboğaz: <strong className="text-app-text">{bottleneckLabel}</strong>
-              </span>
             </div>
 
-            {/* Single Big Main Metric: "510 gün • 26 Mart 2028" */}
-            <div className="space-y-2">
-              <div className="text-3xl md:text-5xl font-black text-app-text tracking-tight flex flex-wrap items-baseline gap-3">
-                <span>{estimated.daysToComplete} Gün</span>
-                <span className="text-xl md:text-2xl font-bold text-blue-400">• {estimated.targetDateStr}</span>
+            {/* D. KLAN SAVAŞI LİGİ (CWL) */}
+            <div className="game-slot-well p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="font-game text-xs text-amber-200 uppercase tracking-wide flex items-center gap-1.5">
+                  <Trophy size={15} className="text-amber-400" /> CWL (Klan Savaşı Ligi)
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setParticipatesCwl(!participatesCwl)}
+                    className={cn(
+                      "px-3 py-1 rounded-lg font-game text-xs transition-all cursor-pointer shadow-sm",
+                      participatesCwl
+                        ? "game-btn-green text-white"
+                        : "game-btn-red text-white opacity-80"
+                    )}
+                  >
+                    {participatesCwl ? "Katılıyorum" : "Katılmıyorum"}
+                  </button>
+                </div>
               </div>
-              <p className="text-xs md:text-sm text-app-muted font-medium">
+
+              {participatesCwl && (
+                <div className="space-y-2 pt-1 border-t border-[#3B2215]">
+                  <div className="flex justify-between text-xs font-semibold text-amber-200/80">
+                    <span>Kazanılan CWL Savaşı (0–7)</span>
+                    <span className="font-game text-amber-300">{cwlWinCount} / 7 Savaş</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="7"
+                    step="1"
+                    value={cwlWinCount}
+                    onChange={(e) => setCwlWinCount(Number(e.target.value))}
+                    className="game-slider"
+                  />
+                  <div className="text-[11px] text-amber-300/70 font-semibold">
+                    Galibiyet: (1.110, 39, 6) • Kayıp: (555, 19, 3)
+                  </div>
+                </div>
+              )}
+
+              {showCwConflictWarning && (
+                <div className="flex items-start gap-2 p-2.5 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs font-semibold">
+                  <AlertTriangle size={15} className="text-amber-400 shrink-0 mt-0.5" />
+                  <span>
+                    CWL süresince (10 gün) normal CW başlamaz. Kalan 20 günde en fazla ~10 normal savaş yapılabilir.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* E. BASKIN MADALYALARI GELİRİ */}
+            <div className="game-slot-well p-3.5">
+              <label className="flex items-center justify-between cursor-pointer gap-2">
+                <div className="space-y-0.5">
+                  <span className="font-game text-xs text-amber-200 block">
+                    Baskın Madalyaları Geliri
+                  </span>
+                  <span className="text-[11px] font-semibold text-amber-300/70 block">
+                    Haftalık: +100 Işıltılı, +10 Yıldızlı (Günlük: +14.3 I, +1.4 ★)
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={includeRaidMedals}
+                  onChange={(e) => setIncludeRaidMedals(e.target.checked)}
+                  className="game-checkbox"
+                />
+              </label>
+            </div>
+
+            {/* F. GELECEK EPİK EKİPMANLAR & ETKİNLİK GELİRLERİ */}
+            <div className="game-slot-well p-3.5 space-y-2.5">
+              <label className="flex items-center justify-between cursor-pointer gap-2">
+                <div className="space-y-0.5">
+                  <span className="font-game text-xs text-amber-200 block">
+                    Gelecek Epik Ekipmanları Dahil Et
+                  </span>
+                  <span className="text-[10px] font-semibold text-amber-300/70 block">
+                    2 ayda bir (Şub, Nis, Haz...) +56k Parlak, +3.7k Işıltılı, +480 Yıldızlı
+                  </span>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={includeFutureEpics}
+                  onChange={(e) => setIncludeFutureEpics(e.target.checked)}
+                  className="game-checkbox"
+                />
+              </label>
+
+              {includeFutureEpics && (
+                <div className="pt-2 border-t border-[#3B2215] space-y-2">
+                  <div className="text-[10px] font-game text-amber-300/80 uppercase">
+                    Etkinlik Gelirleri (Her yeni epik ekipmanla):
+                  </div>
+
+                  <label className="flex items-center justify-between p-2 rounded-lg bg-[#180E09] border border-[#3B2215] cursor-pointer">
+                    <span className="text-xs font-semibold text-amber-200">
+                      Etkinlik Bileti (Pass) (+600 I, +80 ★)
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={hasEventPass}
+                      onChange={(e) => setHasEventPass(e.target.checked)}
+                      className="game-checkbox"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between p-2 rounded-lg bg-[#180E09] border border-[#3B2215] cursor-pointer">
+                    <span className="text-xs font-semibold text-amber-200">
+                      Etkinlik Madalyası (+600 I, +80 ★)
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={hasEventMedals}
+                      onChange={(e) => setHasEventMedals(e.target.checked)}
+                      className="game-checkbox"
+                    />
+                  </label>
+
+                  <div className="text-[10px] font-semibold text-amber-300/60 pt-0.5">
+                    Ücretsiz Plan (5.000 Parlak, 400 Işıltılı) her etkinliğe otomatik dahildir.
+                  </div>
+                </div>
+              )}
+            </div>
+          </GamePanel>
+        </div>
+
+        {/* ==================================================================
+            RIGHT COLUMN: SİMÜLASYON VE PROJEKSİYON SONUÇLARI (Results)
+            ================================================================== */}
+        <div className="lg:col-span-7 flex flex-col gap-5">
+          <GamePanel
+            variant="wood"
+            title={
+              <div className="flex items-center justify-between w-full flex-wrap gap-2">
+                <span className="font-game text-sm sm:text-base text-amber-100 game-text-stroke-sm tracking-wide">
+                  TH{thLevel} DEMİRCİ FULLEME PROJEKSİYONU
+                </span>
+
+                {/* Bottleneck Badge with In-Game Shield Style */}
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-game shadow-sm",
+                    bottleneckOreType === "starry" &&
+                      "bg-gradient-to-r from-amber-950/80 to-amber-900/80 border-amber-400 text-amber-200 shadow-[0_0_8px_rgba(245,158,11,0.4)]",
+                    bottleneckOreType === "glowy" &&
+                      "bg-gradient-to-r from-purple-950/80 to-purple-900/80 border-fuchsia-400 text-fuchsia-200 shadow-[0_0_8px_rgba(192,38,211,0.4)]",
+                    bottleneckOreType === "shiny" &&
+                      "bg-gradient-to-r from-sky-950/80 to-sky-900/80 border-sky-400 text-sky-200 shadow-[0_0_8px_rgba(56,189,248,0.4)]"
+                  )}
+                >
+                  <ShieldAlert size={14} />
+                  <span>Darboğaz: <strong>{bottleneckLabel}</strong></span>
+                </div>
+              </div>
+            }
+            bodyClassName="p-4 sm:p-6 space-y-5"
+          >
+            {/* The Big Hero Metric: "510 Gün • 26 Mart 2028" */}
+            <div className="game-slot-well p-4 sm:p-5 rounded-2xl relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row items-baseline justify-between gap-2 flex-wrap">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="font-game text-4xl sm:text-5xl md:text-6xl text-amber-300 game-title-stroke tracking-tight">
+                    {estimated.daysToComplete} Gün
+                  </span>
+                  <span className="font-game text-xl sm:text-2xl md:text-3xl text-sky-300 game-text-stroke-sm">
+                    • {estimated.targetDateStr}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs sm:text-sm font-semibold text-amber-100/90 mt-2 leading-relaxed">
                 {isCompletedToday ? (
-                  <span className="text-emerald-400 font-bold">
-                    Mevcut cevher envanteriniz tüm ekipman yükseltmelerini bugün tamamlamaya yetiyor!
+                  <span className="text-emerald-300 font-bold flex items-center gap-1.5">
+                    <CheckCircle2 size={16} /> Mevcut cevher envanteriniz tüm ekipman yükseltmelerini bugün tamamlamaya yetiyor!
                   </span>
                 ) : (
                   <>
                     Mevcut tempo ve klan geliriyle TH{thLevel} ekipman havuzunuz{" "}
-                    <span className="font-bold text-app-text">{estimated.targetDateStr}</span> tarihinde tamamen tamamlanacaktır.
+                    <strong className="text-amber-300 font-game">{estimated.targetDateStr}</strong> tarihinde tamamen tamamlanacaktır.
                   </>
                 )}
               </p>
             </div>
 
-            {/* Min / Tahmini / Max Comparison Strip */}
-            <div className="p-3.5 rounded-xl bg-app-cardSubtle border border-app-border space-y-2">
-              <span className="text-[11px] font-bold text-app-muted uppercase tracking-wider block">
-                Senaryo Karşılaştırma Şeridi:
+            {/* Scenario Comparison Strip (Min / Ort / Max) */}
+            <div className="space-y-2">
+              <span className="font-game text-xs text-amber-200/90 uppercase tracking-wider block">
+                SENARYO KARŞILAŞTIRMASI:
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-app-card border border-app-border">
-                  <div className="text-[10px] text-emerald-400 font-bold">EN İYİ SENARYO (MIN)</div>
-                  <div className="font-extrabold text-app-text mt-0.5">{minScenario.daysToComplete} Gün</div>
-                  <div className="text-[10px] text-app-muted">{minScenario.targetDateStr}</div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* Min Scenario (En İyi) */}
+                <div className="p-3 rounded-xl bg-gradient-to-b from-[#132B1E] to-[#0A1A12] border-2 border-[#206841] shadow-inner flex flex-col justify-between">
+                  <div className="font-game text-[10px] text-emerald-300 tracking-wider">
+                    EN İYİ SENARYO (MIN)
+                  </div>
+                  <div className="font-game text-xl sm:text-2xl text-emerald-200 game-text-stroke-sm my-1">
+                    {minScenario.daysToComplete} Gün
+                  </div>
+                  <div className="text-[11px] font-semibold text-emerald-300/80">
+                    {minScenario.targetDateStr}
+                  </div>
                 </div>
-                <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                  <div className="text-[10px] text-blue-400 font-bold">BEKLENEN SENARYO (ORT)</div>
-                  <div className="font-extrabold text-app-text mt-0.5">{estimated.daysToComplete} Gün</div>
-                  <div className="text-[10px] text-app-muted">{estimated.targetDateStr}</div>
+
+                {/* Estimated Scenario (Beklenen - Highlighted) */}
+                <div className="p-3 rounded-xl bg-gradient-to-b from-[#4A3212] to-[#2B1B08] border-2 border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.35)] flex flex-col justify-between relative">
+                  <div className="font-game text-[10px] text-amber-300 tracking-wider flex items-center justify-between">
+                    <span>BEKLENEN SENARYO (ORT)</span>
+                    <Sparkles size={12} className="text-amber-400" />
+                  </div>
+                  <div className="font-game text-2xl sm:text-3xl text-amber-200 game-title-stroke my-0.5">
+                    {estimated.daysToComplete} Gün
+                  </div>
+                  <div className="text-[11px] font-semibold text-amber-100">
+                    {estimated.targetDateStr}
+                  </div>
                 </div>
-                <div className="p-2.5 rounded-lg bg-app-card border border-app-border">
-                  <div className="text-[10px] text-amber-400 font-bold">EN YAVAŞ SENARYO (MAX)</div>
-                  <div className="font-extrabold text-app-text mt-0.5">{maxScenario.daysToComplete} Gün</div>
-                  <div className="text-[10px] text-app-muted">{maxScenario.targetDateStr}</div>
+
+                {/* Max Scenario (En Yavaş) */}
+                <div className="p-3 rounded-xl bg-gradient-to-b from-[#2A1710] to-[#170C08] border-2 border-[#5A3828] shadow-inner flex flex-col justify-between">
+                  <div className="font-game text-[10px] text-orange-300 tracking-wider">
+                    EN YAVAŞ SENARYO (MAX)
+                  </div>
+                  <div className="font-game text-xl sm:text-2xl text-orange-200 game-text-stroke-sm my-1">
+                    {maxScenario.daysToComplete} Gün
+                  </div>
+                  <div className="text-[11px] font-semibold text-orange-300/80">
+                    {maxScenario.targetDateStr}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* 3 Net Required Ore Pills */}
-            <div className="grid grid-cols-3 gap-2.5 pt-2">
-              <div className="p-3 rounded-xl bg-app-cardSubtle border border-app-border space-y-1">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
-                  <Sparkles size={13} />
-                  <span>Gereken Parlak</span>
-                </div>
-                <div className="text-base font-black text-app-text">{netNeeded.shiny.toLocaleString("tr-TR")}</div>
-                <div className="text-[10px] text-app-muted">+{estimated.dailyRates.shiny} / gün</div>
-              </div>
+            {/* 3 Net Required Ore Jewel Cards */}
+            <div className="space-y-2 pt-1">
+              <span className="font-game text-xs text-amber-200/90 uppercase tracking-wider block">
+                NET GEREKEN CEVHER İHTİYACI:
+              </span>
 
-              <div className="p-3 rounded-xl bg-app-cardSubtle border border-app-border space-y-1">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-cyan-400">
-                  <Droplet size={13} />
-                  <span>Gereken Işıltılı</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                {/* 1. Gereken Parlak (Shiny) */}
+                <div className="p-3.5 rounded-xl bg-gradient-to-b from-[#11243A] to-[#0A1624] border-2 border-[#1E5285] shadow-inner flex flex-col justify-between gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 font-game text-xs text-sky-300">
+                      <ShinyOreIcon className="w-4 h-4" />
+                      <span>Parlak</span>
+                    </div>
+                    <span className="text-[10px] font-game px-1.5 py-0.5 rounded bg-[#1A3A5E] text-sky-200">
+                      +{estimated.dailyRates.shiny}/gün
+                    </span>
+                  </div>
+                  <div className="font-game text-2xl sm:text-3xl text-sky-100 game-text-stroke-sm">
+                    {netNeeded.shiny.toLocaleString("tr-TR")}
+                  </div>
+                  <div className="text-[10px] font-semibold text-sky-300/70">
+                    Demirci kalan net ihtiyaç
+                  </div>
                 </div>
-                <div className="text-base font-black text-app-text">{netNeeded.glowy.toLocaleString("tr-TR")}</div>
-                <div className="text-[10px] text-app-muted">+{estimated.dailyRates.glowy} / gün</div>
-              </div>
 
-              <div className="p-3 rounded-xl bg-app-cardSubtle border border-app-border space-y-1">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold text-purple-400">
-                  <Star size={13} />
-                  <span>Gereken Yıldızlı</span>
+                {/* 2. Gereken Işıltılı (Glowy) */}
+                <div className="p-3.5 rounded-xl bg-gradient-to-b from-[#2A133B] to-[#170921] border-2 border-[#68258E] shadow-inner flex flex-col justify-between gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 font-game text-xs text-fuchsia-300">
+                      <GlowyOreIcon className="w-4 h-4" />
+                      <span>Işıltılı</span>
+                    </div>
+                    <span className="text-[10px] font-game px-1.5 py-0.5 rounded bg-[#491C63] text-fuchsia-200">
+                      +{estimated.dailyRates.glowy}/gün
+                    </span>
+                  </div>
+                  <div className="font-game text-2xl sm:text-3xl text-fuchsia-100 game-text-stroke-sm">
+                    {netNeeded.glowy.toLocaleString("tr-TR")}
+                  </div>
+                  <div className="text-[10px] font-semibold text-fuchsia-300/70">
+                    Demirci kalan net ihtiyaç
+                  </div>
                 </div>
-                <div className="text-base font-black text-app-text">{netNeeded.starry.toLocaleString("tr-TR")}</div>
-                <div className="text-[10px] text-app-muted">+{estimated.dailyRates.starry} / gün</div>
+
+                {/* 3. Gereken Yıldızlı (Starry) */}
+                <div className="p-3.5 rounded-xl bg-gradient-to-b from-[#38210A] to-[#1C0F04] border-2 border-[#8A4D14] shadow-inner flex flex-col justify-between gap-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 font-game text-xs text-amber-300">
+                      <StarryOreIcon className="w-4 h-4" />
+                      <span>Yıldızlı</span>
+                    </div>
+                    <span className="text-[10px] font-game px-1.5 py-0.5 rounded bg-[#572F08] text-amber-200">
+                      +{estimated.dailyRates.starry}/gün
+                    </span>
+                  </div>
+                  <div className="font-game text-2xl sm:text-3xl text-amber-100 game-title-stroke">
+                    {netNeeded.starry.toLocaleString("tr-TR")}
+                  </div>
+                  <div className="text-[10px] font-semibold text-amber-300/70">
+                    Demirci kalan net ihtiyaç
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </GamePanel>
         </div>
       </div>
 
-      {/* Imported Player Equipment Breakdown Table (if imported) */}
+      {/* 4. IMPORTED PLAYER EQUIPMENT BREAKDOWN CARDS */}
       {importedPlayer && activeDeficitAndItems.items.length > 0 && (
-        <div className="bg-app-card border-2 border-app-border rounded-2xl p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b-2 border-app-border pb-3">
-            <h3 className="text-base font-black text-app-text">
-              {importedPlayer.name} — Ekipman Bazlı Kalan Cevher Tablosu
-            </h3>
-            <span className="text-xs font-bold text-app-muted">
-              TH{thLevel} Demirci Sınırı
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <GamePanel
+          variant="wood"
+          title={
+            <div className="flex items-center justify-between w-full flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Swords size={18} className="text-amber-300" />
+                <span className="font-game text-sm sm:text-base text-white game-text-stroke-sm tracking-wide">
+                  {importedPlayer.name} — EKİPMAN BAZLI KALAN CEVHERLER
+                </span>
+              </div>
+              <span className="font-game text-xs px-2.5 py-0.5 rounded bg-[#24130A] text-amber-300 border border-[#442314]">
+                TH{thLevel} Demirci Sınırı
+              </span>
+            </div>
+          }
+          bodyClassName="p-3.5 sm:p-5"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
             {activeDeficitAndItems.items.map((item) => (
               <div
                 key={item.name}
-                className="bg-app-cardSubtle border-2 border-app-border rounded-xl p-3 flex flex-col justify-between gap-2"
+                className={cn(
+                  "p-3 rounded-xl border-2 flex flex-col justify-between gap-2 shadow-sm transition-all",
+                  item.isEpic
+                    ? "bg-gradient-to-b from-[#331842] to-[#1C0D26] border-[#9C33D4] shadow-[0_0_8px_rgba(156,51,212,0.25)]"
+                    : "bg-gradient-to-b from-[#1E2938] to-[#111720] border-[#3B5270]"
+                )}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 truncate pr-1">
+                {/* Header: Icon + Name + Level Badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 truncate">
                     <UnitIcon name={item.name} size="xs" isEpic={item.isEpic} />
-                    <span className="text-xs font-black text-app-text truncate">
+                    <span className="font-game text-xs sm:text-sm text-amber-100 truncate">
                       {item.name}
                     </span>
                   </div>
+
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded font-black",
+                      "font-game text-[10px] px-2 py-0.5 rounded border shrink-0",
                       item.isEpic
-                        ? "bg-purple-600/20 text-purple-600 dark:text-purple-400"
-                        : "bg-blue-600/15 text-blue-600 dark:text-blue-400"
+                        ? "bg-[#4D186E] border-fuchsia-400 text-fuchsia-200"
+                        : "bg-[#1E3B5C] border-sky-400 text-sky-200"
                     )}
                   >
                     Lv.{item.level} → {item.targetLevel}
                   </span>
                 </div>
-                <div className="flex justify-between text-[11px] font-bold text-app-muted">
-                  <span className="text-emerald-600 dark:text-emerald-400">
-                    P: {item.shiny.toLocaleString()}
-                  </span>
-                  <span className="text-cyan-600 dark:text-cyan-400">
-                    I: {item.glowy.toLocaleString()}
-                  </span>
-                  <span className="text-purple-600 dark:text-purple-400">
-                    ★: {item.starry.toLocaleString()}
-                  </span>
+
+                {/* Ore Needed Badges */}
+                <div className="flex items-center justify-between gap-1 pt-1 border-t border-black/30">
+                  <OreBadge type="shiny" amount={item.shiny} />
+                  <OreBadge type="glowy" amount={item.glowy} />
+                  {item.isEpic ? (
+                    <OreBadge type="starry" amount={item.starry} />
+                  ) : (
+                    <span className="text-[10px] font-game text-stone-500 px-1">—</span>
+                  )}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </GamePanel>
       )}
 
-      {/* Detailed Analysis Table: Fixed Config Breakdown */}
-      <div className="bg-app-card border-2 border-app-border rounded-2xl p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b-2 border-app-border pb-3">
-          <div className="flex items-center gap-2">
-            <Table size={20} className="text-blue-600 dark:text-blue-400" />
-            <h3 className="text-base font-black text-app-text tracking-wide">
-              Günlük & Periyodik Cevher Gelir Dağılım Tablosu (TH{thLevel})
-            </h3>
+      {/* 5. DETAILED ANALYSIS TABLE: FIXED REVENUE MODEL */}
+      <GamePanel
+        variant="wood"
+        title={
+          <div className="flex items-center justify-between w-full flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Table size={18} className="text-amber-300" />
+              <span className="font-game text-sm sm:text-base text-white game-text-stroke-sm tracking-wide">
+                GÜNLÜK & PERİYODİK CEVHER GELİR DAĞILIM TABLOSU (TH{thLevel})
+              </span>
+            </div>
+            <span className="font-game text-xs px-2.5 py-0.5 rounded bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 font-bold border border-amber-300">
+              Sabit Gelir Modeli
+            </span>
           </div>
-          <span className="text-xs font-extrabold bg-blue-600 text-white px-3 py-1 rounded-lg">
-            Sabit Gelir Modeli
-          </span>
-        </div>
-
+        }
+        bodyClassName="p-0 overflow-hidden"
+      >
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[580px]">
             <thead>
-              <tr className="border-b-2 border-app-border bg-app-cardSubtle text-xs font-black text-app-text uppercase tracking-wider">
-                <th className="py-3 px-4 rounded-l-lg">Gelir Kaynağı</th>
-                <th className="py-3 px-4 text-emerald-600 dark:text-emerald-400">
-                  Parlak (Shiny)
+              <tr className="bg-[#24130A] border-b-2 border-[#3E2112] text-xs font-game text-amber-200 tracking-wider">
+                <th className="py-3 px-4">Gelir Kaynağı</th>
+                <th className="py-3 px-4">
+                  <div className="flex items-center gap-1.5 text-sky-300">
+                    <ShinyOreIcon className="w-4 h-4" />
+                    <span>Parlak (Shiny)</span>
+                  </div>
                 </th>
-                <th className="py-3 px-4 text-cyan-600 dark:text-cyan-400">
-                  Işıltılı (Glowy)
+                <th className="py-3 px-4">
+                  <div className="flex items-center gap-1.5 text-fuchsia-300">
+                    <GlowyOreIcon className="w-4 h-4" />
+                    <span>Işıltılı (Glowy)</span>
+                  </div>
                 </th>
-                <th className="py-3 px-4 text-purple-600 dark:text-purple-400">
-                  Yıldızlı (Starry)
+                <th className="py-3 px-4">
+                  <div className="flex items-center gap-1.5 text-amber-300">
+                    <StarryOreIcon className="w-4 h-4" />
+                    <span>Yıldızlı (Starry)</span>
+                  </div>
                 </th>
-                <th className="py-3 px-4 rounded-r-lg text-right">Durum</th>
+                <th className="py-3 px-4 text-right">Durum</th>
               </tr>
             </thead>
-            <tbody className="divide-y border-b border-app-border text-sm font-semibold text-app-text">
-              <tr className="hover:bg-app-cardSubtle/60 transition-colors">
-                <td className="py-3 px-4 font-bold flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+
+            <tbody className="divide-y divide-[#331C0F] text-xs sm:text-sm font-semibold text-amber-100">
+              {/* Row 1: Daily Star Bonus */}
+              <tr className="hover:bg-[#3D2315]/40 transition-colors">
+                <td className="py-3 px-4 font-game flex items-center gap-2 text-white">
+                  <span className="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0"></span>
                   Günlük Yıldız Bonusu ({selectedLeagueTier.nameTr})
                 </td>
-                <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">
+                <td className="py-3 px-4 font-game text-sky-300">
                   +{selectedLeagueTier.dailyShiny} / gün
                 </td>
-                <td className="py-3 px-4 font-bold text-cyan-600 dark:text-cyan-400">
+                <td className="py-3 px-4 font-game text-fuchsia-300">
                   +{selectedLeagueTier.dailyGlowy} / gün
                 </td>
-                <td className="py-3 px-4 font-bold text-purple-600 dark:text-purple-400">
+                <td className="py-3 px-4 font-game text-amber-300">
                   +{selectedLeagueTier.dailyStarry} / gün
                 </td>
                 <td className="py-3 px-4 text-right">
-                  <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-game bg-emerald-950/70 text-emerald-300 border border-emerald-600/40">
                     Günlük
                   </span>
                 </td>
               </tr>
 
-              <tr className="hover:bg-app-cardSubtle/60 transition-colors">
-                <td className="py-3 px-4 font-bold flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              {/* Row 2: Clan Wars */}
+              <tr className="hover:bg-[#3D2315]/40 transition-colors">
+                <td className="py-3 px-4 font-game flex items-center gap-2 text-white">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
                   Klan Savaşları ({monthlyCwCount} Savaş/Ay • {cwWinCount} Galibiyet)
                 </td>
-                <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">
+                <td className="py-3 px-4 font-game text-sky-300">
                   ~+{Math.round((cwWinCount * cwWinShiny + (monthlyCwCount - cwWinCount) * Math.floor(cwWinShiny / 2)) / 30)} / gün
                 </td>
-                <td className="py-3 px-4 font-bold text-cyan-600 dark:text-cyan-400">
+                <td className="py-3 px-4 font-game text-fuchsia-300">
                   ~+{Math.round((cwWinCount * cwWinGlowy + (monthlyCwCount - cwWinCount) * Math.floor(cwWinGlowy / 2)) / 30)} / gün
                 </td>
-                <td className="py-3 px-4 font-bold text-purple-600 dark:text-purple-400">
+                <td className="py-3 px-4 font-game text-amber-300">
                   ~+{Number(((cwWinCount * cwWinStarry + (monthlyCwCount - cwWinCount) * Math.floor(cwWinStarry / 2)) / 30).toFixed(1))} / gün
                 </td>
                 <td className="py-3 px-4 text-right">
-                  <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-game bg-amber-950/70 text-amber-300 border border-amber-600/40">
                     Aylık Toplam
                   </span>
                 </td>
               </tr>
 
+              {/* Row 3: CWL */}
               {participatesCwl && (
-                <tr className="hover:bg-app-cardSubtle/60 transition-colors">
-                  <td className="py-3 px-4 font-bold flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                <tr className="hover:bg-[#3D2315]/40 transition-colors">
+                  <td className="py-3 px-4 font-game flex items-center gap-2 text-white">
+                    <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shrink-0"></span>
                     CWL (7 Savaş • {cwlWinCount} Galibiyet)
                   </td>
-                  <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">
+                  <td className="py-3 px-4 font-game text-sky-300">
                     ~+{Math.round((cwlWinCount * cwlWinShiny + (7 - cwlWinCount) * Math.floor(cwlWinShiny / 2)) / 30)} / gün
                   </td>
-                  <td className="py-3 px-4 font-bold text-cyan-600 dark:text-cyan-400">
+                  <td className="py-3 px-4 font-game text-fuchsia-300">
                     ~+{Math.round((cwlWinCount * cwlWinGlowy + (7 - cwlWinCount) * Math.floor(cwlWinGlowy / 2)) / 30)} / gün
                   </td>
-                  <td className="py-3 px-4 font-bold text-purple-600 dark:text-purple-400">
+                  <td className="py-3 px-4 font-game text-amber-300">
                     ~+{Number(((cwlWinCount * cwlWinStarry + (7 - cwlWinCount) * Math.floor(cwlWinStarry / 2)) / 30).toFixed(1))} / gün
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-game bg-purple-950/70 text-purple-300 border border-purple-600/40">
                       Lig Savaşları
                     </span>
                   </td>
                 </tr>
               )}
 
+              {/* Row 4: Raid Medals */}
               {includeRaidMedals && (
-                <tr className="hover:bg-app-cardSubtle/60 transition-colors">
-                  <td className="py-3 px-4 font-bold flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <tr className="hover:bg-[#3D2315]/40 transition-colors">
+                  <td className="py-3 px-4 font-game flex items-center gap-2 text-white">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
                     Baskın Madalyaları (Haftalık Sabit)
                   </td>
-                  <td className="py-3 px-4 text-app-muted">0 / gün</td>
-                  <td className="py-3 px-4 font-bold text-cyan-600 dark:text-cyan-400">
+                  <td className="py-3 px-4 font-game text-stone-500">0 / gün</td>
+                  <td className="py-3 px-4 font-game text-fuchsia-300">
                     +14.3 / gün (+100/hf)
                   </td>
-                  <td className="py-3 px-4 font-bold text-purple-600 dark:text-purple-400">
+                  <td className="py-3 px-4 font-game text-amber-300">
                     +1.4 / gün (+10/hf)
                   </td>
                   <td className="py-3 px-4 text-right">
-                    <span className="px-2.5 py-1 rounded-md text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-game bg-emerald-950/70 text-emerald-300 border border-emerald-600/40">
                       Haftalık
                     </span>
                   </td>
                 </tr>
               )}
 
-              <tr className="bg-app-cardSubtle font-black text-base border-t-2 border-app-border">
-                <td className="py-3.5 px-4 font-extrabold text-app-text">
+              {/* Footer Row: TOTAL DAILY SPEED */}
+              <tr className="bg-[#1C0E07] font-game text-sm sm:text-base border-t-2 border-[#542B15]">
+                <td className="py-3.5 px-4 font-game text-amber-200 game-text-stroke-sm">
                   TOPLAM GÜNLÜK HIZ
                 </td>
-                <td className="py-3.5 px-4 text-emerald-600 dark:text-emerald-400 font-extrabold">
+                <td className="py-3.5 px-4 text-sky-200 game-text-stroke-sm">
                   ~{estimated.dailyRates.shiny} / gün
                 </td>
-                <td className="py-3.5 px-4 text-cyan-600 dark:text-cyan-400 font-extrabold">
+                <td className="py-3.5 px-4 text-fuchsia-200 game-text-stroke-sm">
                   ~{estimated.dailyRates.glowy} / gün
                 </td>
-                <td className="py-3.5 px-4 text-purple-600 dark:text-purple-400 font-extrabold">
+                <td className="py-3.5 px-4 text-amber-200 game-title-stroke">
                   ~{estimated.dailyRates.starry} / gün
                 </td>
                 <td className="py-3.5 px-4 text-right">
-                  <span className="px-3 py-1 rounded-md text-xs font-black bg-blue-600 text-white">
+                  <span className="px-3 py-1 rounded-md text-xs font-game bg-gradient-to-b from-amber-400 to-amber-600 text-stone-950 font-black shadow-sm">
                     Net Toplam
                   </span>
                 </td>
@@ -1067,7 +1405,7 @@ export default function OreCalculatorView({
             </tbody>
           </table>
         </div>
-      </div>
+      </GamePanel>
     </div>
   );
 }
