@@ -830,3 +830,222 @@
   background: linear-gradient(180deg, #C28657 0%, #8D5A36 100%);
 }
 
+/* ==========================================================================
+   IN-GAME CREAM WINDOW & SECTION TOKENS (Measured from Reference Screenshots)
+   ========================================================================== */
+
+:root {
+  --game-window-cream-bg: #E7E7DE;
+  --game-window-cream-border: #5A5552;
+  --game-window-cream-bevel: #B8B6AF;
+  --game-window-cream-shadow: rgba(0, 0, 0, 0.65);
+
+  --game-section-blue-top: #8A97AD;
+  --game-section-blue-mid: #7885A2;
+  --game-section-blue-bot: #6B7899;
+  --game-section-blue-border: #4C566E;
+  --game-section-blue-inset: #313241;
+
+  --game-tournament-purple-top: #6F599A;
+  --game-tournament-purple-mid: #60578B;
+  --game-tournament-purple-bot: #493F75;
+  --game-tournament-purple-border: #36294D;
+
+  --game-btn-silver-top: #EFECE5;
+  --game-btn-silver-mid: #D4D1C9;
+  --game-btn-silver-bot: #B2AFA7;
+  --game-btn-silver-bevel: #7A7872;
+  --game-btn-silver-border: #3C3A38;
+}
+
+/* 1. Cream Window Frame (Main in-game dialog window) */
+.game-theme .game-window-cream,
+.game-window-cream {
+  background: var(--game-window-cream-bg);
+  border: 4px solid var(--game-window-cream-border);
+  border-radius: 20px;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.7),
+    inset 0 2px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -2px 0 var(--game-window-cream-bevel);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 2. Cream Tab Variations */
+.game-theme .game-tab-cream-active,
+.game-tab-cream-active {
+  background: #E7E7DE;
+  border: 3.5px solid #5A5552;
+  border-bottom: 4px solid #E7E7DE !important;
+  color: #2D251E;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.9),
+    inset 1.5px 0 0 rgba(255, 255, 255, 0.5),
+    inset -1.5px 0 0 rgba(0, 0, 0, 0.15);
+  margin-bottom: -4px;
+  z-index: 20;
+}
+
+.game-theme .game-tab-stone-inactive,
+.game-tab-stone-inactive {
+  background: linear-gradient(180deg, #7B7163 0%, #685E52 100%);
+  border: 3px solid #484137;
+  border-bottom: 3px solid #363028;
+  color: #D3CDC4;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.5);
+  margin-bottom: 0;
+  transform: translateY(2px);
+  z-index: 5;
+}
+
+/* 3. Blue-Gray Section Panel (as in Player Profile & Troops) */
+.game-theme .game-section-panel,
+.game-section-panel {
+  background: linear-gradient(180deg, var(--game-section-blue-top) 0%, var(--game-section-blue-mid) 45%, var(--game-section-blue-bot) 100%);
+  border: 3px solid var(--game-section-blue-border);
+  border-radius: 16px;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+/* 4. Purple Tournament Panel (Efsane Lig Turnuvası) */
+.game-theme .game-tournament-panel,
+.game-tournament-panel {
+  background: linear-gradient(180deg, var(--game-tournament-purple-top) 0%, var(--game-tournament-purple-mid) 50%, var(--game-tournament-purple-bot) 100%);
+  border: 3px solid var(--game-tournament-purple-border);
+  border-radius: 16px;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.45),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* 5. Silver / Gray Button (Ara) */
+.game-theme .game-btn-silver,
+.game-btn-silver {
+  background: linear-gradient(180deg, var(--game-btn-silver-top) 0%, var(--game-btn-silver-mid) 50%, var(--game-btn-silver-bot) 100%);
+  border: 2.5px solid var(--game-btn-silver-border);
+  box-shadow:
+    0 3px 0 var(--game-btn-silver-bevel),
+    0 4px 5px rgba(0, 0, 0, 0.4),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
+  color: #2D251E;
+  font-family: var(--game-font);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+.game-theme .game-btn-silver:hover:not(:disabled),
+.game-btn-silver:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.game-theme .game-btn-silver:active:not(:disabled),
+.game-btn-silver:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 var(--game-btn-silver-bevel),
+    0 1.5px 3px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* 6. Sub-Tabs / GraySegmented Control (Asıl Köy, İnşaatçı Üssü, Klan Başkenti) */
+.game-theme .game-segmented-bar,
+.game-segmented-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #2B2623;
+  padding: 4px;
+  border-radius: 12px;
+  border: 2px solid #1B1715;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.game-theme .game-segmented-item,
+.game-segmented-item {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--game-font);
+  font-size: 0.9rem;
+  letter-spacing: 0.015em;
+  border-radius: 9px;
+  border: 2px solid #484137;
+  background: linear-gradient(180deg, #757472 0%, #5A5552 100%);
+  color: #D3CDC4;
+  box-shadow:
+    0 2px 0 #363028,
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.12s ease;
+  min-height: 44px;
+}
+
+.game-theme .game-segmented-item-active,
+.game-segmented-item-active {
+  background: linear-gradient(180deg, #D8D7CE 0%, #B5B3A8 100%);
+  border: 2px solid #FFFFFF;
+  color: #2D251E;
+  box-shadow:
+    0 2px 0 #7A7872,
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* 7. In-Game Input Field with # Prefix */
+.game-theme .game-input-container,
+.game-input-container {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 2.5px solid #5A5552;
+  border-radius: 12px;
+  box-shadow:
+    inset 0 3px 4px rgba(0, 0, 0, 0.25),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+  min-height: 44px;
+  overflow: hidden;
+}
+
+.game-theme .game-input-tag-prefix,
+.game-input-tag-prefix {
+  font-family: var(--game-font);
+  font-size: 1.15rem;
+  color: #7B7163;
+  padding-left: 0.85rem;
+  user-select: none;
+}
+
+.game-theme .game-input-field,
+.game-input-field {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.6rem 0.85rem;
+  font-family: var(--game-font);
+  font-size: 1.05rem; /* >= 16px to prevent iOS zoom */
+  color: #1A1A1A;
+  outline: none;
+}
+
+.game-theme .game-input-field::placeholder,
+.game-input-field::placeholder {
+  color: #8C867C;
+  font-family: var(--game-font);
+}
+
+

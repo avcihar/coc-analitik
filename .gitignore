@@ -27,6 +27,7 @@ frontend/out/
 # Loglar ve Geçici Dosyalar
 *.log
 scratch/
+referans/
 .DS_Store
 Thumbs.db
 screenshot_*.png

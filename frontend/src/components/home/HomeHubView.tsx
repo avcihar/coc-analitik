@@ -1,21 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Search,
   Users,
-  Award,
+  Shield,
+  Flame,
+  PenTool,
+  Swords,
+  TrendingUp,
+  Clock,
+  ArrowRight,
+  Trophy,
   Crown,
   Sparkles,
-  Swords,
   Layers,
-  ArrowRight,
-  TrendingUp,
-  Shield,
-  Clock,
-  Flame,
-  Activity,
-  PenTool,
+  Box,
+  Target,
+  Hammer,
+  Zap,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -25,21 +28,44 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-interface HomeHubViewProps {
-  onNavigate: (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string) => void;
+export interface HomeHubViewProps {
+  onNavigate?: (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string) => void;
   onSearchQuery?: (mode: "player" | "clanTag" | "clanName", query: string) => void;
 }
 
-export default function HomeHubView({ onNavigate, onSearchQuery }: HomeHubViewProps) {
+interface HubCardConfig {
+  id: string;
+  tab: "search" | "ore" | "cwl" | "meta" | "wall";
+  subAction?: string;
+  hashRoute: string;
+  title: string;
+  subtitle: string;
+  badgeTag: string;
+  description: string;
+  icon: React.ReactNode;
+  iconGradient: string;
+  toneStyle: React.CSSProperties;
+  miniBadges: React.ReactNode[];
+  realData?: {
+    label1: string;
+    value1: string;
+    label2?: string;
+    value2?: string;
+  } | null;
+}
+
+export default function HomeHubView({ onNavigate, onSearchQuery: _onSearchQuery }: HomeHubViewProps) {
+  // Live Meta API Data
   const [metaInfo, setMetaInfo] = useState<{
     sampleSize: number;
     totalRankedAttacks: number;
     lastUpdated: string | null;
   } | null>(null);
 
-  const [quickSearchInput, setQuickSearchInput] = useState("");
+  // Real search history & saved settings
+  const [recentPlayer, setRecentPlayer] = useState<{ query: string; label?: string } | null>(null);
+  const [recentClan, setRecentClan] = useState<{ query: string; label?: string } | null>(null);
+  const [savedScenery, setSavedScenery] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +85,7 @@ export default function HomeHubView({ onNavigate, onSearchQuery }: HomeHubViewPr
           });
         }
       } catch {
-        // Offline / fallback to initial state
+        // Fallback / offline mode
       }
     })();
     return () => {
@@ -67,276 +93,365 @@ export default function HomeHubView({ onNavigate, onSearchQuery }: HomeHubViewPr
     };
   }, []);
 
-  const handleQuickSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = quickSearchInput.trim();
-    if (!query) {
-      onNavigate("search");
-      return;
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("coc-search-history");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const lastP = parsed.find((item: any) => item?.mode === "player");
+          if (lastP) setRecentPlayer(lastP);
+          const lastC = parsed.find((item: any) => item?.mode === "clan");
+          if (lastC) setRecentClan(lastC);
+        }
+      }
+    } catch {
+      // Ignore localStorage error
     }
-    const mode = query.startsWith("#") ? (query.length <= 6 ? "clanTag" : "player") : "clanName";
-    if (onSearchQuery) {
-      onSearchQuery(mode, query);
+
+    try {
+      const sc = localStorage.getItem("wallart.scenery");
+      if (sc && sc !== "classic") {
+        setSavedScenery(sc);
+      }
+    } catch {
+      // Ignore localStorage error
     }
-    onNavigate("search");
-  };
+  }, []);
+
+  const handleNavigate = useCallback(
+    (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string, hashRoute?: string) => {
+      if (hashRoute) {
+        window.location.hash = hashRoute;
+      }
+      if (onNavigate) {
+        onNavigate(tab, subAction);
+      }
+    },
+    [onNavigate]
+  );
+
+  const cards: HubCardConfig[] = useMemo(
+    () => [
+      {
+        id: "player-search",
+        tab: "search",
+        subAction: "player",
+        hashRoute: "#/oyuncu",
+        title: "Oyuncu Ara",
+        subtitle: "Oyuncu Profili & Analiz",
+        badgeTag: "PROFİL",
+        description: "Oyuncu profili arama ve analiz; 6 kahraman, aktif donanımlar ve battle log savaşları.",
+        icon: <Users size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-sky-500 via-blue-600 to-indigo-800",
+        toneStyle: { filter: "brightness(1.0)" },
+        miniBadges: [
+          <Users key="u" size={14} />,
+          <Trophy key="t" size={14} />,
+          <Shield key="s" size={14} />,
+        ],
+        realData: recentPlayer
+          ? {
+              label1: "Son Oyuncu",
+              value1: recentPlayer.query,
+              label2: recentPlayer.label ? "İsim" : undefined,
+              value2: recentPlayer.label,
+            }
+          : null,
+      },
+      {
+        id: "clan-search",
+        tab: "search",
+        subAction: "clan",
+        hashRoute: "#/klan",
+        title: "Klan Ara",
+        subtitle: "Klan Arama & Filtreleme",
+        badgeTag: "KLAN",
+        description: "Klan arama ve filtreleme; CWL ligi, bağış oranları ve aktif klan kadrosu analizi.",
+        icon: <Shield size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-indigo-500 via-indigo-600 to-violet-800",
+        toneStyle: { filter: "brightness(0.97) contrast(1.02)" },
+        miniBadges: [
+          <Shield key="s" size={14} />,
+          <Users key="u" size={14} />,
+          <Flame key="f" size={14} />,
+        ],
+        realData: recentClan
+          ? {
+              label1: "Son Klan",
+              value1: recentClan.query,
+              label2: recentClan.label ? "İsim" : undefined,
+              value2: recentClan.label,
+            }
+          : null,
+      },
+      {
+        id: "meta-armies",
+        tab: "meta",
+        hashRoute: "#/meta",
+        title: "Meta & Ordu",
+        subtitle: "TH18 Meta Orduları & İkililer",
+        badgeTag: "TH18 META",
+        description: "TH18 meta orduları ve ekipman ikilileri; Top 200 Efsane Ligi canlı battle log analizleri.",
+        icon: <Flame size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-purple-500 via-fuchsia-600 to-purple-900",
+        toneStyle: { filter: "brightness(1.03) contrast(1.03)" },
+        miniBadges: [
+          <Flame key="f" size={14} />,
+          <Crown key="c" size={14} />,
+          <Sparkles key="sp" size={14} />,
+        ],
+        realData:
+          metaInfo && metaInfo.totalRankedAttacks > 0
+            ? {
+                label1: "Örneklem",
+                value1: `${metaInfo.sampleSize} Oyuncu`,
+                label2: "Analiz",
+                value2: `${metaInfo.totalRankedAttacks.toLocaleString("tr-TR")} Saldırı`,
+              }
+            : null,
+      },
+      {
+        id: "wall-art",
+        tab: "wall",
+        hashRoute: "#/duvar",
+        title: "Duvar Yazısı",
+        subtitle: "3D Köy & Şablon Planı",
+        badgeTag: "3D KÖY",
+        description: "3D köy ve şablon planı oluşturucu; 44x44 ana köy ızgarasında izometrik plan.",
+        icon: <PenTool size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-cyan-400 via-teal-500 to-sky-700",
+        toneStyle: { filter: "brightness(0.95) contrast(1.03)" },
+        miniBadges: [
+          <Layers key="l" size={14} />,
+          <Box key="b" size={14} />,
+          <Sparkles key="sp" size={14} />,
+        ],
+        realData: savedScenery ? { label1: "Manzara", value1: savedScenery } : null,
+      },
+      {
+        id: "cwl-scout",
+        tab: "cwl",
+        hashRoute: "#/cwl",
+        title: "CWL Rakip Analizi",
+        subtitle: "Klan Savaş Ligi Keşif Kartı",
+        badgeTag: "LİG SAVAŞI",
+        description: "Klan savaş ligi keşif kartı; 15/30 kişilik kadro, ranked saldırıları ve ordu tahminleri.",
+        icon: <Swords size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-amber-400 via-amber-500 to-orange-700",
+        toneStyle: { filter: "brightness(1.02) saturate(1.08)" },
+        miniBadges: [
+          <Swords key="s" size={14} />,
+          <Target key="t" size={14} />,
+          <Trophy key="tr" size={14} />,
+        ],
+        realData: null,
+      },
+      {
+        id: "ore-calc",
+        tab: "ore",
+        hashRoute: "#/cevher",
+        title: "Cevher Analizi",
+        subtitle: "Kahraman Ekipmanı & Demirci",
+        badgeTag: "DEMİRCİ",
+        description: "Kahraman ekipmanları ve cevher yükseltme hesaplayıcı; 37 lig kademesiyle demirci süresi.",
+        icon: <TrendingUp size={30} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]" />,
+        iconGradient: "bg-gradient-to-b from-emerald-400 via-emerald-600 to-teal-800",
+        toneStyle: { filter: "brightness(0.98) saturate(1.05)" },
+        miniBadges: [
+          <Hammer key="h" size={14} />,
+          <Zap key="z" size={14} />,
+          <TrendingUp key="tu" size={14} />,
+        ],
+        realData: null,
+      },
+    ],
+    [recentPlayer, recentClan, metaInfo, savedScenery]
+  );
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 font-sans">
-      {/* Hero Welcome & Live Status Strip */}
-      <div className="bg-app-card border border-app-border rounded-2xl p-6 md:p-8 shadow-sm relative overflow-hidden">
-        <div className="relative z-10 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-400 text-xs font-bold">
-              <Activity size={14} className="text-blue-400 animate-pulse" />
-              <span>Canlı Resmi CoC API Verisi</span>
-            </div>
-
-            {/* Status Tags */}
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-app-muted">
-              <span className="px-3 py-1 rounded-lg bg-app-cardSubtle border border-app-border flex items-center gap-1.5">
-                <Users size={13} className="text-blue-400" />
-                Örneklem: <strong className="text-app-text font-bold">{metaInfo?.sampleSize ?? 200} Oyuncu</strong>
-              </span>
-              {metaInfo?.totalRankedAttacks ? (
-                <span className="px-3 py-1 rounded-lg bg-app-cardSubtle border border-app-border flex items-center gap-1.5">
-                  <Swords size={13} className="text-emerald-400" />
-                  <strong className="text-app-text font-bold">{metaInfo.totalRankedAttacks.toLocaleString("tr-TR")}</strong> Ranked Saldırı
-                </span>
-              ) : null}
-              {metaInfo?.lastUpdated ? (
-                <span className="px-3 py-1 rounded-lg bg-app-cardSubtle border border-app-border flex items-center gap-1.5">
-                  <Clock size={13} className="text-amber-400" />
-                  Son Güncelleme: <strong className="text-app-text font-bold">{metaInfo.lastUpdated}</strong>
-                </span>
-              ) : null}
-            </div>
+    <div className="w-full space-y-3 sm:space-y-4 font-sans">
+      {/* 1. Üst Bilgilendirici Şerit (Brown / Gold in-game token strip) */}
+      <div
+        className="w-full rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3 select-none"
+        style={{
+          background: "linear-gradient(180deg, var(--game-wood-header-light) 0%, var(--game-wood-header-dark) 100%)",
+          border: "2.5px solid var(--game-wood-header-border)",
+          boxShadow: "inset 0 1.5px 0 rgba(255, 255, 255, 0.15), 0 3px 6px rgba(0, 0, 0, 0.35)",
+        }}
+      >
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* (i) Icon Badge */}
+          <div
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 border-2"
+            style={{
+              background: "linear-gradient(180deg, var(--game-btn-gold-top) 0%, var(--game-btn-gold-bot) 100%)",
+              borderColor: "var(--game-btn-gold-border)",
+              boxShadow: "0 2px 0 var(--game-btn-gold-bevel), inset 0 1px 0 rgba(255, 255, 255, 0.6)",
+            }}
+            aria-hidden="true"
+          >
+            <span className="font-game font-black text-amber-950 text-base leading-none">i</span>
           </div>
 
-          <div className="max-w-2xl">
-            <h1 className="text-2xl md:text-3xl font-extrabold text-app-text tracking-tight">
-              Clash of Clans Analitik & Strateji Merkezi
-            </h1>
-            <p className="text-sm text-app-muted mt-2 leading-relaxed">
-              Resmi API üzerinden ilk 200 Efsane Ligi oyuncusunun canlı verilerini, TH18 meta ordularını, CWL rakip keşfini ve cevher fulleme simülasyonunu anında inceleyin.
+          <div className="min-w-0 flex-1">
+            <h2 className="game-text-stroke-sm text-xs sm:text-sm md:text-base font-bold tracking-wide uppercase truncate">
+              EN GÜNCEL TH18 METASI VE RESMİ OYUN ANALİTİKLERİNİ KEŞFET!
+            </h2>
+            <p className="text-[11px] text-amber-100/80 font-medium truncate mt-0.5">
+              Resmi Clash of Clans API verileriyle profesyonel strateji araçları
             </p>
           </div>
+        </div>
 
-          {/* Quick Search Box */}
-          <form onSubmit={handleQuickSearchSubmit} className="pt-2 flex flex-col sm:flex-row gap-2 max-w-xl">
-            <div className="relative flex-1">
-              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-app-muted" />
-              <input
-                type="text"
-                value={quickSearchInput}
-                onChange={(e) => setQuickSearchInput(e.target.value)}
-                placeholder="Oyuncu / Klan etiketi girin (Örn: #9JG8UVL0 veya #2PP)"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-app-cardSubtle border border-app-border text-sm text-app-text placeholder:text-app-muted focus:outline-none focus:border-blue-500 font-medium"
-              />
-            </div>
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all shadow-sm active:scale-95"
+        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+          {metaInfo?.lastUpdated && (
+            <span
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold text-amber-200/90"
+              style={{
+                background: "rgba(0, 0, 0, 0.35)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              }}
             >
-              <Search size={14} /> Sorgula
-            </button>
-          </form>
+              <Clock size={12} className="text-amber-300" />
+              <span>Canlı: {metaInfo.lastUpdated}</span>
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => handleNavigate("search", "player", "#/oyuncu")}
+            className="game-btn game-btn-silver text-xs px-3 sm:px-4 py-2 shrink-0 flex items-center gap-1.5"
+          >
+            <Search size={14} />
+            <span>HIZLI ARA</span>
+          </button>
         </div>
       </div>
 
-      {/* ClashSpot Categorized Dashboard Grid */}
-      <div className="space-y-6">
-        {/* Section 1: Arama */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-            <Search size={14} className="text-blue-500" /> Arama & Profil
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div
-              onClick={() => onNavigate("search", "player")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-blue-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex items-start gap-4"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Users size={22} />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-app-text group-hover:text-blue-400 transition-colors">
-                    Oyuncu Arama
-                  </h3>
-                  <ArrowRight size={16} className="text-app-muted group-hover:text-blue-400 group-hover:translate-x-1 transition-all" />
+      {/* 2. Araç Kutucukları Izgarası (Desktop/Tablet: 2 Sütun, Mobil 390px: Tek Sütun) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4.5">
+        {cards.map((card) => (
+          <div
+            key={card.id}
+            role="button"
+            tabIndex={0}
+            onClick={() => handleNavigate(card.tab, card.subAction, card.hashRoute)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleNavigate(card.tab, card.subAction, card.hashRoute);
+              }
+            }}
+            aria-label={`${card.title} - ${card.description}`}
+            className={cn(
+              "group game-panel game-panel-wood rounded-xl sm:rounded-2xl p-3.5 sm:p-4 cursor-pointer select-none",
+              "flex flex-col justify-between transition-all duration-150",
+              "hover:brightness-105 hover:-translate-y-0.5",
+              "active:scale-[0.985] active:translate-y-0.5 active:brightness-95",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+            )}
+            style={card.toneStyle}
+          >
+            {/* Top Header Row */}
+            <div>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {/* Crest Badge */}
+                  <div
+                    className={cn(
+                      "w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center shrink-0 border-2 select-none",
+                      card.iconGradient
+                    )}
+                    style={{
+                      borderColor: "var(--game-wood-border)",
+                      boxShadow: "0 3px 0 var(--game-wood-shadow), inset 0 1.5px 0 rgba(255, 255, 255, 0.35)",
+                    }}
+                  >
+                    {card.icon}
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <div className="min-w-0">
+                    <h3 className="game-title-stroke text-base sm:text-lg font-bold tracking-wide uppercase leading-tight truncate">
+                      {card.title}
+                    </h3>
+                    <p className="text-[11px] sm:text-xs font-bold text-amber-300 tracking-tight truncate mt-0.5">
+                      {card.subtitle}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  Gerçek oyuncu profili, TH seviyesi, 6 kahraman, aktif donanımlar ve son ranked battle log savaşları.
-                </p>
+
+                {/* Right Tag Chip + Arrow */}
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span
+                    className="px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase font-game tracking-wider text-amber-300 select-none"
+                    style={{
+                      background: "rgba(0, 0, 0, 0.4)",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                    }}
+                  >
+                    {card.badgeTag}
+                  </span>
+                  <div
+                    className="w-6 h-6 rounded-md flex items-center justify-center text-amber-200/70 group-hover:text-amber-300 group-hover:translate-x-0.5 transition-all"
+                    style={{ background: "rgba(0, 0, 0, 0.25)" }}
+                  >
+                    <ArrowRight size={14} />
+                  </div>
+                </div>
               </div>
+
+              {/* Single-line concise description */}
+              <p className="text-xs sm:text-sm text-stone-200/90 font-medium leading-relaxed mt-2.5 mb-1 line-clamp-1 sm:line-clamp-2">
+                {card.description}
+              </p>
             </div>
 
+            {/* Bottom Recessed Slot Bar (Tactical Badges + Real Data) */}
             <div
-              onClick={() => onNavigate("search", "clan")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-blue-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex items-start gap-4"
+              className="mt-3 pt-2 pb-1.5 px-2.5 sm:px-3 rounded-lg flex items-center justify-between gap-2 min-h-[38px]"
+              style={{
+                background: "linear-gradient(180deg, var(--game-slot-bg-dark) 0%, var(--game-slot-bg-light) 100%)",
+                border: "1.5px solid var(--game-slot-border)",
+                boxShadow: "inset 0 2px 4px var(--game-slot-inner-shadow), 0 1px 0 rgba(255, 255, 255, 0.1)",
+              }}
             >
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 shrink-0 group-hover:scale-105 transition-transform">
-                <Shield size={22} />
+              {/* Left 3 mini badge icons */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {card.miniBadges.map((badgeIcon, idx) => (
+                  <div
+                    key={idx}
+                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-md flex items-center justify-center text-amber-300 shrink-0"
+                    style={{
+                      background: "rgba(0, 0, 0, 0.45)",
+                      border: "1px solid rgba(255, 255, 255, 0.12)",
+                      boxShadow: "inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+                    }}
+                  >
+                    {badgeIcon}
+                  </div>
+                ))}
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-base font-bold text-app-text group-hover:text-indigo-400 transition-colors">
-                    Klan Arama
-                  </h3>
-                  <ArrowRight size={16} className="text-app-muted group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+
+              {/* Right Real Data info (displayed only if genuine data exists) */}
+              {card.realData ? (
+                <div className="text-right text-[11px] leading-tight font-medium text-stone-300 min-w-0">
+                  <div className="truncate">
+                    <span className="text-stone-400">{card.realData.label1}: </span>
+                    <strong className="text-amber-300 font-bold">{card.realData.value1}</strong>
+                  </div>
+                  {card.realData.label2 && (
+                    <div className="truncate">
+                      <span className="text-stone-400">{card.realData.label2}: </span>
+                      <strong className="text-amber-300 font-bold">{card.realData.value2}</strong>
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  Etiket veya klan adıyla canlı klan sorgulama, CWL ligi, üye kadrosu ve savaş geçmişi analizi.
-                </p>
-              </div>
+              ) : null}
             </div>
           </div>
-        </div>
-
-        {/* Section 2: İstatistik / Meta */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-            <Award size={14} className="text-purple-500" /> İstatistik & Meta (TH18)
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div
-              onClick={() => onNavigate("meta", "armies")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-purple-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Flame size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-purple-400 transition-colors">
-                  Meta Ordular
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  Top 200 Efsane Ligi battle log kayıtlarından gruplanan en yüksek 3 yıldız oranlı 5 meta ordu ve tek tık kopyalama linkleri.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-purple-400">
-                <span>Orduları İncele</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-
-            <div
-              onClick={() => onNavigate("meta", "heroes")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-amber-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Crown size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-amber-400 transition-colors">
-                  Kahraman & Ekipmanlar
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  Minion Prince ve Dragon Duke dahil 6 kahramanın pick rate kullanım yüzdeleri ve en popüler ekipman ikilileri.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-amber-400">
-                <span>Ekipman Oranları</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-
-            <div
-              onClick={() => onNavigate("meta", "pets")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-cyan-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Sparkles size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-cyan-400 transition-colors">
-                  Evcil Hayvanlar & Birlikler
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  Kahraman başına eşleşen evcil hayvan (pet) yüzdeleri, aktif süper birlikler ve en çok tercih edilen kuşatma makineleri.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-cyan-400">
-                <span>Evcil Hayvan İstatistikleri</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: Araçlar */}
-        <div className="space-y-3">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-app-muted flex items-center gap-2">
-            <Layers size={14} className="text-emerald-500" /> Analiz & Köy Araçları
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div
-              onClick={() => onNavigate("ore")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-emerald-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform">
-                  <TrendingUp size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-emerald-400 transition-colors">
-                  Cevher Analizi
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  37 resmi lig kademesi, savaş ve baskın gelirleriyle demircinizi fulleme gününü ve darboğaz cevherini kesin hesaplayın.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-emerald-400">
-                <span>Demirciyi Hesapla</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-
-            <div
-              onClick={() => onNavigate("cwl")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-amber-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-105 transition-transform">
-                  <Swords size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-amber-400 transition-colors">
-                  CWL Keşif Kartı
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  CWL rakibinizin 15/30 kişilik kadrosunu, ranked battle log saldırılarını, tahmin edilen ordularını ve yedek taktiklerini keşfedin.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-amber-400">
-                <span>Rakibi Keşfet</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-
-            <div
-              onClick={() => onNavigate("wall")}
-              className="group bg-app-card hover:bg-app-cardSubtle border border-app-border hover:border-blue-500/50 rounded-2xl p-5 cursor-pointer transition-all shadow-sm flex flex-col justify-between"
-            >
-              <div>
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-3 group-hover:scale-105 transition-transform">
-                  <PenTool size={22} />
-                </div>
-                <h3 className="text-base font-bold text-app-text group-hover:text-blue-400 transition-colors">
-                  Duvar Yazısı
-                </h3>
-                <p className="text-xs text-app-muted mt-1 leading-relaxed">
-                  44x44 ana köy ızgarasında duvarlarla metin yaz; 2D/3D izometrik önizle, bütçe kısıtlı ve satır satır koordinat planı indir.
-                </p>
-              </div>
-              <div className="mt-4 pt-3 border-t border-app-border flex items-center justify-between text-xs font-bold text-blue-400">
-                <span>Duvar Yazısı Yaz</span>
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );
 }
-
