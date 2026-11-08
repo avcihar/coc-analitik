@@ -322,6 +322,48 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
+/* ==========================================================================
+   SCENE PANEL CONTROLS (Unified Meta Green Token Styling)
+   All buttons share identical green tokens as Meta's Yenile/Orduyu Kopyala:
+   - Zero drop shadow / zero thick extrusion
+   - 2.5px solid border (#142E06)
+   - Inset top specular highlight (inset 0 1.5px 0 rgba(255,255,255,0.45))
+   - Click scale (transform: scale(0.97))
+   ========================================================================== */
+
+.game-theme .game-btn-panel-green,
+.game-btn-panel-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--game-btn-green-top) 0%, var(--game-btn-green-mid) 48%, var(--game-btn-green-bot) 100%);
+  border: 2.5px solid var(--game-btn-green-border);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, filter 0.15s ease;
+  color: #FFFFFF;
+}
+
+.game-theme .game-btn-panel-green:hover:not(:disabled),
+.game-btn-panel-green:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.game-theme .game-btn-panel-green:active:not(:disabled),
+.game-btn-panel-green:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.game-theme .game-btn-panel-green:disabled,
+.game-btn-panel-green:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  filter: grayscale(0.85);
+  transform: none !important;
+}
+
 /* Button Sizes */
 .game-theme .game-btn-sm {
   padding: 0.35rem 0.75rem;

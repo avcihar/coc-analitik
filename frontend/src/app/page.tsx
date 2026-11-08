@@ -78,12 +78,18 @@ export default function Home() {
   // Sync state with URL hash for seamless browser back/forward and sharing
   useEffect(() => {
     const handleHashChange = () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryTab = searchParams.get("tab");
+      if (queryTab && HASH_TO_TAB[`#/${queryTab}`]) {
+        setActiveTab(HASH_TO_TAB[`#/${queryTab}`]);
+        return;
+      }
       const hash = window.location.hash.toLowerCase();
       const basePath = hash.split("?")[0];
       if (HASH_TO_TAB[basePath]) {
         setActiveTab(HASH_TO_TAB[basePath]);
       } else if (!hash || hash === "#") {
-        setActiveTab("home");
+        if (!queryTab) setActiveTab("home");
       }
     };
 
