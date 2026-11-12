@@ -555,7 +555,7 @@ export default function OreCalculatorView({
   const bottleneckOreType = estimated.bottleneckOre;
 
   return (
-    <div className="game-theme w-full max-w-6xl mx-auto space-y-6 pb-6 select-none font-sans">
+    <div className="game-theme w-full space-y-6 pb-6 select-none font-sans">
       {/* 1. IMPORTED PLAYER PROFILE BANNER */}
       {importedPlayer && (
         <motion.div

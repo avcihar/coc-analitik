@@ -89,7 +89,7 @@ export default function AppShell({
       {/* 3. Main Body Container */}
       <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-2 sm:px-4 pt-3 lg:pt-6 flex flex-col">
         {/* Desktop Top Tab Strip (hidden on mobile) */}
-        <div className="hidden lg:block w-full">
+        <div className="hidden lg:block w-full relative z-20">
           <GameHeaderTabs
             activeTab={activeTab}
             onTabChange={onTabChange}
@@ -98,13 +98,13 @@ export default function AppShell({
         </div>
 
         {/* Content Wrapper (GameWindow: cream for home/search, bare for meta/cwl/ore/wall) */}
-        <main className="flex-1 w-full pb-28 lg:pb-8">
+        <main className="flex-1 w-full pb-28 lg:pb-8 relative z-10">
           <GameWindow
             variant={resolvedVariant}
             className={cn(
               resolvedVariant === "cream"
-                ? "mt-0 rounded-tl-2xl sm:rounded-tl-2xl"
-                : "mt-0"
+                ? "mt-0 sm:mt-0 rounded-2xl"
+                : "mt-0 sm:mt-0 game-bare-flush"
             )}
           >
             {children}

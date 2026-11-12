@@ -59,17 +59,16 @@ export default function GameHeaderTabs({
     <div
       className={cn(
         "w-full flex items-end justify-between select-none relative z-20",
-        variant === "bare" ? "border-b-[3px] border-stone-700/80 mb-4 sm:mb-6" : "",
         className
       )}
     >
       {/* Left: Brand logo link + In-Game Tabs row */}
-      <div className="flex items-end gap-1 sm:gap-1.5 pl-2 sm:pl-4 min-w-0">
+      <div className="flex items-end gap-1 sm:gap-1.5 pl-5 min-w-0">
         {/* Brand link */}
         <button
           type="button"
           onClick={() => onTabChange("home")}
-          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700/60 text-stone-200 transition-all mr-2 mb-1 shrink-0 cursor-pointer shadow-sm"
+          className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700/60 text-stone-200 transition-all mr-2 mb-1.5 shrink-0 cursor-pointer shadow-sm"
           title="Ana Sayfa"
         >
           <div className="w-6 h-6 rounded-md bg-gradient-to-tr from-amber-500 to-amber-700 flex items-center justify-center text-stone-950 font-black shadow-sm">
@@ -92,7 +91,7 @@ export default function GameHeaderTabs({
             const activeClass =
               variant === "cream"
                 ? "game-tab-cream-active"
-                : "game-tab-cream-active !border-b-[3.5px] !border-b-stone-600 !mb-0 !translate-y-0";
+                : "game-tab-wood-attached";
 
             return (
               <button
@@ -102,8 +101,7 @@ export default function GameHeaderTabs({
                 aria-selected={isActive}
                 onClick={() => onTabChange(tab.key)}
                 className={cn(
-                  "game-tab text-xs xl:text-sm font-black transition-all cursor-pointer shrink-0",
-                  "px-2.5 lg:px-3.5 xl:px-4.5 py-2",
+                  "game-tab game-shell-tab font-black transition-all cursor-pointer shrink-0",
                   isActive
                     ? activeClass
                     : "game-tab-stone-inactive hover:brightness-110"
@@ -126,7 +124,7 @@ export default function GameHeaderTabs({
       </div>
 
       {/* Right: Theme Toggle (compact icon button, no red X button) */}
-      <div className="pr-2 sm:pr-4 shrink-0 mb-1">
+      <div className="pr-2 sm:pr-4 shrink-0 mb-1.5">
         <button
           type="button"
           onClick={toggleTheme}

@@ -35,7 +35,7 @@ export default function GameWindow({
   return (
     <div
       className={cn(
-        "game-window-cream w-full max-w-7xl mx-auto p-3 sm:p-6 my-2 sm:my-4 transition-all",
+        "game-window-cream w-full max-w-7xl mx-auto p-3 sm:p-6 mt-0 sm:mt-0 mb-2 sm:mb-4 transition-all",
         className
       )}
       {...rest}

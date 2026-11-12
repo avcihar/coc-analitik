@@ -1028,7 +1028,7 @@ export default function ScoutedArmyCard({
   };
 
   return (
-    <div className="game-theme w-full max-w-6xl mx-auto space-y-6 font-sans">
+    <div className="game-theme w-full space-y-6 font-sans">
       {/* Top CWL Clan Tag Search & Roster Control Bar */}
       <div className="game-panel-wood rounded-2xl border-4 border-[#2C180E] p-4 sm:p-6 shadow-2xl space-y-4">
         {/* Panel Header Strip */}
