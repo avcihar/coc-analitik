@@ -65,7 +65,7 @@ export default function GraySegmented<T extends string = string>({
             <span
               className={cn(
                 "whitespace-nowrap select-none",
-                isActive ? "game-text-stroke-sm text-[#2D251E]" : "text-[#D3CDC4]"
+                isActive ? "text-[#2D251E] font-extrabold" : "text-[#EAE4DA] font-bold"
               )}
             >
               {item.label}

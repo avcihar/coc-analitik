@@ -265,9 +265,11 @@ const SPELL_BY_ID: Record<number, { name: string; housingSpace: number }> = {
 
 export function deriveArmyName(
   troops: { name: string; count: number; housingSpace?: number; totalHousingSpace?: number }[],
-  maxUnits = 3
+  maxUnits = 3,
+  locale: "tr" | "en" = "tr"
 ): string {
-  if (!troops || troops.length === 0) return "Ordu tespit edilemedi";
+  const emptyLabel = locale === "tr" ? "Ordu tespit edilemedi" : "Army not detected";
+  if (!troops || troops.length === 0) return emptyLabel;
   const scored: { totalSpace: number; count: number; name: string }[] = [];
   for (const t of troops) {
     const name = (t.name || "").trim();
@@ -277,11 +279,15 @@ export function deriveArmyName(
     const totalSpace = Number(t.totalHousingSpace || count * unitSpace);
     scored.push({ totalSpace, count, name });
   }
-  if (scored.length === 0) return "Ordu tespit edilemedi";
+  if (scored.length === 0) return emptyLabel;
   scored.sort((a, b) => b.totalSpace - a.totalSpace || b.count - a.count);
   const significant = scored.filter((s) => s.totalSpace >= 12);
   const chosen = (significant.length > 0 ? significant : scored).slice(0, maxUnits);
   return chosen.map((c) => c.name).join(" + ");
+}
+
+function unknownLabel(id: number, locale: "tr" | "en"): string {
+  return locale === "tr" ? `Bilinmeyen (ID: ${id})` : `Unknown (ID: ${id})`;
 }
 
 function parseCountXIdPairs(segment: string): { count: number; id: number }[] {
@@ -298,7 +304,10 @@ function parseCountXIdPairs(segment: string): { count: number; id: number }[] {
   return out;
 }
 
-export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
+export function parseArmyShareCode(
+  rawCode: string,
+  locale: "tr" | "en" = "tr"
+): DecodedArmyShare {
   let clean = (rawCode || "").trim();
   if (clean.includes("army=")) {
     clean = clean.split("army=", 2)[1]?.split("&", 1)[0]?.trim() || "";
@@ -309,7 +318,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
     return {
       armyShareCode: "",
       armyLink: "",
-      armyName: "Ordu tespit edilemedi",
+      armyName: locale === "tr" ? "Ordu tespit edilemedi" : "Army not detected",
       troopSignature: "",
       heroes: [],
       siegeMachines: [],
@@ -361,7 +370,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
       let heroName = HERO_BY_ID[heroId];
       const heroUnknown = !heroName;
       if (!heroName) {
-        heroName = `Bilinmeyen (ID: ${heroId})`;
+        heroName = unknownLabel(heroId, locale);
         unknownIds.push(`hero:${heroId}`);
         console.warn(`Unknown Hero ID in armyShareCode: ${heroId}`);
       }
@@ -371,7 +380,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
         let petName = PET_BY_ID[petId];
         const petUnknown = !petName;
         if (!petName) {
-          petName = `Bilinmeyen (ID: ${petId})`;
+          petName = unknownLabel(petId, locale);
           unknownIds.push(`pet:${petId}`);
           console.warn(`Unknown Pet ID in armyShareCode: ${petId}`);
         }
@@ -396,7 +405,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
             console.warn(`Unknown Equipment ID in armyShareCode: ${eqId}`);
             eqList.push({
               id: eqId,
-              name: `Bilinmeyen (ID: ${eqId})`,
+              name: unknownLabel(eqId, locale),
               rarity: "Common",
               unknown: true,
             });
@@ -440,7 +449,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
       console.warn(`Unknown CC Troop ID in armyShareCode (i): ${id}`);
       clanCastleTroops.push({
         id,
-        name: `Bilinmeyen (ID: ${id})`,
+        name: unknownLabel(id, locale),
         count,
         housingSpace: 1,
         totalHousingSpace: count,
@@ -479,7 +488,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
       console.warn(`Unknown CC Spell ID in armyShareCode (d): ${id}`);
       clanCastleSpells.push({
         id,
-        name: `Bilinmeyen (ID: ${id})`,
+        name: unknownLabel(id, locale),
         count,
         housingSpace: 1,
         totalSpellSpace: count,
@@ -519,7 +528,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
       console.warn(`Unknown Troop ID in armyShareCode (u): ${id}`);
       troops.push({
         id,
-        name: `Bilinmeyen (ID: ${id})`,
+        name: unknownLabel(id, locale),
         count,
         housingSpace: 1,
         totalHousingSpace: count,
@@ -551,7 +560,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
       console.warn(`Unknown Spell ID in armyShareCode (s): ${id}`);
       spells.push({
         id,
-        name: `Bilinmeyen (ID: ${id})`,
+        name: unknownLabel(id, locale),
         count,
         housingSpace: 1,
         totalSpellSpace: count,
@@ -562,7 +571,7 @@ export function parseArmyShareCode(rawCode: string): DecodedArmyShare {
   }
 
   const clanCastle: DecodedUnitSlot[] = [...clanCastleTroops, ...clanCastleSpells];
-  const armyName = deriveArmyName(troops);
+  const armyName = deriveArmyName(troops, 3, locale);
   const troopSignature = [...troops]
     .sort((a, b) => a.id - b.id)
     .map((t) => `${t.count}x${t.id}`)

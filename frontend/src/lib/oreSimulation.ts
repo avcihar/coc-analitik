@@ -82,7 +82,8 @@ export function simulateOreScenario(
   settings: SimulationOreSettings,
   scenarioType: "min" | "estimated" | "max" = "estimated",
   startDate: Date = new Date(),
-  maxSimulationDays: number = 5000
+  maxSimulationDays: number = 5000,
+  locale: "tr" | "en" = "tr"
 ): ScenarioResult {
   const inv = settings.inventory || { shiny: 0, glowy: 0, starry: 0 };
   const netShiny = Math.max(0, (baseDeficit.shiny || 0) - (inv.shiny || 0));
@@ -101,7 +102,7 @@ export function simulateOreScenario(
       scenarioName: scenarioType,
       daysToComplete: 0,
       targetDate: startDate,
-      targetDateStr: "Bugün",
+      targetDateStr: locale === "tr" ? "Bugün" : "Today",
       bottleneckOre: "shiny",
       daysShiny: 0,
       daysGlowy: 0,
@@ -280,8 +281,10 @@ export function simulateOreScenario(
 
   const targetDateStr =
     totalDays === 0
-      ? "Bugün"
-      : targetDate.toLocaleDateString("tr-TR", {
+      ? locale === "tr"
+        ? "Bugün"
+        : "Today"
+      : targetDate.toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US", {
           day: "numeric",
           month: "long",
           year: "numeric",
@@ -326,12 +329,13 @@ export function simulateOreScenario(
 export function simulateAllOreScenarios(
   baseDeficit: OreCost,
   settings: SimulationOreSettings,
-  startDate: Date = new Date()
+  startDate: Date = new Date(),
+  locale: "tr" | "en" = "tr"
 ): Record<"min" | "estimated" | "max", ScenarioResult> {
   return {
-    min: simulateOreScenario(baseDeficit, settings, "min", startDate),
-    estimated: simulateOreScenario(baseDeficit, settings, "estimated", startDate),
-    max: simulateOreScenario(baseDeficit, settings, "max", startDate),
+    min: simulateOreScenario(baseDeficit, settings, "min", startDate, 5000, locale),
+    estimated: simulateOreScenario(baseDeficit, settings, "estimated", startDate, 5000, locale),
+    max: simulateOreScenario(baseDeficit, settings, "max", startDate, 5000, locale),
   };
 }
 

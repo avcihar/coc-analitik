@@ -28,6 +28,20 @@ export interface WallAssetConfig {
   naturalHeight: number;
 }
 
+/**
+ * Localize scenery display name cleanly while preserving static measured configs.
+ */
+export function getSceneryDisplayName(
+  id: string,
+  fallbackName: string,
+  locale: "tr" | "en" = "tr"
+): string {
+  if (id === "winter") {
+    return locale === "tr" ? "Kış Sahnesi (Winter)" : "Winter Scenery";
+  }
+  return fallbackName;
+}
+
 export interface AssetsConfig {
   scenery: SceneryAssetConfig;
   defaultSceneryId: string;

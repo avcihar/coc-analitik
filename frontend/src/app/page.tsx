@@ -10,6 +10,7 @@ import ScoutedArmyCard from "@/components/cwl/ScoutedArmyCard";
 import OreCalculatorView from "@/components/ore/OreCalculatorView";
 import WallArtView from "@/components/wall/WallArtView";
 import { AppShell, type TabKey } from "@/components/shell";
+import { useLanguage } from "@/lib/i18n";
 
 const HASH_TO_TAB: Record<string, TabKey> = {
   "#/": "home",
@@ -37,6 +38,7 @@ const TAB_TO_HASH: Record<TabKey, string> = {
 };
 
 export default function Home() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabKey>("home");
   const [currentHash, setCurrentHash] = useState<string>("#/home");
   const [importedPlayer, setImportedPlayer] = useState<ImportedPlayerForOre | null>(null);
@@ -46,13 +48,22 @@ export default function Home() {
   const routeInfo = useMemo(() => {
     const rawHash = currentHash.trim();
     const [pathPart, queryPart] = rawHash.split("?");
-    const cleanPath = pathPart.toLowerCase();
+    let decodedPath = pathPart;
+    try {
+      decodedPath = decodeURIComponent(pathPart);
+    } catch {
+      // Keep raw pathPart if malformed URI escape appears
+    }
+    const normalizedPath = decodedPath.replace(/\/+$/, "") || "#/";
+    const cleanPath = normalizedPath.toLowerCase();
 
     const queryParams = new URLSearchParams(queryPart || "");
-    const highlightTag = queryParams.get("vurgula") || undefined;
+    const highlightTag =
+      queryParams.get("vurgula") || queryParams.get("highlight") || undefined;
+    const clanQuery = queryParams.get("q") || undefined;
 
     // 1. Player profile deep link: #/oyuncu/:tag
-    const playerMatch = pathPart.match(/^#\/oyuncu\/([A-Za-z0-9]+)/i);
+    const playerMatch = normalizedPath.match(/^#\/oyuncu\/#?([A-Za-z0-9]+)$/i);
     if (playerMatch && playerMatch[1]) {
       return {
         view: "player" as const,
@@ -61,12 +72,12 @@ export default function Home() {
     }
 
     // 2. Clan details deep link: #/klan/:tag
-    const clanMatch = pathPart.match(/^#\/klan\/([A-Za-z0-9]+)/i);
+    const clanMatch = normalizedPath.match(/^#\/klan\/#?([A-Za-z0-9]+)$/i);
     if (clanMatch && clanMatch[1]) {
       return {
         view: "clan" as const,
         tag: clanMatch[1].toUpperCase(),
-        highlightTag,
+        highlightTag: highlightTag ? highlightTag.replace(/^#/, "").toUpperCase() : undefined,
       };
     }
 
@@ -75,6 +86,7 @@ export default function Home() {
       return {
         view: "search" as const,
         defaultTab: "clan" as const,
+        clanQuery,
       };
     }
 
@@ -92,18 +104,21 @@ export default function Home() {
   // Sync state with URL hash for seamless browser back/forward and deep linking
   useEffect(() => {
     const handleHashChange = () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const queryTab = searchParams.get("tab");
-      if (queryTab && HASH_TO_TAB[`#/${queryTab}`]) {
-        setActiveTab(HASH_TO_TAB[`#/${queryTab}`]);
-        setCurrentHash(window.location.hash || `#/${queryTab}`);
-        return;
+      const rawHash = window.location.hash;
+      if (!rawHash || rawHash === "#") {
+        const searchParams = new URLSearchParams(window.location.search);
+        const queryTab = searchParams.get("tab")?.toLowerCase();
+        if (queryTab && HASH_TO_TAB[`#/${queryTab}`]) {
+          setActiveTab(HASH_TO_TAB[`#/${queryTab}`]);
+          setCurrentHash(`#/${queryTab}`);
+          return;
+        }
       }
 
-      const hash = window.location.hash || "#/home";
+      const hash = rawHash || "#/home";
       setCurrentHash(hash);
 
-      const basePath = hash.split("?")[0].toLowerCase();
+      const basePath = (hash.split("?")[0].replace(/\/+$/, "") || "#/").toLowerCase();
       if (HASH_TO_TAB[basePath]) {
         setActiveTab(HASH_TO_TAB[basePath]);
       } else if (
@@ -112,8 +127,8 @@ export default function Home() {
         basePath.startsWith("#/arama")
       ) {
         setActiveTab("search");
-      } else if (!hash || hash === "#") {
-        if (!queryTab) setActiveTab("home");
+      } else if (!rawHash || rawHash === "#") {
+        setActiveTab("home");
       }
     };
 
@@ -122,56 +137,93 @@ export default function Home() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
+  // Keep localized document title aligned with active view and language
+  useEffect(() => {
+    const tabTitleMap: Record<TabKey, string> = {
+      home: t.metaTitle,
+      search: `${t.nav.search} • ${t.nav.brand}`,
+      meta: `${t.nav.meta} • ${t.nav.brand}`,
+      cwl: `${t.nav.cwl} • ${t.nav.brand}`,
+      ore: `${t.nav.ore} • ${t.nav.brand}`,
+      wall: `${t.nav.wall} • ${t.nav.brand}`,
+    };
+
+    if (activeTab === "search" && routeInfo?.view === "player") {
+      document.title = `#${routeInfo.tag} • ${t.nav.brand}`;
+      return;
+    }
+    if (activeTab === "search" && routeInfo?.view === "clan") {
+      document.title = `#${routeInfo.tag} • ${t.nav.brand}`;
+      return;
+    }
+    document.title = tabTitleMap[activeTab] || t.metaTitle;
+  }, [activeTab, routeInfo, t]);
+
   const switchTab = useCallback((tab: TabKey) => {
     setActiveTab(tab);
     window.location.hash = TAB_TO_HASH[tab];
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  const handleHubNavigate = (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string) => {
-    if (subAction === "clan") {
-      window.location.hash = "#/klan";
-    } else {
-      switchTab(tab);
-    }
-  };
+  const handleHubNavigate = useCallback(
+    (tab: "search" | "ore" | "cwl" | "meta" | "wall", subAction?: string) => {
+      if (subAction === "clan") {
+        setActiveTab("search");
+        window.location.hash = "#/klan";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        switchTab(tab);
+      }
+    },
+    [switchTab]
+  );
 
-  const handleHubSearchQuery = (mode: "player" | "clanTag" | "clanName", query: string) => {
-    const clean = query.replace(/^#/, "").toUpperCase();
-    if (mode === "player") {
-      window.location.hash = `#/oyuncu/${clean}`;
-    } else if (mode === "clanTag") {
-      window.location.hash = `#/klan/${clean}`;
-    } else {
-      window.location.hash = `#/klan?q=${encodeURIComponent(query)}`;
-    }
-  };
+  const handleHubSearchQuery = useCallback(
+    (mode: "player" | "clanTag" | "clanName", query: string) => {
+      const clean = query.replace(/^#/, "").toUpperCase();
+      setActiveTab("search");
+      if (mode === "player") {
+        window.location.hash = `#/oyuncu/${clean}`;
+      } else if (mode === "clanTag") {
+        window.location.hash = `#/klan/${clean}`;
+      } else {
+        window.location.hash = `#/klan?q=${encodeURIComponent(query)}`;
+      }
+    },
+    []
+  );
 
-  const handleImportPlayerToOre = (player: ImportedPlayerForOre) => {
-    setImportedPlayer(player);
-    switchTab("ore");
-  };
+  const handleImportPlayerToOre = useCallback(
+    (player: ImportedPlayerForOre) => {
+      setImportedPlayer(player);
+      switchTab("ore");
+    },
+    [switchTab]
+  );
 
-  const handleScoutClanInCwl = (clanTag: string) => {
-    setCwlClanTag(clanTag);
-    switchTab("cwl");
-  };
+  const handleScoutClanInCwl = useCallback(
+    (clanTag: string) => {
+      setCwlClanTag(clanTag);
+      switchTab("cwl");
+    },
+    [switchTab]
+  );
 
-  const handleSelectPlayer = (tag: string) => {
+  const handleSelectPlayer = useCallback((tag: string) => {
     const clean = tag.replace(/^#/, "").toUpperCase();
     window.location.hash = `#/oyuncu/${clean}`;
-  };
+  }, []);
 
-  const handleSelectClan = (tag: string) => {
+  const handleSelectClan = useCallback((tag: string) => {
     const clean = tag.replace(/^#/, "").toUpperCase();
     window.location.hash = `#/klan/${clean}`;
-  };
+  }, []);
 
-  const handleViewClanFromPlayer = (clanTag: string, playerTag?: string) => {
+  const handleViewClanFromPlayer = useCallback((clanTag: string, playerTag?: string) => {
     const cleanClan = clanTag.replace(/^#/, "").toUpperCase();
     const highlight = playerTag ? `?vurgula=${playerTag.replace(/^#/, "").toUpperCase()}` : "";
     window.location.hash = `#/klan/${cleanClan}${highlight}`;
-  };
+  }, []);
 
   return (
     <AppShell activeTab={activeTab} onTabChange={switchTab}>
@@ -204,6 +256,7 @@ export default function Home() {
           {(!routeInfo || routeInfo.view === "search") && (
             <SearchHubView
               defaultTab={routeInfo?.defaultTab || "player"}
+              initialClanQuery={routeInfo?.view === "search" ? routeInfo.clanQuery : undefined}
               onSelectPlayer={handleSelectPlayer}
               onSelectClan={handleSelectClan}
             />

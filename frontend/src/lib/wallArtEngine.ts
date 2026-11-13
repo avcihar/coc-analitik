@@ -1371,10 +1371,12 @@ export function exportPlanPng(
     rotation: number;
     offsetX?: number;
     offsetY?: number;
+    locale?: "tr" | "en";
   }
 ): string {
   if (typeof document === "undefined") return "";
 
+  const isEn = meta.locale === "en";
   const canvas = document.createElement("canvas");
   const cellSize = 24;
   const marginX = 80;
@@ -1388,39 +1390,52 @@ export function exportPlanPng(
   const ctx = canvas.getContext("2d");
   if (!ctx) return "";
 
-  // 1. Dark Blueprint Background
-  ctx.fillStyle = "#0B111E";
+  // 1. Dark Hearth Wood Blueprint Background
+  ctx.fillStyle = "#1A120C";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // 2. Header
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = "#FFF8EE";
   ctx.font = "bold 26px -apple-system, sans-serif";
-  ctx.fillText("CoC Analitik • Duvar Yazısı İnşa Planı", marginX, 50);
+  ctx.fillText(
+    isEn ? "CoC Analytics • Wall Art Build Blueprint" : "CoC Analitik • Duvar Yazısı İnşa Planı",
+    marginX,
+    50
+  );
 
-  ctx.fillStyle = "#94A3B8";
+  ctx.fillStyle = "#D6C2AA";
   ctx.font = "bold 14px -apple-system, sans-serif";
   ctx.fillText(
-    `Metin: "${meta.text}"   •   Font: ${meta.fontName}   •   Duvar: ${meta.wallCount} / ${meta.maxWalls}   •   Izgara: 44x44`,
+    isEn
+      ? `Text: "${meta.text}"   •   Font: ${meta.fontName}   •   Walls: ${meta.wallCount} / ${meta.maxWalls}   •   Grid: 44x44`
+      : `Metin: "${meta.text}"   •   Font: ${meta.fontName}   •   Duvar: ${meta.wallCount} / ${meta.maxWalls}   •   Izgara: 44x44`,
     marginX,
     80
   );
-  const posInfo = meta.offsetX || meta.offsetY ? `   •   Konum Ofseti: X:${meta.offsetX || 0}, Y:${meta.offsetY || 0}` : "";
+  const posInfo =
+    meta.offsetX || meta.offsetY
+      ? isEn
+        ? `   •   Offset: X:${meta.offsetX || 0}, Y:${meta.offsetY || 0}`
+        : `   •   Konum Ofseti: X:${meta.offsetX || 0}, Y:${meta.offsetY || 0}`
+      : "";
   ctx.fillText(
-    `Ölçek: ${meta.scale}x   •   Açı: ${meta.rotation}°${posInfo}   •   Her kare = 1x1 Duvar Segmenti`,
+    isEn
+      ? `Scale: ${meta.scale}x   •   Angle: ${meta.rotation}°${posInfo}   •   Each cell = 1x1 Wall Segment`
+      : `Ölçek: ${meta.scale}x   •   Açı: ${meta.rotation}°${posInfo}   •   Her kare = 1x1 Duvar Segmenti`,
     marginX,
     105
   );
 
   // 3. Coordinate Labels
   ctx.font = "bold 10px monospace";
-  ctx.fillStyle = "#64748B";
+  ctx.fillStyle = "#A68E77";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   for (let c = 0; c < COC_GRID_SIZE; c++) {
     const x = marginX + c * cellSize + cellSize / 2;
     const isMajor = (c + 1) % 5 === 0 || c === 0 || c === COC_GRID_SIZE - 1;
-    ctx.fillStyle = isMajor ? "#38BDF8" : "#475569";
+    ctx.fillStyle = isMajor ? "#FBBF24" : "#8C745D";
     ctx.fillText(`${c + 1}`, x, marginY - 14);
   }
 
@@ -1428,12 +1443,12 @@ export function exportPlanPng(
   for (let r = 0; r < COC_GRID_SIZE; r++) {
     const y = marginY + r * cellSize + cellSize / 2;
     const isMajor = (r + 1) % 5 === 0 || r === 0 || r === COC_GRID_SIZE - 1;
-    ctx.fillStyle = isMajor ? "#38BDF8" : "#475569";
+    ctx.fillStyle = isMajor ? "#FBBF24" : "#8C745D";
     ctx.fillText(`${r + 1}`, marginX - 12, y);
   }
 
   // 4. Grid Background
-  ctx.fillStyle = "#162032";
+  ctx.fillStyle = "#261A12";
   ctx.fillRect(marginX, marginY, COC_GRID_SIZE * cellSize, COC_GRID_SIZE * cellSize);
 
   // 5. Draw Walls and Grid Lines
@@ -1456,7 +1471,7 @@ export function exportPlanPng(
         ctx.fillRect(x + 2, y + cellSize - 5, cellSize - 4, 3);
       } else {
         // Grid wireframe
-        ctx.strokeStyle = "#1E293B";
+        ctx.strokeStyle = "#3B281B";
         ctx.lineWidth = 1;
         ctx.strokeRect(x, y, cellSize, cellSize);
       }
@@ -1464,7 +1479,7 @@ export function exportPlanPng(
   }
 
   // 6. 5x5 Major Grid Highlights
-  ctx.strokeStyle = "#334155";
+  ctx.strokeStyle = "#5E412D";
   ctx.lineWidth = 1.5;
   for (let i = 0; i <= COC_GRID_SIZE; i += 5) {
     const x = marginX + i * cellSize;
@@ -1486,11 +1501,11 @@ export function exportPlanPng(
   ctx.strokeRect(marginX, marginY, COC_GRID_SIZE * cellSize, COC_GRID_SIZE * cellSize);
 
   // 8. Footer Disclaimer
-  ctx.fillStyle = "#64748B";
+  ctx.fillStyle = "#9E8770";
   ctx.font = "italic 11px -apple-system, sans-serif";
   ctx.textAlign = "left";
   ctx.fillText(
-    "CoC Analitik • clashofclans.com • Fan Content Policy",
+    isEn ? "CoC Analytics • clashofclans.com • Fan Content Policy" : "CoC Analitik • clashofclans.com • Fan Content Policy",
     marginX,
     canvas.height - 20
   );

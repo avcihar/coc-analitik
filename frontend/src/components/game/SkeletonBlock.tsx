@@ -27,7 +27,7 @@ export default function SkeletonBlock({
   return (
     <div
       className={cn(
-        "rounded-xl bg-gradient-to-r from-[#2F3845]/70 via-[#404D5E]/80 to-[#2F3845]/70 animate-pulse border border-[#1E2530]/60",
+        "rounded-xl bg-gradient-to-r from-[#4E3B2E]/65 via-[#675040]/80 to-[#4E3B2E]/65 animate-pulse border border-[#2C1E14]/50",
         className
       )}
       style={{

@@ -16,6 +16,8 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TabKey } from "./GameHeaderTabs";
+import { useTheme } from "@/components/theme/ThemeProvider";
+import { useLanguage } from "@/lib/i18n";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,6 +35,9 @@ export default function MobileNav({
   className,
 }: MobileNavProps) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const { theme } = useTheme();
+  const { isTr, t } = useLanguage();
+  const isDark = theme === "dark";
 
   // Close "more" bottom sheet on Escape key
   useEffect(() => {
@@ -45,14 +50,13 @@ export default function MobileNav({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [moreOpen]);
 
-  // Is active tab one of the "more" items?
   const isMoreActive = activeTab === "ore" || activeTab === "wall";
 
   const primaryItems: { key: TabKey; label: string; icon: LucideIcon }[] = [
-    { key: "home", label: "Ana Sayfa", icon: LayoutGrid },
-    { key: "search", label: "Oyuncu", icon: Search },
-    { key: "meta", label: "Meta", icon: Award },
-    { key: "cwl", label: "CWL", icon: Swords },
+    { key: "home", label: t.nav.home, icon: LayoutGrid },
+    { key: "search", label: t.nav.searchMobile, icon: Search },
+    { key: "meta", label: t.nav.metaMobile, icon: Award },
+    { key: "cwl", label: t.nav.cwlMobile, icon: Swords },
   ];
 
   const handleSelectTab = (tab: TabKey) => {
@@ -62,39 +66,64 @@ export default function MobileNav({
 
   return (
     <>
-      {/* 1. "Daha..." Bottom Sheet & Backdrop */}
+      {/* 1. "More Tools" Bottom Sheet & Backdrop */}
       {moreOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop overlay */}
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-[#14100C]/75 backdrop-blur-sm transition-opacity"
             onClick={() => setMoreOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Bottom Sheet Menu */}
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Diğer Araçlar"
-            className="fixed bottom-0 left-0 right-0 bg-stone-900 border-t-2 border-stone-700 rounded-t-2xl shadow-2xl p-4 space-y-3 z-50 animate-fadeIn"
+            aria-label={t.nav.moreTools}
+            className={cn(
+              "fixed bottom-0 left-0 right-0 border-t-2 rounded-t-2xl shadow-2xl p-4 space-y-3 z-50",
+              isDark
+                ? "bg-gradient-to-b from-[#2A1B12] to-[#1A100A] border-[#5A3A28]"
+                : "bg-gradient-to-b from-[#FBF7EE] to-[#EFE5D4] border-[#C2B094]"
+            )}
             style={{ paddingBottom: "max(1.75rem, env(safe-area-inset-bottom))" }}
           >
             {/* Sheet Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-stone-800">
+            <div
+              className={cn(
+                "flex items-center justify-between pb-2 border-b",
+                isDark ? "border-[#462E1F]" : "border-[#D6C6AD]"
+              )}
+            >
               <div className="flex items-center gap-2">
-                <span className="text-sm font-extrabold text-stone-100 font-game">
-                  Diğer Araçlar
+                <span
+                  className={cn(
+                    "text-sm font-extrabold font-game",
+                    isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
+                  )}
+                >
+                  {t.nav.moreTools}
                 </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  CoC
+                <span
+                  className={cn(
+                    "text-[10px] font-black px-1.5 py-0.5 rounded border tabular-nums",
+                    isDark
+                      ? "bg-[#D98A2B]/20 text-[#FFEB75] border-[#D98A2B]/45"
+                      : "bg-[#D98A2B]/15 text-[#7A4B12] border-[#D98A2B]/40"
+                  )}
+                >
+                  {t.nav.thBadge}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setMoreOpen(false)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors cursor-pointer"
-                aria-label="Kapat"
+                className={cn(
+                  "min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors cursor-pointer",
+                  isDark
+                    ? "text-[#CBBBA3] hover:text-[#FFFDF8] hover:bg-[#3B2214]"
+                    : "text-[#5D4B3B] hover:text-[#2A2018] hover:bg-[#E4D5BF]"
+                )}
+                aria-label={t.common.close}
               >
                 <X size={18} />
               </button>
@@ -102,88 +131,129 @@ export default function MobileNav({
 
             {/* Menu Items */}
             <div className="space-y-2 pt-1">
-              {/* Cevher Analizi */}
+              {/* Ore Forecaster */}
               <button
                 type="button"
                 onClick={() => handleSelectTab("ore")}
                 className={cn(
-                  "w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
+                  "w-full min-h-[56px] flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
                   activeTab === "ore"
-                    ? "bg-amber-500/15 border-amber-500/50 text-amber-300 shadow-sm"
-                    : "bg-stone-950/60 border-stone-800 text-stone-200 hover:bg-stone-800/60 hover:border-stone-700"
+                    ? isDark
+                      ? "bg-[#3B2214] border-[#D98A2B]/70 text-[#FFEB75] shadow-sm"
+                      : "bg-[#E6D4B8] border-[#B87D2A] text-[#3B2214] shadow-sm"
+                    : isDark
+                    ? "bg-[#14100C]/70 border-[#462E1F] text-[#F5EFE6] hover:bg-[#2F1D13]"
+                    : "bg-[#FFFDF8]/85 border-[#D6C6AD] text-[#2A2018] hover:bg-[#EFE7D8]"
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={cn(
                       "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
                       activeTab === "ore"
-                        ? "bg-amber-400/20 border-amber-400/40 text-amber-300"
-                        : "bg-stone-800 border-stone-700 text-stone-300"
+                        ? "bg-[#D98A2B]/25 border-[#D98A2B]/55 text-[#F8C12C]"
+                        : isDark
+                        ? "bg-[#2A1B12] border-[#5A3A28] text-[#E8D8C3]"
+                        : "bg-[#EFE7D8] border-[#CBBBA3] text-[#4A2E1E]"
                     )}
                   >
                     <Sparkles size={18} />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-stone-100 font-game">
-                      Cevher Analizi
+                  <div className="min-w-0">
+                    <div
+                      className={cn(
+                        "text-xs font-extrabold font-game truncate",
+                        isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
+                      )}
+                    >
+                      {t.nav.ore}
                     </div>
-                    <div className="text-[11px] text-stone-400">
-                      Ekipman Fulleme & Hesaplayıcı
+                    <div
+                      className={cn(
+                        "text-[11px] truncate",
+                        isDark ? "text-[#CBBBA3]" : "text-[#5D4B3B]"
+                      )}
+                    >
+                      {t.home.cards.ore.subtitle}
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} className="text-stone-500 shrink-0" />
+                <ChevronRight
+                  size={16}
+                  className={cn("shrink-0", isDark ? "text-[#B8A99A]" : "text-[#6B5D4F]")}
+                />
               </button>
 
-              {/* Duvar Yazısı */}
+              {/* Wall Planner */}
               <button
                 type="button"
                 onClick={() => handleSelectTab("wall")}
                 className={cn(
-                  "w-full flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
+                  "w-full min-h-[56px] flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
                   activeTab === "wall"
-                    ? "bg-amber-500/15 border-amber-500/50 text-amber-300 shadow-sm"
-                    : "bg-stone-950/60 border-stone-800 text-stone-200 hover:bg-stone-800/60 hover:border-stone-700"
+                    ? isDark
+                      ? "bg-[#3B2214] border-[#D98A2B]/70 text-[#FFEB75] shadow-sm"
+                      : "bg-[#E6D4B8] border-[#B87D2A] text-[#3B2214] shadow-sm"
+                    : isDark
+                    ? "bg-[#14100C]/70 border-[#462E1F] text-[#F5EFE6] hover:bg-[#2F1D13]"
+                    : "bg-[#FFFDF8]/85 border-[#D6C6AD] text-[#2A2018] hover:bg-[#EFE7D8]"
                 )}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={cn(
                       "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
                       activeTab === "wall"
-                        ? "bg-amber-400/20 border-amber-400/40 text-amber-300"
-                        : "bg-stone-800 border-stone-700 text-stone-300"
+                        ? "bg-[#D98A2B]/25 border-[#D98A2B]/55 text-[#F8C12C]"
+                        : isDark
+                        ? "bg-[#2A1B12] border-[#5A3A28] text-[#E8D8C3]"
+                        : "bg-[#EFE7D8] border-[#CBBBA3] text-[#4A2E1E]"
                     )}
                   >
                     <PenTool size={18} />
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-stone-100 font-game">
-                      Duvar Yazısı
+                  <div className="min-w-0">
+                    <div
+                      className={cn(
+                        "text-xs font-extrabold font-game truncate",
+                        isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
+                      )}
+                    >
+                      {t.nav.wall}
                     </div>
-                    <div className="text-[11px] text-stone-400">
-                      Köy Duvarlarıyla Yazı & Pano Tasarımı
+                    <div
+                      className={cn(
+                        "text-[11px] truncate",
+                        isDark ? "text-[#CBBBA3]" : "text-[#5D4B3B]"
+                      )}
+                    >
+                      {t.home.cards.wall.subtitle}
                     </div>
                   </div>
                 </div>
-                <ChevronRight size={16} className="text-stone-500 shrink-0" />
+                <ChevronRight
+                  size={16}
+                  className={cn("shrink-0", isDark ? "text-[#B8A99A]" : "text-[#6B5D4F]")}
+                />
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* 2. Fixed Bottom Tab Bar (Thumb-friendly 390px responsive) */}
+      {/* 2. Fixed Bottom Tab Bar (>= 44px touch targets, warm wood styling) */}
       <nav
-        aria-label="Mobil Gezinme"
+        aria-label={isTr ? "Mobil Gezinme" : "Mobile Navigation"}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-40 bg-stone-950/95 backdrop-blur-md border-t border-stone-800/80 shadow-[0_-4px_20px_rgba(0,0,0,0.6)] lg:hidden px-1 pt-1.5",
+          "fixed bottom-0 left-0 right-0 z-40 backdrop-blur-md border-t-2 lg:hidden px-1.5 pt-1.5 transition-colors duration-200",
+          isDark
+            ? "bg-[#1B120C]/95 border-[#4A2F1F] shadow-[0_-6px_24px_rgba(0,0,0,0.65)]"
+            : "bg-[#F6F1E7]/95 border-[#CBBBA3] shadow-[0_-4px_18px_rgba(42,30,18,0.12)]",
           className
         )}
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
       >
-        <div className="flex items-center justify-around">
+        <div className="flex items-center justify-around gap-1">
           {primaryItems.map((item) => {
             const isActive = activeTab === item.key;
             const Icon = item.icon;
@@ -193,47 +263,59 @@ export default function MobileNav({
                 key={item.key}
                 type="button"
                 onClick={() => handleSelectTab(item.key)}
+                aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1",
+                  "flex-1 min-w-[44px] min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1 px-1",
                   isActive
-                    ? "text-amber-400 font-extrabold"
-                    : "text-stone-400 hover:text-stone-200 font-bold"
+                    ? isDark
+                      ? "bg-[#3B2214]/90 border border-[#D98A2B]/45 text-[#FFEB75] font-extrabold shadow-sm"
+                      : "bg-[#E8D7BC] border border-[#B87D2A]/70 text-[#3B2214] font-extrabold shadow-sm"
+                    : isDark
+                    ? "text-[#CBBBA3] hover:text-[#FFFDF8] border border-transparent font-bold"
+                    : "text-[#6B5D4F] hover:text-[#2A2018] border border-transparent font-bold"
                 )}
               >
                 {isActive && (
-                  <span className="absolute -top-1 w-8 h-1 rounded-full bg-amber-400 shadow-sm" />
+                  <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#E09A1F] shadow-sm" />
                 )}
-                <Icon size={19} className="shrink-0" />
-                <span className="text-[10px] leading-none tracking-tight font-game">
+                <Icon size={18} className="shrink-0" />
+                <span className="text-[10px] leading-none tracking-tight font-game truncate max-w-full">
                   {item.label}
                 </span>
               </button>
             );
           })}
 
-          {/* "Daha..." Button */}
+          {/* More Tools Button */}
           <button
             type="button"
             onClick={() => setMoreOpen(!moreOpen)}
             aria-expanded={moreOpen}
             aria-haspopup="dialog"
+            aria-label={t.nav.moreTools}
             className={cn(
-              "flex-1 min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1",
+              "flex-1 min-w-[44px] min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1 px-1",
               isMoreActive
-                ? "text-amber-400 font-extrabold"
-                : "text-stone-400 hover:text-stone-200 font-bold"
+                ? isDark
+                  ? "bg-[#3B2214]/90 border border-[#D98A2B]/45 text-[#FFEB75] font-extrabold shadow-sm"
+                  : "bg-[#E8D7BC] border border-[#B87D2A]/70 text-[#3B2214] font-extrabold shadow-sm"
+                : isDark
+                ? "text-[#CBBBA3] hover:text-[#FFFDF8] border border-transparent font-bold"
+                : "text-[#6B5D4F] hover:text-[#2A2018] border border-transparent font-bold"
             )}
           >
             {isMoreActive && (
-              <span className="absolute -top-1 w-8 h-1 rounded-full bg-amber-400 shadow-sm" />
+              <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#E09A1F] shadow-sm" />
             )}
-            <MoreHorizontal size={19} className="shrink-0" />
-            <span className="text-[10px] leading-none tracking-tight font-game">
+            <MoreHorizontal size={18} className="shrink-0" />
+            <span className="text-[10px] leading-none tracking-tight font-game truncate max-w-full">
               {activeTab === "ore"
-                ? "Cevher"
+                ? t.nav.oreMobile
                 : activeTab === "wall"
-                ? "Duvar"
-                : "Daha..."}
+                ? t.nav.wallMobile
+                : isTr
+                ? "Daha"
+                : "More"}
             </span>
           </button>
         </div>

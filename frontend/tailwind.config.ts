@@ -9,7 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        game: ["var(--game-font)", "'Lilita One'", "sans-serif"],
+        sans: ["var(--game-font-ui)", "'Plus Jakarta Sans'", "sans-serif"],
+        game: ["var(--game-font)", "'Plus Jakarta Sans'", "sans-serif"],
       },
       colors: {
         // Theme-aware tokens
@@ -24,17 +25,17 @@ const config: Config = {
         },
         coc: {
           gold: "#F59E0B",
-          elixir: "#EC4899",
-          darkElixir: "#6366F1",
-          shiny: "#10B981",    // Shiny ore emerald
-          glowy: "#0EA5E9",    // Glowy ore cyan
-          starry: "#A855F7",   // Starry ore purple
-          accent: "#3B82F6",   // Primary action blue
+          elixir: "#D94680",
+          darkElixir: "#524136",
+          shiny: "#38BDF8",
+          glowy: "#E06D3B",
+          starry: "#F59E0B",
+          accent: "#D97706",
         },
       },
       boxShadow: {
-        elevation: "0 4px 16px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.05)",
-        elevationDark: "0 8px 24px -4px rgba(10, 15, 25, 0.4), 0 2px 8px -2px rgba(10, 15, 25, 0.3)",
+        elevation: "0 4px 16px -2px rgba(42, 30, 18, 0.08), 0 2px 6px -1px rgba(42, 30, 18, 0.05)",
+        elevationDark: "0 8px 24px -4px rgba(14, 10, 6, 0.45), 0 2px 8px -2px rgba(14, 10, 6, 0.35)",
       },
     },
   },

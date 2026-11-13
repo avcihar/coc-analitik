@@ -1,8 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Swords, Hammer, Shield, AlertCircle, RefreshCw } from "lucide-react";
-import { GraySegmented, SkeletonBlock, SectionPanel, type GraySegmentedItem } from "@/components/game";
+import { Swords, Hammer, Shield, AlertCircle, RefreshCw, Info } from "lucide-react";
+import {
+  GraySegmented,
+  SkeletonBlock,
+  SectionPanel,
+  GameButton,
+  type GraySegmentedItem,
+} from "@/components/game";
 import PlayerHeaderSection from "./PlayerHeaderSection";
 import LegendTournamentPanel from "./LegendTournamentPanel";
 import PlayerArmySection from "./PlayerArmySection";
@@ -19,6 +25,7 @@ import {
   matchLeagueTo37Tiers,
   getLeagueTierById,
 } from "@/lib/gemIncomeConfig";
+import { useLanguage } from "@/lib/i18n";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -57,15 +64,13 @@ const KNOWN_PET_NAMES = new Set([
 
 /**
  * PlayerProfileView
- * Master Player Profile View compliant with UI_REDESIGN.md and in-game screenshots.
- * 
- * Includes:
- * 1. Upper GraySegmented control: "Asıl Köy" | "İnşaatçı Üssü" | "Klan Başkenti"
- * 2. Asıl Köy Upper Block (PlayerHeaderSection)
- * 3. Efsane Lig Turnuva Paneli (LegendTournamentPanel, rendered only when legendStatistics is present)
- * 4. Birlikler & Belediye Binası Düzeni (PlayerArmySection)
- * 5. Ranked Savaş Geçmişi (PlayerBattleLogSection)
- * 6. Builder Base view when "İnşaatçı Üssü" tab is selected
+ * Master Player Profile View:
+ * 1. Upper GraySegmented control: Home Village | Builder Base | Clan Capital (+ inline API note)
+ * 2. Home Village header (PlayerHeaderSection)
+ * 3. Legend Tournament Panel (LegendTournamentPanel, strictly when legendStatistics is present)
+ * 4. Army & Troops / Town Hall layout (PlayerArmySection)
+ * 5. Recent Battle Log (PlayerBattleLogSection)
+ * 6. Builder Base view when Builder Base tab is selected
  */
 export default function PlayerProfileView({
   tag,
@@ -75,120 +80,143 @@ export default function PlayerProfileView({
   onViewClan,
   className,
 }: PlayerProfileViewProps) {
+  const { t, locale, getApiErrorMessage } = useLanguage();
   const [activeVillageTab, setActiveVillageTab] = useState<VillageTab>("home");
   const [loading, setLoading] = useState<boolean>(!propPlayer && Boolean(tag));
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<unknown | null>(null);
   const [fetchedPlayer, setFetchedPlayer] = useState<PlayerProfileViewData | null>(null);
   const [fetchedBattleLog, setFetchedBattleLog] = useState<BattleLogEntry[]>([]);
 
   const activePlayer = propPlayer || fetchedPlayer;
   const activeBattleLog = propBattleLog || fetchedBattleLog;
 
-  const loadPlayerData = useCallback(
-    async (playerTag: string) => {
-      const cleanTag = playerTag.replace(/^#/, "").trim();
-      if (!cleanTag) return;
+  const loadPlayerData = useCallback(async (playerTag: string) => {
+    const cleanTag = playerTag.replace(/^#/, "").trim();
+    if (!cleanTag) return;
 
-      setLoading(true);
-      setErrorMessage(null);
+    setLoading(true);
+    setFetchError(null);
 
-      try {
-        const [data, battleData] = await Promise.all([
-          safeFetchJson<any>(`/api/v1/players/${encodeURIComponent(cleanTag)}`),
-          safeFetchJson<any>(`/api/v1/players/${encodeURIComponent(cleanTag)}/battlelog`).catch(() => null),
-        ]);
+    try {
+      const [data, battleData] = await Promise.all([
+        safeFetchJson<any>(`/api/v1/players/${encodeURIComponent(cleanTag)}`),
+        safeFetchJson<any>(`/api/v1/players/${encodeURIComponent(cleanTag)}/battlelog`).catch(
+          () => null
+        ),
+      ]);
 
-        const th = data.townHallLevel || 1;
-        const rawHeroList = Array.isArray(data.heroes) ? data.heroes : [];
+      const th = data.townHallLevel || 1;
+      const rawHeroList = Array.isArray(data.heroes) ? data.heroes : [];
 
-        // Match multiplayer league / leagueTier to the 37 tiers table
-        let matchedTier: ReturnType<typeof getLeagueTierById> | null = null;
-        if (data.leagueTier?.id && data.leagueTier.id >= 105000001 && data.leagueTier.id <= 105000036) {
-          matchedTier = getLeagueTierById(data.leagueTier.id);
-        } else if (data.leagueTier?.name && data.leagueTier.name.toLowerCase() !== "unranked") {
-          const byName = matchLeagueTo37Tiers(data.leagueTier.name, data.leagueTier.id);
-          if (!byName.isUnknown) matchedTier = byName;
-        }
-        if (!matchedTier && (data.league?.id || data.league?.name)) {
-          const fromLeague = matchLeagueTo37Tiers(data.league.name, data.league.id);
-          if (!fromLeague.isUnknown) matchedTier = fromLeague;
-        }
-        if (!matchedTier) {
-          matchedTier = getLeagueTierById(data.leagueTier?.id || 105000000);
-        }
-
-        // Extract troops & pets cleanly
-        const rawTroops: UnitItem[] = Array.isArray(data.troops) ? data.troops : [];
-        const rawSpells: UnitItem[] = Array.isArray(data.spells) ? data.spells : [];
-        const explicitPets: UnitItem[] = Array.isArray(data.pets) ? data.pets : [];
-
-        const detectedPets: UnitItem[] = [...explicitPets];
-        const standardTroops: UnitItem[] = [];
-
-        for (const tr of rawTroops) {
-          if (KNOWN_PET_NAMES.has(tr.name)) {
-            if (!detectedPets.some((p) => p.name === tr.name)) {
-              detectedPets.push(tr);
-            }
-          } else {
-            standardTroops.push(tr);
-          }
-        }
-
-        const parsedPlayer: PlayerProfileViewData = {
-          tag: data.tag || `#${cleanTag}`,
-          name: data.name || "Bilinmeyen Oyuncu",
-          townHallLevel: th,
-          townHallWeaponLevel: data.townHallWeaponLevel,
-          expLevel: data.expLevel || 1,
-          leagueTierId: matchedTier.id,
-          leagueName: matchedTier.nameTr,
-          originalLeagueName: data.leagueTier?.name || data.league?.name || "Unranked",
-          trophies: data.trophies || 0,
-          bestTrophies: data.bestTrophies || 0,
-          warStars: data.warStars || 0,
-          attackWins: data.attackWins,
-          defenseWins: data.defenseWins,
-          donations: data.donations,
-          donationsReceived: data.donationsReceived,
-          role: data.role,
-          warPreference: data.warPreference,
-          clanCapitalContributions: data.clanCapitalContributions,
-          builderHallLevel: data.builderHallLevel,
-          builderBaseTrophies: data.builderBaseTrophies,
-          bestBuilderBaseTrophies: data.bestBuilderBaseTrophies,
-          builderBaseLeague: data.builderBaseLeague,
-          clan: data.clan,
-          league: data.league,
-          labels: data.labels,
-          legendStatistics: data.legendStatistics,
-          heroes: rawHeroList,
-          builderHeroes: data.builderHeroes,
-          heroEquipment: data.heroEquipment || [],
-          pets: detectedPets,
-          troops: standardTroops,
-          spells: rawSpells,
-        };
-
-        setFetchedPlayer(parsedPlayer);
-
-        // Battlelog extraction (strictly ranked attacks/defenses)
-        if (battleData && Array.isArray(battleData.items)) {
-          const rawItems: BattleLogEntry[] = battleData.items;
-          const rankedOnly = rawItems.filter((item) => item && item.battleType === "ranked");
-          setFetchedBattleLog(rankedOnly);
-        } else {
-          setFetchedBattleLog([]);
-        }
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Oyuncu profili yüklenirken bir hata oluştu.";
-        setErrorMessage(msg);
-      } finally {
-        setLoading(false);
+      // Match multiplayer league / leagueTier to the 37 tiers table
+      let matchedTier: ReturnType<typeof getLeagueTierById> | null = null;
+      if (
+        data.leagueTier?.id &&
+        data.leagueTier.id >= 105000001 &&
+        data.leagueTier.id <= 105000036
+      ) {
+        matchedTier = getLeagueTierById(data.leagueTier.id);
+      } else if (data.leagueTier?.name && data.leagueTier.name.toLowerCase() !== "unranked") {
+        const byName = matchLeagueTo37Tiers(data.leagueTier.name, data.leagueTier.id);
+        if (!byName.isUnknown) matchedTier = byName;
       }
-    },
-    []
-  );
+      if (!matchedTier && (data.league?.id || data.league?.name)) {
+        const fromLeague = matchLeagueTo37Tiers(data.league.name, data.league.id);
+        if (!fromLeague.isUnknown) matchedTier = fromLeague;
+      }
+      if (!matchedTier) {
+        matchedTier = getLeagueTierById(data.leagueTier?.id || 105000000);
+      }
+
+      // Extract troops & pets cleanly
+      const rawTroops: UnitItem[] = Array.isArray(data.troops) ? data.troops : [];
+      const rawSpells: UnitItem[] = Array.isArray(data.spells) ? data.spells : [];
+      const explicitPets: UnitItem[] = Array.isArray(data.pets) ? data.pets : [];
+
+      const detectedPets: UnitItem[] = [...explicitPets];
+      const standardTroops: UnitItem[] = [];
+
+      for (const tr of rawTroops) {
+        if (KNOWN_PET_NAMES.has(tr.name)) {
+          if (!detectedPets.some((p) => p.name === tr.name)) {
+            detectedPets.push(tr);
+          }
+        } else {
+          standardTroops.push(tr);
+        }
+      }
+
+      const resolvedLeague =
+        data.league ||
+        (data.leagueTier
+          ? {
+              id: data.leagueTier.id,
+              name: data.leagueTier.name,
+              iconUrls:
+                data.leagueTier.iconUrls ||
+                (matchedTier.iconSmall
+                  ? { small: matchedTier.iconSmall, medium: matchedTier.iconSmall }
+                  : undefined),
+            }
+          : matchedTier.iconSmall
+          ? {
+              id: matchedTier.id,
+              name: matchedTier.name,
+              iconUrls: { small: matchedTier.iconSmall, medium: matchedTier.iconSmall },
+            }
+          : undefined);
+
+      const parsedPlayer: PlayerProfileViewData = {
+        tag: data.tag || `#${cleanTag}`,
+        name: data.name || data.tag || `#${cleanTag}`,
+        townHallLevel: th,
+        townHallWeaponLevel: data.townHallWeaponLevel,
+        expLevel: data.expLevel || 1,
+        leagueTierId: matchedTier.id,
+        leagueName: locale === "tr" ? matchedTier.nameTr : matchedTier.name,
+        originalLeagueName: data.leagueTier?.name || data.league?.name || "Unranked",
+        trophies: data.trophies || 0,
+        bestTrophies: data.bestTrophies || 0,
+        warStars: data.warStars || 0,
+        attackWins: data.attackWins,
+        defenseWins: data.defenseWins,
+        donations: data.donations,
+        donationsReceived: data.donationsReceived,
+        role: data.role,
+        warPreference: data.warPreference,
+        clanCapitalContributions: data.clanCapitalContributions,
+        builderHallLevel: data.builderHallLevel,
+        builderBaseTrophies: data.builderBaseTrophies,
+        bestBuilderBaseTrophies: data.bestBuilderBaseTrophies,
+        builderBaseLeague: data.builderBaseLeague,
+        clan: data.clan,
+        league: resolvedLeague,
+        labels: data.labels,
+        legendStatistics: data.legendStatistics,
+        heroes: rawHeroList,
+        builderHeroes: data.builderHeroes,
+        heroEquipment: data.heroEquipment || [],
+        pets: detectedPets,
+        troops: standardTroops,
+        spells: rawSpells,
+      };
+
+      setFetchedPlayer(parsedPlayer);
+
+      // Battlelog extraction (strictly ranked attacks/defenses)
+      if (battleData && Array.isArray(battleData.items)) {
+        const rawItems: BattleLogEntry[] = battleData.items;
+        const rankedOnly = rawItems.filter((item) => item && item.battleType === "ranked");
+        setFetchedBattleLog(rankedOnly);
+      } else {
+        setFetchedBattleLog([]);
+      }
+    } catch (err: unknown) {
+      setFetchError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [locale]);
 
   useEffect(() => {
     if (!propPlayer && tag) {
@@ -201,35 +229,49 @@ export default function PlayerProfileView({
     if (!activePlayer) return false;
     return Boolean(
       (activePlayer.builderHallLevel && activePlayer.builderHallLevel > 0) ||
-      (activePlayer.builderBaseTrophies && activePlayer.builderBaseTrophies > 0) ||
-      (activePlayer.builderHeroes && activePlayer.builderHeroes.length > 0)
+        (activePlayer.builderBaseTrophies && activePlayer.builderBaseTrophies > 0) ||
+        (activePlayer.builderHeroes && activePlayer.builderHeroes.length > 0)
     );
   }, [activePlayer]);
+
+  // Return to Home tab if switched to a player without Builder Base data
+  useEffect(() => {
+    if (activeVillageTab === "builderBase" && !hasBuilderBase) {
+      setActiveVillageTab("home");
+    }
+  }, [activeVillageTab, hasBuilderBase]);
 
   // GraySegmented Sub-Tab Items
   const segmentedItems = useMemo<GraySegmentedItem<VillageTab>[]>(() => {
     return [
       {
         id: "home",
-        label: "Asıl Köy",
+        label: t.player.tabHome,
         icon: <Swords size={16} />,
       },
       {
         id: "builderBase",
-        label: "İnşaatçı Üssü",
+        label: t.player.tabBuilder,
         icon: <Hammer size={16} />,
         disabled: !hasBuilderBase,
-        tooltip: hasBuilderBase ? undefined : "Bu oyuncuda İnşaatçı Üssü verisi yok",
+        tooltip: hasBuilderBase ? undefined : t.player.builderNotUnlocked,
       },
       {
         id: "clanCapital",
-        label: "Klan Başkenti",
+        label: t.player.tabCapital,
         icon: <Shield size={16} />,
         disabled: true,
-        tooltip: "Bu veri API'de yok",
+        tooltip: t.player.tabCapitalUnavailable,
       },
     ];
-  }, [hasBuilderBase]);
+  }, [
+    hasBuilderBase,
+    t.player.tabHome,
+    t.player.tabBuilder,
+    t.player.tabCapital,
+    t.player.builderNotUnlocked,
+    t.player.tabCapitalUnavailable,
+  ]);
 
   // Loading skeleton state
   if (loading && !activePlayer) {
@@ -265,7 +307,7 @@ export default function PlayerProfileView({
         </SectionPanel>
 
         {/* Army skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-4">
           <div className="lg:col-span-5 space-y-4">
             <SkeletonBlock height="220px" className="rounded-2xl" />
             <SkeletonBlock height="180px" className="rounded-2xl" />
@@ -279,40 +321,51 @@ export default function PlayerProfileView({
     );
   }
 
-  // Error state
-  if (errorMessage && !activePlayer) {
+  // Error state (high-contrast alert on light cream GameWindow)
+  if (fetchError !== null && !activePlayer) {
+    const resolvedError = getApiErrorMessage(fetchError, t.player.playerNotFoundError);
     return (
-      <div className={cn("p-4 space-y-4 font-sans", className)}>
-        <div className="bg-red-500/15 border-2 border-red-500/35 rounded-2xl p-5 text-center space-y-3">
-          <div className="flex items-center justify-center gap-2 text-red-300 font-bold text-sm">
-            <AlertCircle size={18} />
-            <span>{errorMessage}</span>
+      <div className={cn("p-2 sm:p-4 space-y-4 font-sans", className)}>
+        <div
+          role="alert"
+          className="bg-[#FDF2F2] border-2 border-[#C53030] rounded-2xl p-5 text-center space-y-3 shadow-sm"
+        >
+          <div className="flex items-center justify-center gap-2 text-[#8F1D18] font-bold text-sm">
+            <AlertCircle size={18} className="shrink-0" aria-hidden="true" />
+            <span>{resolvedError}</span>
           </div>
           {tag && (
-            <button
-              onClick={() => loadPlayerData(tag)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              <RefreshCw size={13} />
-              <span>Yeniden Dene</span>
-            </button>
+            <div className="pt-1">
+              <GameButton
+                variant="red"
+                size="sm"
+                onClick={() => loadPlayerData(tag)}
+                icon={<RefreshCw size={14} />}
+                className="min-h-[44px] px-5"
+              >
+                {t.common.retry}
+              </GameButton>
+            </div>
           )}
         </div>
       </div>
     );
   }
 
+  // Empty state (high-contrast dark stone ink on light cream GameWindow)
   if (!activePlayer) {
     return (
-      <div className={cn("p-6 text-center text-stone-300 text-xs font-medium", className)}>
-        Görüntülenecek oyuncu profili bulunamadı. Lütfen bir oyuncu etiketi aratın.
+      <div className={cn("p-4 font-sans", className)}>
+        <div className="bg-[#F6F1E7] border border-[#C9B99F] rounded-2xl p-6 text-center text-[#2B1F16] text-sm font-semibold shadow-sm">
+          <p className="text-[#4A3E35]">{t.player.playerNotFoundError}</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={cn("w-full -mt-3 sm:-mt-6 font-sans flex flex-col", className)}>
-      {/* 1. Üst Segmented Kontrol (Asıl Köy | İnşaatçı Üssü | Klan Başkenti) - Flush at top */}
+      {/* 1. Top Segmented Control + Inline Capital Availability Note */}
       <div className="w-full flex items-end pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
         <GraySegmented<VillageTab>
           items={segmentedItems}
@@ -321,29 +374,34 @@ export default function PlayerProfileView({
           className="w-full sm:w-auto"
         />
       </div>
+      <div className="mt-2 px-2 sm:px-4 flex items-center gap-1.5 text-xs font-medium text-[#4A3E35]">
+        <Info size={14} className="text-[#7D5420] shrink-0" aria-hidden="true" />
+        <span>
+          {t.player.tabCapital}: {t.player.tabCapitalUnavailable}
+        </span>
+      </div>
 
-      {/* 2. Asıl Köy Sekmesi Görünümü */}
+      {/* 2. Home Village Tab View */}
       {activeVillageTab === "home" && (
-        <div className="space-y-4 pt-4 sm:pt-6">
-          {/* Asıl Köy Üst Blok */}
+        <div className="space-y-4 pt-4 sm:pt-5">
           <PlayerHeaderSection
             player={activePlayer}
             onViewClan={onViewClan}
             className="mt-0"
           />
 
-          {/* Efsane Lig Turnuvası Paneli (YALNIZCA cevapta legendStatistics varsa gösterilir) */}
+          {/* Legend Tournament Panel (strictly when legendStatistics is present) */}
           {activePlayer.legendStatistics && (
             <LegendTournamentPanel stats={activePlayer.legendStatistics} />
           )}
 
-          {/* Birlikler & Belediye Binası Düzeni */}
+          {/* Army & Town Hall Layout */}
           <PlayerArmySection
             player={activePlayer}
             onImportPlayerToOre={onImportPlayerToOre}
           />
 
-          {/* Savaş Geçmişi (Ranked Battle Log) */}
+          {/* Recent Battle Log (Ranked) */}
           <PlayerBattleLogSection
             battleLog={activeBattleLog}
             loading={loading}
@@ -351,9 +409,9 @@ export default function PlayerProfileView({
         </div>
       )}
 
-      {/* 3. İnşaatçı Üssü Sekmesi Görünümü */}
+      {/* 3. Builder Base Tab View */}
       {activeVillageTab === "builderBase" && (
-        <div className="space-y-4 mt-0">
+        <div className="space-y-4 pt-4 sm:pt-5">
           <BuilderBaseSection player={activePlayer} className="mt-0" />
         </div>
       )}

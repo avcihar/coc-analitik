@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Shield } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -22,10 +23,12 @@ export interface ClanBadgeProps {
  */
 export default function ClanBadge({
   url,
-  name = "Klan",
+  name,
   size = 48,
   className,
 }: ClanBadgeProps) {
+  const { isTr } = useLanguage();
+  const displayName = name || (isTr ? "Klan" : "Clan");
   const [hasError, setHasError] = useState(false);
 
   if (!url || hasError) {
@@ -36,7 +39,7 @@ export default function ClanBadge({
           className
         )}
         style={{ width: size, height: size }}
-        title={name}
+        title={displayName}
       >
         <Shield size={Math.round(size * 0.6)} />
       </div>
@@ -50,7 +53,7 @@ export default function ClanBadge({
     >
       <img
         src={url}
-        alt={name}
+        alt={displayName}
         loading="lazy"
         referrerPolicy="no-referrer"
         onError={() => setHasError(true)}

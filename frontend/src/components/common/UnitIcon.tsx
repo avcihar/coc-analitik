@@ -4,25 +4,26 @@ import React, { useState, useEffect } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getIconPath } from "@/lib/iconManifest";
+import { useLanguage } from "@/lib/i18n";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Generate stable deterministic colors from unit name for visual variety
+// Generate stable deterministic warm Clash palette from unit name
 function getDeterministicHue(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
   }
   const hues = [
-    "from-blue-600/30 to-indigo-900/40 text-blue-400 border-blue-500/30",
-    "from-purple-600/30 to-violet-900/40 text-purple-400 border-purple-500/30",
-    "from-amber-600/30 to-yellow-900/40 text-amber-400 border-amber-500/30",
-    "from-emerald-600/30 to-teal-900/40 text-emerald-400 border-emerald-500/30",
-    "from-rose-600/30 to-pink-900/40 text-rose-400 border-rose-500/30",
-    "from-cyan-600/30 to-sky-900/40 text-cyan-400 border-cyan-500/30",
-    "from-orange-600/30 to-red-900/40 text-orange-400 border-orange-500/30",
+    "from-sky-700/35 to-sky-950/60 text-sky-300 border-sky-500/35",
+    "from-amber-700/35 to-amber-950/60 text-amber-300 border-amber-500/35",
+    "from-emerald-700/35 to-emerald-950/60 text-emerald-300 border-emerald-500/35",
+    "from-orange-700/35 to-orange-950/60 text-orange-300 border-orange-500/35",
+    "from-teal-700/35 to-teal-950/60 text-teal-300 border-teal-500/35",
+    "from-yellow-700/35 to-stone-900/60 text-yellow-300 border-yellow-500/35",
+    "from-stone-600/40 to-stone-900/65 text-amber-200 border-amber-600/30",
   ];
   const idx = Math.abs(hash) % hues.length;
   return hues[idx];
@@ -31,9 +32,9 @@ function getDeterministicHue(name: string): string {
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
+    return parts[0].slice(0, 2).toLocaleUpperCase("en-US");
   }
-  return (parts[0][0] + parts[1][0]).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toLocaleUpperCase("en-US");
 }
 
 export interface UnitIconProps {
@@ -63,6 +64,7 @@ export default function UnitIcon({
   className,
   showNameBelow = false,
 }: UnitIconProps) {
+  const { isTr } = useLanguage();
   const [imgError, setImgError] = useState(false);
 
   const resolvedIcon = iconUrl || getIconPath(name, village);
@@ -96,8 +98,8 @@ export default function UnitIcon({
   const tooltipText = [
     name,
     level !== undefined ? (maxLevel ? `Lv.${level}/${maxLevel}` : `Lv.${level}`) : null,
-    isMax ? "(Maksimum Seviye)" : null,
-    count ? `Adet: ${count}` : null,
+    isMax ? (isTr ? "(Maksimum Seviye)" : "(Max Level)") : null,
+    count ? (isTr ? `Adet: ${count}` : `Qty: ${count}`) : null,
   ]
     .filter(Boolean)
     .join(" • ");
@@ -109,11 +111,11 @@ export default function UnitIcon({
     >
       <div
         className={cn(
-          "relative rounded-xl border-2 flex items-center justify-center font-black overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-slate-900/60",
+          "relative rounded-xl border-2 flex items-center justify-center font-extrabold overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-[#261A12]/85",
           sizeClasses,
           colorClasses,
-          isEpic && "ring-1 ring-purple-500/50",
-          isSuper && "ring-1 ring-rose-500/50"
+          isEpic && "ring-1 ring-amber-400/80 border-amber-400/75",
+          isSuper && "ring-1 ring-orange-400/80 border-orange-400/75"
         )}
       >
         {displayIcon ? (
@@ -127,12 +129,12 @@ export default function UnitIcon({
             onError={() => setImgError(true)}
           />
         ) : (
-          <span className="tracking-tighter font-extrabold">{initials}</span>
+          <span className="tracking-tight font-extrabold">{initials}</span>
         )}
 
         {/* Quantity Badge (Top-Left) */}
         {count !== undefined && count > 0 && (
-          <span className="absolute top-0.5 left-0.5 px-1 py-0.2 rounded-md bg-black/85 text-white text-[9px] font-black leading-tight border border-white/20 z-10 shadow-sm">
+          <span className="absolute top-0.5 left-0.5 px-1 py-0.5 rounded-md bg-[#120B07]/90 text-white text-[10px] font-extrabold leading-none border border-white/20 z-10 shadow-sm tabular-nums">
             x{count}
           </span>
         )}
@@ -141,10 +143,10 @@ export default function UnitIcon({
         {level !== undefined && (
           <span
             className={cn(
-              "absolute bottom-0 right-0 px-1 py-0.2 rounded-tl-md text-[9px] font-black leading-tight shadow-sm z-10",
+              "absolute bottom-0 right-0 px-1 py-0.5 rounded-tl-md text-[10px] font-extrabold leading-none shadow-sm z-10 tabular-nums",
               isMax
-                ? "bg-amber-400 text-slate-950 font-black border-t border-l border-amber-300"
-                : "bg-slate-900/90 text-slate-200 border-t border-l border-slate-700"
+                ? "bg-amber-400 text-[#261501] border-t border-l border-amber-200"
+                : "bg-[#1B120C]/92 text-amber-50 border-t border-l border-[#4A3628]"
             )}
           >
             {isMax ? "MAX" : `L${level}`}

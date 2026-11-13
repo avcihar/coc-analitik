@@ -33,11 +33,11 @@ export default function SectionPanel({
       {...rest}
     >
       {(title || icon || rightBadge) && (
-        <div className="flex items-center justify-between mb-3 border-b border-[#3B445B]/60 pb-2">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 mb-3 border-b border-[#261810]/65 pb-2">
+          <div className="flex items-center gap-2 min-w-0">
             {icon && <span className="inline-flex shrink-0">{icon}</span>}
             {title && (
-              <h3 className="game-text-stroke-sm text-sm sm:text-base font-bold tracking-wide uppercase">
+              <h3 className="font-game text-sm sm:text-base font-extrabold tracking-tight text-[#FFF8EE] drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] truncate">
                 {title}
               </h3>
             )}

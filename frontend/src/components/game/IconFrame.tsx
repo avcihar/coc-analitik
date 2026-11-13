@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getIconPath } from "@/lib/iconManifest";
+import { useLanguage } from "@/lib/i18n";
 import LevelBadge from "./LevelBadge";
 
 function cn(...inputs: ClassValue[]) {
@@ -14,19 +15,20 @@ function getInitials(name?: string | null): string {
   if (!name || !name.trim()) return "?";
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) {
-    return parts[0].slice(0, 2).toUpperCase();
+    return parts[0].slice(0, 2).toLocaleUpperCase("en-US");
   }
-  return (parts[0][0] + parts[1][0]).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toLocaleUpperCase("en-US");
 }
 
 const DARK_TROOPS = new Set([
   "Minion", "Hog Rider", "Valkyrie", "Golem", "Witch", "Lava Hound",
-  "Bowler", "Ice Golem", "Headhunter", "Apprentice Warden", "Druid", "Furnace"
+  "Bowler", "Ice Golem", "Headhunter", "Apprentice Warden", "Druid", "Furnace",
+  "Ruin Witch"
 ]);
 
 const SIEGE_MACHINES = new Set([
   "Wall Wrecker", "Battle Blimp", "Stone Slammer", "Siege Barracks",
-  "Log Launcher", "Flame Flinger", "Battle Drill", "Sky Wagon"
+  "Log Launcher", "Flame Flinger", "Battle Drill", "Sky Wagon", "Troop Launcher"
 ]);
 
 const HEROES = new Set([
@@ -67,6 +69,7 @@ export default function IconFrame({
   className,
   showTooltip = true,
 }: IconFrameProps) {
+  const { isTr } = useLanguage();
   const [imgError, setImgError] = useState(false);
 
   const safeName = name || "";
@@ -139,11 +142,13 @@ export default function IconFrame({
 
   const tooltipText = [
     name,
-    count ? `Adet: ${count}` : null,
+    count ? (isTr ? `Adet: ${count}` : `Qty: ${count}`) : null,
     level !== undefined ? (determinedIsMax ? `Lv.${level} (MAX)` : `Lv.${level}`) : null,
   ]
     .filter(Boolean)
     .join(" • ");
+
+  const isCompactBadge = size === "equipment" || size === "xs";
 
   return (
     <div
@@ -166,7 +171,7 @@ export default function IconFrame({
           className="w-full h-full object-cover select-none pointer-events-none"
         />
       ) : (
-        <span className="text-[10px] sm:text-xs font-black text-amber-200 uppercase select-none">
+        <span className="text-[10px] sm:text-xs font-extrabold text-amber-200 select-none">
           {getInitials(name)}
         </span>
       )}
@@ -178,7 +183,7 @@ export default function IconFrame({
 
       {/* 3. Bottom-Left Level Badge (e.g. "14", "MAX") */}
       {level !== undefined && (
-        <LevelBadge level={level} isMax={determinedIsMax} />
+        <LevelBadge level={level} isMax={determinedIsMax} compact={isCompactBadge} />
       )}
     </div>
   );

@@ -1,21 +1,18 @@
 /* ==========================================================================
-   CLAN VIEW GAME STYLES & TOKENS
-   --------------------------------------------------------------------------
-   Tokens measured from referans/oyun-ici/klanim.png & klanim-uyeler.png
-   All hex values are centralized here to maintain zero raw hex in JSX.
+   CLAN VIEW GAME STYLES & TOKENS (Warm Espresso / Parchment / Amber Palette)
    ========================================================================== */
 
 :root {
-  /* Member Highlight token as measured in UI_REDESIGN.md from klanim-uyeler.png */
+  /* Member Highlight token */
   --clan-highlight-bg: #E2F0D9;
   --clan-highlight-border: #72BD36;
   --clan-highlight-shadow: rgba(114, 189, 54, 0.35);
 
   /* Member row surfaces */
-  --clan-row-bg: rgba(255, 255, 255, 0.65);
-  --clan-row-hover-bg: rgba(255, 255, 255, 0.9);
-  --clan-row-border: #C8C5BD;
-  --clan-row-shadow: rgba(0, 0, 0, 0.12);
+  --clan-row-bg: rgba(255, 255, 255, 0.72);
+  --clan-row-hover-bg: rgba(255, 255, 255, 0.94);
+  --clan-row-border: #C8C1B4;
+  --clan-row-shadow: rgba(42, 30, 18, 0.1);
 
   /* Rank ribbon / shield badge (green) */
   --clan-rank-green-top: #9CE04A;
@@ -24,70 +21,70 @@
   --clan-rank-green-border: #2D6B10;
 
   /* Trophy pill well */
-  --clan-trophy-well-bg: #D8D6CE;
-  --clan-trophy-well-border: #8D8982;
-  --clan-trophy-well-shadow: rgba(0, 0, 0, 0.2);
+  --clan-trophy-well-bg: #EAE4D7;
+  --clan-trophy-well-border: #9E9484;
+  --clan-trophy-well-shadow: rgba(42, 30, 18, 0.16);
   --clan-trophy-text: #2D251E;
 
   /* Donation inset box */
-  --clan-donation-box-bg: rgba(255, 255, 255, 0.88);
-  --clan-donation-box-border: #BCB8AF;
-  --clan-donation-label: #60574D;
+  --clan-donation-box-bg: rgba(255, 253, 248, 0.92);
+  --clan-donation-box-border: #C4BBA9;
+  --clan-donation-label: #5D5245;
   --clan-donation-value: #221C16;
 
-  /* Key:Value grid in header card */
-  --clan-header-key: #DDE3ED;
-  --clan-header-val: #FFFFFF;
-  --clan-header-border: rgba(255, 255, 255, 0.12);
-  --clan-header-ribbon: #3694DE;
+  /* Key:Value grid in warm wood-bronze header card */
+  --clan-header-key: #E7D9C8;
+  --clan-header-val: #FFFBF5;
+  --clan-header-border: rgba(255, 236, 209, 0.14);
+  --clan-header-ribbon: #D98A2B;
 
-  /* Clan label pills */
-  --clan-label-bg: rgba(28, 35, 48, 0.7);
-  --clan-label-border: rgba(255, 255, 255, 0.2);
-  --clan-label-text: #FFFFFF;
+  /* Clan label pills (warm dark wood, zero navy) */
+  --clan-label-bg: rgba(28, 18, 12, 0.72);
+  --clan-label-border: rgba(255, 224, 178, 0.22);
+  --clan-label-text: #FFFBF5;
 
   /* Text hierarchy */
-  --clan-name-text: #FFFFFF;
-  --clan-tag-text: #FDE047;
-  --clan-desc-text: #F3F4F6;
+  --clan-name-text: #FFFBF5;
+  --clan-tag-text: #FCD34D;
+  --clan-desc-text: #F5EFE6;
   --clan-member-name: #221C16;
-  --clan-member-role: #655E54;
+  --clan-member-role: #655B4E;
 }
 
-/* 1. Header Card (Blue-Gray / Map texture panel) */
+/* 1. Header Card (Warm Stone-Wood Bronze Panel — replaces cold steel-navy) */
 .clan-header-panel {
-  background: linear-gradient(180deg, var(--game-section-blue-top, #8A97AD) 0%, var(--game-section-blue-mid, #7885A2) 45%, var(--game-section-blue-bot, #6B7899) 100%);
-  border: 3.5px solid var(--game-section-blue-border, #4C566E);
+  background: linear-gradient(180deg, var(--game-section-blue-top, #5A4332) 0%, var(--game-section-blue-mid, #4A3527) 48%, var(--game-section-blue-bot, #3B291D) 100%);
+  border: 3.5px solid var(--game-section-blue-border, #261810);
   border-radius: 18px;
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.45),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.42),
+    inset 0 1.5px 0 rgba(255, 240, 215, 0.22),
     inset 0 -2px 0 rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle map grid lines overlay */
+/* Subtle warm grid texture overlay */
 .clan-header-map-grid {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 235, 205, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 235, 205, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
   mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.3) 100%);
   -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.9) 20%, rgba(0, 0, 0, 0.3) 100%);
 }
 
-/* Decorative corner ribbon badge */
+/* Decorative corner gold-amber pennant */
 .clan-header-ribbon {
   position: absolute;
   top: 0;
   right: 18px;
   width: 28px;
-  height: 48px;
-  background: linear-gradient(180deg, #4EA8EF 0%, var(--clan-header-ribbon) 70%, #1E66A8 100%);
+  height: 46px;
+  background: linear-gradient(180deg, #FBBF24 0%, var(--clan-header-ribbon) 70%, #9A5512 100%);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
   border-left: 1px solid rgba(255, 255, 255, 0.4);
@@ -100,6 +97,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 6px 0;
   border-bottom: 1px solid var(--clan-header-border);
   font-family: var(--game-font-ui, sans-serif);
@@ -121,7 +119,7 @@
   font-size: 0.875rem;
   font-weight: 700;
   text-align: right;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  font-variant-numeric: tabular-nums;
 }
 
 /* 3. Clan Labels */
@@ -129,7 +127,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 8px;
   background: var(--clan-label-bg);
   border: 1.5px solid var(--clan-label-border);
@@ -137,7 +135,7 @@
   font-family: var(--game-font-ui, sans-serif);
   font-size: 0.75rem;
   font-weight: 700;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
   user-select: none;
 }
 
@@ -146,14 +144,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 8px 4px;
 }
 
 .clan-member-count {
   font-family: var(--game-font);
+  font-weight: 800;
   color: #382A1D;
   font-size: 1.125rem;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
 }
 
 /* Sort Selector Button */
@@ -161,6 +162,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 40px;
   padding: 6px 12px;
   background: linear-gradient(180deg, var(--game-btn-silver-top, #EFECE5) 0%, var(--game-btn-silver-bot, #B2AFA7) 100%);
   border: 2px solid var(--game-btn-silver-border, #3C3A38);
@@ -169,7 +171,8 @@
     0 2px 0 var(--game-btn-silver-bevel, #7A7872),
     0 3px 4px rgba(0, 0, 0, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  font-family: var(--game-font);
+  font-family: var(--game-font-ui, sans-serif);
+  font-weight: 700;
   font-size: 0.85rem;
   color: #2D251E;
   cursor: pointer;
@@ -206,11 +209,11 @@
   border-color: #9C978D;
   transform: translateY(-1px);
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.18),
+    0 4px 8px rgba(0, 0, 0, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
-/* 6. Active Highlight Row (.game-member-highlight as per UI_REDESIGN.md) */
+/* 6. Active Highlight Row */
 .clan-member-row.game-member-highlight,
 .game-member-highlight {
   background-color: var(--clan-highlight-bg) !important;
@@ -226,24 +229,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 38px;
-  height: 38px;
+  min-width: 36px;
+  height: 36px;
   background: linear-gradient(180deg, var(--clan-rank-green-top) 0%, var(--clan-rank-green-mid) 50%, var(--clan-rank-green-bot) 100%);
   border: 2px solid var(--clan-rank-green-border);
   border-radius: 9px;
   box-shadow:
-    0 2px 0 rgba(0, 0, 0, 0.3),
+    0 2px 0 rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
   color: #FFFFFF;
   font-family: var(--game-font);
-  font-size: 0.95rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
   line-height: 1;
-  text-shadow:
-    -1px -1px 0 #1A400A,
-     1px -1px 0 #1A400A,
-    -1px  1px 0 #1A400A,
-     1px  1px 0 #1A400A,
-     0 2px 2px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 1.5px rgba(20, 50, 8, 0.9);
   flex-shrink: 0;
 }
 
@@ -252,17 +252,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 6px 14px;
-  min-width: 96px;
+  gap: 6px;
+  padding: 5px 12px;
+  min-width: 82px;
   background: var(--clan-trophy-well-bg);
   border: 2px solid var(--clan-trophy-well-border);
   border-radius: 9999px;
   box-shadow:
     inset 0 2px 3px var(--clan-trophy-well-shadow),
     0 1px 0 rgba(255, 255, 255, 0.7);
-  font-family: var(--game-font);
-  font-size: 1.15rem;
+  font-family: var(--game-font-ui, sans-serif);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
   color: var(--clan-trophy-text);
   line-height: 1;
   flex-shrink: 0;
@@ -276,10 +278,12 @@
   padding: 3px 8px;
   min-width: 52px;
   text-align: center;
-  font-family: var(--game-font);
-  font-size: 0.9rem;
+  font-family: var(--game-font-ui, sans-serif);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
   color: var(--clan-donation-value);
-  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.12);
 }
 
 /* 10. War Log Modal */
@@ -288,24 +292,20 @@
   inset: 0;
   background-color: rgba(14, 11, 9, 0.78);
   backdrop-filter: blur(4px);
-  z-index: 100;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 16px;
 }
 
-.clan-modal-content {
-  background: var(--game-window-cream-bg, #E7E7DE);
-  border: 4px solid var(--game-window-cream-border, #5A5552);
+.clan-modal-card {
+  background: #EFECE5;
+  border: 4px solid #4A3A2C;
   border-radius: 20px;
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.75),
-    inset 0 2px 0 rgba(255, 255, 255, 0.7),
-    inset 0 -2px 0 var(--game-window-cream-bevel, #B8B6AF);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
   width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
+  max-width: 520px;
+  overflow: hidden;
+  color: #2D251E;
 }

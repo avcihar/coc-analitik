@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { LanguageProvider } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "Clash of Clans Analytics & Ore Forecaster",
-  description: "Advanced analytics, ore upgrade calculator, and CWL scouting pipeline for Clash of Clans.",
+  title: "CoC Analitik • Clash of Clans İstatistik ve Strateji Platformu",
+  description:
+    "Clash of Clans oyuncu ve klan analitiği, TH18 meta orduları, CWL keşfi, cevher simülatörü ve duvar yazısı planlayıcı.",
 };
 
 export default function RootLayout({
@@ -13,10 +15,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="tr" className="dark">
       <body className="min-h-screen antialiased">
         <ThemeProvider>
-          {children}
+          <LanguageProvider>{children}</LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

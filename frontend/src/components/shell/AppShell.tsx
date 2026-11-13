@@ -5,6 +5,7 @@ import GameHeaderTabs, { type TabKey } from "./GameHeaderTabs";
 import MobileNav from "./MobileNav";
 import { GameWindow } from "@/components/game";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { useLanguage } from "@/lib/i18n";
 import { Flame, Sun, Moon } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -22,11 +23,9 @@ export interface AppShellProps {
 
 /**
  * AppShell: Master In-Game Layout Shell
- * - Full-bleed background.webp with dark gradient overlay and #0B0E14 base color
- * - iOS Safari safe pseudo-fixed background element
- * - Desktop: in-game top tab strip flush with cream window (variant="cream") or standalone strip (variant="bare")
- * - Mobile: compact top bar (brand + theme toggle) and thumb-friendly fixed bottom nav with safe-area support
- * - Eliminates double borders, breadcrumbs, and red X close button
+ * - Full-bleed background.webp with warm dark espresso evening scrim or sunlit parchment scrim
+ * - Desktop: flush top tab strip with cream window (variant="cream") or bare container (variant="bare")
+ * - Mobile: accessible top header (brand + TR|EN toggle + theme toggle) and fixed bottom MobileNav
  */
 export default function AppShell({
   activeTab,
@@ -35,55 +34,132 @@ export default function AppShell({
   children,
 }: AppShellProps) {
   const { theme, toggleTheme } = useTheme();
+  const { locale, toggleLocale, t } = useLanguage();
+  const isDark = theme === "dark";
 
-  // Compute variant if not explicitly provided
   const resolvedVariant =
     variant ?? (activeTab === "home" || activeTab === "search" ? "cream" : "bare");
 
   return (
-    <div className="game-theme min-h-screen relative text-stone-100 flex flex-col selection:bg-amber-500 selection:text-stone-950 font-sans">
-      {/* 1. Global In-Game Background (Fixed container with cover, centered, dark overlay) */}
+    <div
+      className={cn(
+        "game-theme min-h-screen relative flex flex-col selection:bg-amber-500 selection:text-[#14100C] font-sans transition-colors duration-200",
+        isDark ? "text-[#F5EFE6]" : "text-[#2A2018]"
+      )}
+    >
+      {/* 1. Global In-Game Background with Light/Dark Scrim */}
       <div
         aria-hidden="true"
-        className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-stone-950"
+        className={cn(
+          "fixed inset-0 pointer-events-none z-0 overflow-hidden transition-colors duration-200",
+          isDark ? "bg-[#14100C]" : "bg-[#F6F1E7]"
+        )}
       >
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/background.webp')" }}
         />
-        {/* Soft dark gradient overlay for optimal readability of text and game dialogs */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/75 pointer-events-none" />
+        <div
+          className={cn(
+            "absolute inset-0 bg-gradient-to-b pointer-events-none transition-opacity duration-200",
+            isDark
+              ? "from-[#14100C]/[0.68] via-[#14100C]/[0.48] to-[#14100C]/[0.88]"
+              : "from-[#F6F1E7]/[0.55] via-[#EFE7D8]/[0.38] to-[#E4D5BF]/[0.80]"
+          )}
+        />
       </div>
 
-      {/* 2. Mobile Compact Top Header (Brand + Theme toggle, lg:hidden) */}
-      <header className="sticky top-0 z-40 bg-stone-950/90 backdrop-blur-md border-b border-stone-800/80 px-4 py-2.5 flex items-center justify-between lg:hidden select-none">
+      {/* 2. Mobile Compact Top Header (Brand + TR|EN + Theme toggle, lg:hidden) */}
+      <header
+        className={cn(
+          "sticky top-0 z-40 backdrop-blur-md border-b px-3 sm:px-4 py-2 flex items-center justify-between gap-2 lg:hidden select-none transition-colors duration-200",
+          isDark
+            ? "bg-[#1B120C]/[0.92] border-[#3D2B1E]"
+            : "bg-[#F6F1E7]/[0.94] border-[#CBBBA3] shadow-sm"
+        )}
+      >
         <button
           type="button"
           onClick={() => onTabChange("home")}
-          className="flex items-center gap-2 select-none cursor-pointer"
+          className="min-h-[44px] flex items-center gap-2 px-1 rounded-xl select-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98A2B]"
+          aria-label={t.nav.home}
         >
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-700 flex items-center justify-center text-stone-950 font-black shadow-sm">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#E09A1F] to-[#9E5B13] border border-[#5A3A28]/50 flex items-center justify-center text-[#1A1008] font-black shadow-sm shrink-0">
             <Flame size={16} />
           </div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-extrabold text-sm tracking-tight text-white font-game drop-shadow-sm">
-              CoC Analitik
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span
+              className={cn(
+                "font-extrabold text-sm tracking-tight font-game truncate",
+                isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
+              )}
+            >
+              {t.nav.brand}
             </span>
-            <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 border border-amber-400/40">
-              TH18
+            <span
+              className={cn(
+                "text-[10px] font-black px-1.5 py-0.5 rounded border tabular-nums shrink-0",
+                isDark
+                  ? "bg-[#D98A2B]/20 text-[#FFEB75] border-[#D98A2B]/45"
+                  : "bg-[#D98A2B]/15 text-[#7A4B12] border-[#D98A2B]/40"
+              )}
+            >
+              {t.nav.thBadge}
             </span>
           </div>
         </button>
 
-        <button
-          type="button"
-          onClick={toggleTheme}
-          className="p-2 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-stone-700/60 text-amber-400 transition-colors cursor-pointer"
-          title={theme === "dark" ? "Açık Temaya Geç" : "Koyu Temaya Geç"}
-          aria-label="Tema Değiştir"
-        >
-          {theme === "dark" ? <Sun size={17} /> : <Moon size={17} className="text-sky-300" />}
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Compact Language Switcher (TR | EN) */}
+          <button
+            type="button"
+            onClick={toggleLocale}
+            aria-label={t.nav.switchLanguage}
+            title={t.nav.switchLanguage}
+            className={cn(
+              "min-h-[44px] min-w-[44px] px-2 rounded-xl border text-[11px] font-extrabold tracking-wide inline-flex items-center justify-center gap-1 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98A2B]",
+              isDark
+                ? "bg-[#241911]/95 hover:bg-[#342318] border-[#5A3A28] text-[#E8D8C3]"
+                : "bg-[#EFE7D8] hover:bg-[#E4D5BF] border-[#B8A487] text-[#3B2214]"
+            )}
+          >
+            <span
+              className={cn(
+                "px-1.5 py-0.5 rounded-md leading-none",
+                locale === "tr" ? "bg-[#D98A2B] text-[#1A1008]" : "opacity-65"
+              )}
+            >
+              TR
+            </span>
+            <span className="opacity-35 leading-none" aria-hidden="true">
+              |
+            </span>
+            <span
+              className={cn(
+                "px-1.5 py-0.5 rounded-md leading-none",
+                locale === "en" ? "bg-[#D98A2B] text-[#1A1008]" : "opacity-65"
+              )}
+            >
+              EN
+            </span>
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={cn(
+              "min-w-[44px] min-h-[44px] rounded-xl border inline-flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D98A2B]",
+              isDark
+                ? "bg-[#241911]/95 hover:bg-[#342318] border-[#5A3A28] text-[#F8C12C]"
+                : "bg-[#EFE7D8] hover:bg-[#E4D5BF] border-[#B8A487] text-[#4A2E1E]"
+            )}
+            title={isDark ? t.nav.switchToLight : t.nav.switchToDark}
+            aria-label={t.nav.toggleTheme}
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        </div>
       </header>
 
       {/* 3. Main Body Container */}
@@ -98,7 +174,7 @@ export default function AppShell({
         </div>
 
         {/* Content Wrapper (GameWindow: cream for home/search, bare for meta/cwl/ore/wall) */}
-        <main className="flex-1 w-full pb-28 lg:pb-8 relative z-10">
+        <main className="flex-1 w-full pb-6 lg:pb-8 relative z-10">
           <GameWindow
             variant={resolvedVariant}
             className={cn(
@@ -112,14 +188,35 @@ export default function AppShell({
         </main>
       </div>
 
-      {/* 4. Footer (Supercell Fan Content Policy disclaimer) */}
-      <footer className="relative z-10 border-t border-stone-800/80 bg-stone-950/80 backdrop-blur-md mt-auto py-6 text-center text-xs text-stone-400 space-y-2 pb-28 lg:pb-6">
-        <div className="max-w-4xl mx-auto px-4">
-          <p className="font-semibold text-stone-200">
-            CoC Analitik • Clash of Clans İstatistik & Strateji Platformu (TH18 Meta)
+      {/* 4. Footer (Supercell Fan Content Policy disclaimer, clears MobileNav + safe-area) */}
+      <footer
+        className={cn(
+          "relative z-10 border-t backdrop-blur-md mt-auto pt-6 text-center text-xs transition-colors duration-200 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:pb-6",
+          isDark
+            ? "border-[#3D2B1E] bg-[#14100C]/90 text-[#B8A99A]"
+            : "border-[#CBBBA3] bg-[#EFE7D8]/[0.92] text-[#5D4B3B]"
+        )}
+      >
+        <div className="max-w-4xl mx-auto px-4 space-y-1.5">
+          <p className={cn("font-semibold", isDark ? "text-[#F5EFE6]" : "text-[#2A2018]")}>
+            {t.footer.title}
           </p>
-          <p className="text-[11px] text-stone-400 mt-1 leading-relaxed">
-            Bu içerik Supercell ile bağlantılı değildir, Supercell tarafından onaylanmamış, desteklenmemiş veya özel olarak onaylanmamıştır ve Supercell bundan sorumlu değildir. Daha fazla bilgi için Supercell Hayran İçeriği Politikası&apos;na bakın: <a href="https://supercell.com/fan-content-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-stone-200">supercell.com/fan-content-policy</a>.
+          <p className={cn("text-[11px] leading-relaxed", isDark ? "text-[#B8A99A]" : "text-[#5D4B3B]")}>
+            {t.footer.disclaimer}{" "}
+            <a
+              href="https://supercell.com/fan-content-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "underline font-medium transition-colors",
+                isDark
+                  ? "text-[#D9B88C] hover:text-[#FFEB75]"
+                  : "text-[#7A4B12] hover:text-[#2A2018]"
+              )}
+            >
+              supercell.com/fan-content-policy
+            </a>
+            .
           </p>
         </div>
       </footer>

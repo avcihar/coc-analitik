@@ -107,11 +107,15 @@ export function getLeagueTierByTrophies(trophies: number): LeagueTierData {
 /**
  * Resolve builder base league information and icon.
  */
-export function getBuilderBaseLeagueInfo(member: ClanMember): { iconUrl?: string; name: string } {
+export function getBuilderBaseLeagueInfo(
+  member: ClanMember,
+  locale: "tr" | "en" = "tr"
+): { iconUrl?: string; name: string } {
+  const isTr = locale === "tr";
   if (member.builderBaseLeague?.iconUrls?.small || member.builderBaseLeague?.iconUrls?.medium) {
     return {
       iconUrl: member.builderBaseLeague.iconUrls.small || member.builderBaseLeague.iconUrls.medium,
-      name: member.builderBaseLeague.name || "İnşaatçı Ligi",
+      name: member.builderBaseLeague.name || (isTr ? "İnşaatçı Ligi" : "Builder League"),
     };
   }
   if (member.builderBaseLeague?.name) {
@@ -119,36 +123,55 @@ export function getBuilderBaseLeagueInfo(member: ClanMember): { iconUrl?: string
       name: member.builderBaseLeague.name,
     };
   }
-  // Kupa bazlı eşleşme
   const bbTrophies = member.builderBaseTrophies ?? member.trophies ?? 0;
-  if (bbTrophies >= 5000) return { name: "Elmas Ligi" };
-  if (bbTrophies >= 4000) return { name: "Zümrüt Ligi" };
-  if (bbTrophies >= 3000) return { name: "Platin Ligi" };
-  if (bbTrophies >= 2200) return { name: "Çelik Ligi" };
-  if (bbTrophies >= 1600) return { name: "Demir Ligi" };
-  if (bbTrophies >= 1000) return { name: "Bakır Ligi" };
-  if (bbTrophies >= 500) return { name: "Taş Ligi" };
-  if (bbTrophies > 0) return { name: "Ahşap Ligi" };
-  return { name: "Ligsiz" };
+  if (bbTrophies >= 5000) return { name: isTr ? "Elmas Ligi" : "Diamond League" };
+  if (bbTrophies >= 4000) return { name: isTr ? "Zümrüt Ligi" : "Emerald League" };
+  if (bbTrophies >= 3000) return { name: isTr ? "Platin Ligi" : "Platinum League" };
+  if (bbTrophies >= 2200) return { name: isTr ? "Çelik Ligi" : "Steel League" };
+  if (bbTrophies >= 1600) return { name: isTr ? "Demir Ligi" : "Iron League" };
+  if (bbTrophies >= 1000) return { name: isTr ? "Bakır Ligi" : "Copper League" };
+  if (bbTrophies >= 500) return { name: isTr ? "Taş Ligi" : "Stone League" };
+  if (bbTrophies > 0) return { name: isTr ? "Ahşap Ligi" : "Wood League" };
+  return { name: isTr ? "Ligsiz" : "Unranked" };
+}
+
+/**
+ * Resolve localized modern 37-tier league display name by ID or fallback.
+ */
+export function getLocalizedLeagueName(
+  tierId: number | undefined,
+  rawName: string | undefined,
+  locale: "tr" | "en" = "tr"
+): string {
+  const isTr = locale === "tr";
+  if (tierId !== undefined) {
+    const mappedId = LEGACY_LEAGUE_MAP[tierId] ?? tierId;
+    const matched = MODERN_37_LEAGUE_TIERS.find((t) => t.id === mappedId);
+    if (matched) return isTr ? matched.nameTr : matched.name;
+  }
+  if (rawName) {
+    const byName = MODERN_37_LEAGUE_TIERS.find(
+      (t) => t.name.toLowerCase() === rawName.toLowerCase() || t.nameTr.toLowerCase() === rawName.toLowerCase()
+    );
+    if (byName) return isTr ? byName.nameTr : byName.name;
+    return rawName;
+  }
+  return isTr ? "Ligsiz" : "Unranked";
 }
 
 /**
  * Resolves the accurate league symbol and title for a clan member:
- * 1. If villageTab === "builderBase": Priority to member.builderBaseLeague icon, else trophy estimation.
- * 2. Home Village:
- *    - Priority 1: member.leagueTier?.iconUrls?.small (Modern 37-tier Electro/Valkyrie/Skeleton)
- *    - Priority 2: member.leagueTier?.id -> matched tier in MODERN_37_LEAGUE_TIERS
- *    - Priority 3: member.league?.iconUrls?.small (or medium/tiny)
- *    - Priority 4: member.league?.id -> legacy mapping to 37 tiers
- *    - Priority 5: Trophy count matching if trophies > 0
  */
 export function getMemberLeagueInfo(
   member: ClanMember,
-  villageTab?: ClanVillageTab
+  villageTab?: ClanVillageTab,
+  locale: "tr" | "en" = "tr"
 ): { iconUrl?: string; name: string } {
+  const isTr = locale === "tr";
+
   // 1. Builder Base Tab
   if (villageTab === "builderBase") {
-    return getBuilderBaseLeagueInfo(member);
+    return getBuilderBaseLeagueInfo(member, locale);
   }
 
   // 2. Modern 37-tier CoC API leagueTier icon (only if NOT unranked)
@@ -159,7 +182,7 @@ export function getMemberLeagueInfo(
   ) {
     return {
       iconUrl: member.leagueTier.iconUrls.small,
-      name: member.leagueTier.name || "Lig",
+      name: getLocalizedLeagueName(member.leagueTier.id, member.leagueTier.name, locale),
     };
   }
 
@@ -169,7 +192,7 @@ export function getMemberLeagueInfo(
     if (matched && matched.iconSmall) {
       return {
         iconUrl: matched.iconSmall,
-        name: member.leagueTier.name || matched.nameTr,
+        name: isTr ? matched.nameTr : matched.name,
       };
     }
   }
@@ -186,7 +209,7 @@ export function getMemberLeagueInfo(
       if (matched && matched.iconSmall) {
         return {
           iconUrl: matched.iconSmall,
-          name: member.league.name || matched.nameTr,
+          name: isTr ? matched.nameTr : matched.name,
         };
       }
     }
@@ -194,7 +217,7 @@ export function getMemberLeagueInfo(
     if (legacyIcon) {
       return {
         iconUrl: legacyIcon,
-        name: member.league.name || "Lig",
+        name: member.league.name || (isTr ? "Lig" : "League"),
       };
     }
   }
@@ -205,7 +228,7 @@ export function getMemberLeagueInfo(
     if (matched && matched.id !== 105000000 && matched.iconSmall) {
       return {
         iconUrl: matched.iconSmall,
-        name: matched.nameTr,
+        name: isTr ? matched.nameTr : matched.name,
       };
     }
   }
@@ -214,7 +237,7 @@ export function getMemberLeagueInfo(
   const unrankedTier = MODERN_37_LEAGUE_TIERS[0];
   return {
     iconUrl: unrankedTier.iconSmall,
-    name: "Ligsiz",
+    name: isTr ? "Ligsiz" : "Unranked",
   };
 }
 

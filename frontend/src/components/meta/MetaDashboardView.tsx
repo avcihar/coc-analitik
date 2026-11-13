@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   ExternalLink,
   RefreshCw,
@@ -11,23 +11,34 @@ import {
   Zap,
   Shield,
   Sparkles,
+  ChevronDown,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { buildCopyArmyLink } from "@/lib/armyLink";
+import {
+  buildCopyArmyLink,
+  parseArmyShareCode,
+  type DecodedArmyShare,
+} from "@/lib/armyLink";
 import { safeFetchJson } from "@/lib/apiClient";
+import { useLanguage } from "@/lib/i18n";
 import {
   GameButton,
   GamePanel,
   GameTabBar,
   GameTab,
   IconFrame,
+  SkeletonBlock,
   StatPill,
 } from "@/components/game";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+type EquipmentRarityKind = "common" | "epic";
+
+const ALL_HERO_FILTER = "ALL";
 
 interface EquipmentPairStat {
   hero: string;
@@ -74,6 +85,8 @@ interface RecommendedArmy {
   avgDestructionPct?: number;
   usagePct: number;
   threeStarRatePct: number;
+  totalTroopHousing?: number;
+  totalSpellSpace?: number;
   heroLoadout: Record<
     string,
     {
@@ -108,6 +121,7 @@ interface RecommendedArmy {
   }[];
   armyShareCode: string;
   copyArmyLink?: string;
+  armyLink?: string;
 }
 
 interface MetaDashboardPayload {
@@ -120,6 +134,7 @@ interface MetaDashboardPayload {
   totalBattlesAnalyzed?: number;
   dataFetchedAt: string;
   townHallFilter: number;
+  hasSufficientData?: boolean;
   isProcessing?: boolean;
   progress?: {
     processed: number;
@@ -128,6 +143,7 @@ interface MetaDashboardPayload {
     message: string;
   };
   statistics?: {
+    hasSufficientData?: boolean;
     heroUsage?: HeroUsageStat[];
     heroEquipmentPairs?: EquipmentPairStat[];
     equipmentByHero?: Record<string, EquipmentPairStat[]>;
@@ -146,67 +162,92 @@ interface MetaDashboardPayload {
   };
 }
 
-const HERO_MAX_LEVELS: Record<string, number> = {
-  "Barbarian King": 110,
-  "Archer Queen": 110,
-  "Grand Warden": 85,
-  "Royal Champion": 55,
-  "Minion Prince": 95,
-  "Dragon Duke": 25,
-};
-
 // Canonical Item Definitions matching official icons in frontend/public/icons/
-const CANONICAL_EQUIPMENTS: { hero: string; name: string }[] = [
-  // Barbarian King (8 - from docs/Hero Equipment/Barbarian King)
-  { hero: "Barbarian King", name: "Barbarian Puppet" },
-  { hero: "Barbarian King", name: "Rage Vial" },
-  { hero: "Barbarian King", name: "Earthquake Boots" },
-  { hero: "Barbarian King", name: "Vampstache" },
-  { hero: "Barbarian King", name: "Giant Gauntlet" },
-  { hero: "Barbarian King", name: "Spiky Ball" },
-  { hero: "Barbarian King", name: "Snake Bracelet" },
-  { hero: "Barbarian King", name: "Stick Horse" },
-  // Archer Queen (8 - from docs/Hero Equipment/Archer Queen)
-  { hero: "Archer Queen", name: "Archer Puppet" },
-  { hero: "Archer Queen", name: "Invisibility Vial" },
-  { hero: "Archer Queen", name: "Giant Arrow" },
-  { hero: "Archer Queen", name: "Healer Puppet" },
-  { hero: "Archer Queen", name: "Frozen Arrow" },
-  { hero: "Archer Queen", name: "Magic Mirror" },
-  { hero: "Archer Queen", name: "Action Figure" },
-  { hero: "Archer Queen", name: "Monolith Arrow" },
-  // Grand Warden (7 - from docs/Hero Equipment/Grand Warden)
-  { hero: "Grand Warden", name: "Eternal Tome" },
-  { hero: "Grand Warden", name: "Life Gem" },
-  { hero: "Grand Warden", name: "Rage Gem" },
-  { hero: "Grand Warden", name: "Healing Tome" },
-  { hero: "Grand Warden", name: "Fireball" },
-  { hero: "Grand Warden", name: "Heroic Torch" },
-  { hero: "Grand Warden", name: "Lavaloon Puppet" },
-  // Royal Champion (7 - from docs/Hero Equipment/Royal Champion)
-  { hero: "Royal Champion", name: "Seeking Shield" },
-  { hero: "Royal Champion", name: "Royal Gem" },
-  { hero: "Royal Champion", name: "Haste Vial" },
-  { hero: "Royal Champion", name: "Hog Rider Puppet" },
-  { hero: "Royal Champion", name: "Rocket Spear" },
-  { hero: "Royal Champion", name: "Electro Boots" },
-  { hero: "Royal Champion", name: "Frost Flake" },
-  // Minion Prince (7 - from docs/Hero Equipment/Minion Prince)
-  { hero: "Minion Prince", name: "Dark Crown" },
-  { hero: "Minion Prince", name: "Dark Orb" },
-  { hero: "Minion Prince", name: "Henchmen Puppet" },
-  { hero: "Minion Prince", name: "Metal Pants" },
-  { hero: "Minion Prince", name: "Meteor Staff" },
-  { hero: "Minion Prince", name: "Noble Iron" },
-  { hero: "Minion Prince", name: "Portal Pendant" },
-  // Dragon Duke (6 - from docs/Hero Equipment/Dragon Duke)
-  { hero: "Dragon Duke", name: "Electro Fangs" },
-  { hero: "Dragon Duke", name: "Fire Heart" },
-  { hero: "Dragon Duke", name: "Flame Blower" },
-  { hero: "Dragon Duke", name: "Revenge Deck" },
-  { hero: "Dragon Duke", name: "Rocket Backpack" },
-  { hero: "Dragon Duke", name: "Stun Blaster" },
+// Rarity verified against armyLink.ts (EQUIPMENT_BY_ID) and inference.py (EQUIPMENT_BY_HERO)
+const CANONICAL_EQUIPMENTS: {
+  hero: string;
+  name: string;
+  rarity: EquipmentRarityKind;
+}[] = [
+  // Barbarian King (8)
+  { hero: "Barbarian King", name: "Barbarian Puppet", rarity: "common" },
+  { hero: "Barbarian King", name: "Rage Vial", rarity: "common" },
+  { hero: "Barbarian King", name: "Earthquake Boots", rarity: "common" },
+  { hero: "Barbarian King", name: "Vampstache", rarity: "common" },
+  { hero: "Barbarian King", name: "Giant Gauntlet", rarity: "epic" },
+  { hero: "Barbarian King", name: "Spiky Ball", rarity: "epic" },
+  { hero: "Barbarian King", name: "Snake Bracelet", rarity: "epic" },
+  { hero: "Barbarian King", name: "Stick Horse", rarity: "epic" },
+  // Archer Queen (8)
+  { hero: "Archer Queen", name: "Archer Puppet", rarity: "common" },
+  { hero: "Archer Queen", name: "Invisibility Vial", rarity: "common" },
+  { hero: "Archer Queen", name: "Giant Arrow", rarity: "common" },
+  { hero: "Archer Queen", name: "Healer Puppet", rarity: "common" },
+  { hero: "Archer Queen", name: "Frozen Arrow", rarity: "epic" },
+  { hero: "Archer Queen", name: "Magic Mirror", rarity: "epic" },
+  { hero: "Archer Queen", name: "Action Figure", rarity: "epic" },
+  { hero: "Archer Queen", name: "Monolith Arrow", rarity: "common" },
+  // Grand Warden (7)
+  { hero: "Grand Warden", name: "Eternal Tome", rarity: "common" },
+  { hero: "Grand Warden", name: "Life Gem", rarity: "common" },
+  { hero: "Grand Warden", name: "Rage Gem", rarity: "common" },
+  { hero: "Grand Warden", name: "Healing Tome", rarity: "common" },
+  { hero: "Grand Warden", name: "Fireball", rarity: "epic" },
+  { hero: "Grand Warden", name: "Heroic Torch", rarity: "epic" },
+  { hero: "Grand Warden", name: "Lavaloon Puppet", rarity: "epic" },
+  // Royal Champion (7)
+  { hero: "Royal Champion", name: "Seeking Shield", rarity: "common" },
+  { hero: "Royal Champion", name: "Royal Gem", rarity: "common" },
+  { hero: "Royal Champion", name: "Haste Vial", rarity: "common" },
+  { hero: "Royal Champion", name: "Hog Rider Puppet", rarity: "common" },
+  { hero: "Royal Champion", name: "Rocket Spear", rarity: "epic" },
+  { hero: "Royal Champion", name: "Electro Boots", rarity: "epic" },
+  { hero: "Royal Champion", name: "Frost Flake", rarity: "epic" },
+  // Minion Prince (7)
+  { hero: "Minion Prince", name: "Dark Crown", rarity: "epic" },
+  { hero: "Minion Prince", name: "Dark Orb", rarity: "common" },
+  { hero: "Minion Prince", name: "Henchmen Puppet", rarity: "common" },
+  { hero: "Minion Prince", name: "Metal Pants", rarity: "common" },
+  { hero: "Minion Prince", name: "Meteor Staff", rarity: "epic" },
+  { hero: "Minion Prince", name: "Noble Iron", rarity: "common" },
+  { hero: "Minion Prince", name: "Portal Pendant", rarity: "epic" },
+  // Dragon Duke (6)
+  { hero: "Dragon Duke", name: "Electro Fangs", rarity: "epic" },
+  { hero: "Dragon Duke", name: "Fire Heart", rarity: "common" },
+  { hero: "Dragon Duke", name: "Flame Blower", rarity: "common" },
+  { hero: "Dragon Duke", name: "Revenge Deck", rarity: "epic" },
+  { hero: "Dragon Duke", name: "Rocket Backpack", rarity: "epic" },
+  { hero: "Dragon Duke", name: "Stun Blaster", rarity: "common" },
 ];
+
+const EQUIPMENT_RARITY_BY_NAME: Record<string, EquipmentRarityKind> = Object.fromEntries(
+  CANONICAL_EQUIPMENTS.map((eq) => [eq.name.trim().toLowerCase(), eq.rarity])
+);
+
+function resolveEquipmentRarity(
+  equipmentName?: string | null,
+  parsedArmy?: DecodedArmyShare | null
+): EquipmentRarityKind {
+  const key = (equipmentName || "").trim().toLowerCase();
+  if (!key) return "common";
+
+  if (parsedArmy?.heroes?.length) {
+    for (const hero of parsedArmy.heroes) {
+      const matched = hero.equipment.find(
+        (eq) => (eq.name || "").trim().toLowerCase() === key && !eq.unknown
+      );
+      if (matched?.rarity) {
+        return matched.rarity.toLowerCase() === "epic" ? "epic" : "common";
+      }
+    }
+  }
+
+  return EQUIPMENT_RARITY_BY_NAME[key] ?? "common";
+}
+
+function getEquipmentFrameClass(rarity: EquipmentRarityKind): string {
+  return rarity === "epic" ? "!border-[#EAB308]" : "!border-[#78716C]";
+}
 
 const CANONICAL_PETS: string[] = [
   "L.A.S.S.I",
@@ -320,112 +361,237 @@ function MetaArmyCard({
   army: RecommendedArmy;
   defaultExpanded?: boolean;
 }) {
+  const { locale, isTr, t, fmtNum, fmtPct, fmtTemplate } = useLanguage();
   const [isExpanded, setIsExpanded] = useState<boolean>(defaultExpanded);
-  const copyUrl = army.copyArmyLink || buildCopyArmyLink(army.armyShareCode);
-  const hasLoadout = army.heroLoadout && Object.keys(army.heroLoadout).length > 0;
 
-  // Calculate capacities
-  const totalTroopUnits = (army.troops || []).reduce((acc, t) => acc + (t.count || 0), 0);
-  const totalSpellUnits = (army.spells || []).reduce((acc, s) => acc + (s.count || 0), 0);
-  const totalSiegeUnits = (army.siegeMachines || []).reduce((acc, sg) => acc + (sg.count || 0), 0);
-  const totalCCUnits = (army.clanCastle || []).reduce((acc, cc) => acc + (cc.count || 0), 0);
+  const shareCode = army.armyShareCode || army.armyLink || "";
+  const copyUrl = army.copyArmyLink || buildCopyArmyLink(shareCode);
+  const bodyId = `meta-army-body-${army.id}`;
+
+  const parsedArmy = useMemo(
+    () => (shareCode ? parseArmyShareCode(shareCode, locale) : null),
+    [shareCode, locale]
+  );
+
+  // Real housing space & capacity calculations (parsedArmy via armyLink registries + backend field fallback)
+  const fallbackTroopHousing = (army.troops || []).reduce((acc, item) => {
+    if (typeof item.totalHousingSpace === "number" && item.totalHousingSpace > 0) {
+      return acc + item.totalHousingSpace;
+    }
+    if (typeof item.housingSpace === "number" && item.housingSpace > 0) {
+      return acc + item.housingSpace * (item.count || 0);
+    }
+    return acc;
+  }, 0);
+
+  const totalTroopHousing =
+    (parsedArmy && parsedArmy.totalTroopHousing > 0 ? parsedArmy.totalTroopHousing : null) ??
+    (typeof army.totalTroopHousing === "number" && army.totalTroopHousing > 0
+      ? army.totalTroopHousing
+      : null) ??
+    fallbackTroopHousing;
+
+  const fallbackSpellSpace = (army.spells || []).reduce((acc, item) => {
+    if (typeof item.totalSpellSpace === "number" && item.totalSpellSpace > 0) {
+      return acc + item.totalSpellSpace;
+    }
+    if (typeof item.housingSpace === "number" && item.housingSpace > 0) {
+      return acc + item.housingSpace * (item.count || 0);
+    }
+    return acc;
+  }, 0);
+
+  const totalSpellSpace =
+    (parsedArmy && parsedArmy.totalSpellSpace > 0 ? parsedArmy.totalSpellSpace : null) ??
+    (typeof army.totalSpellSpace === "number" && army.totalSpellSpace > 0
+      ? army.totalSpellSpace
+      : null) ??
+    fallbackSpellSpace;
+
+  const backendSiegeUnits = (army.siegeMachines || []).reduce(
+    (acc, sg) => acc + (sg.count || 0),
+    0
+  );
+  const parsedSiegeUnits = (parsedArmy?.siegeMachines || []).reduce(
+    (acc, sg) => acc + (sg.count || 0),
+    0
+  );
+  const totalSiegeUnits = backendSiegeUnits > 0 ? backendSiegeUnits : parsedSiegeUnits;
+
+  const parsedCcTroopSpace = (parsedArmy?.clanCastleTroops || []).reduce(
+    (acc, item) =>
+      acc +
+      (item.totalHousingSpace ??
+        ((item.housingSpace || 0) * (item.count || 0))),
+    0
+  );
+  const parsedCcSpellSpace = (parsedArmy?.clanCastleSpells || []).reduce(
+    (acc, item) =>
+      acc +
+      (item.totalSpellSpace ??
+        ((item.housingSpace || 0) * (item.count || 0))),
+    0
+  );
+  const backendCcHousing = (army.clanCastle || []).reduce(
+    (acc, cc) =>
+      acc +
+      (typeof cc.housingSpace === "number" && cc.housingSpace > 0
+        ? cc.housingSpace * (cc.count || 0)
+        : 0),
+    0
+  );
+  const totalCCUnits = (army.clanCastle || []).reduce(
+    (acc, cc) => acc + (cc.count || 0),
+    0
+  );
+  const ccTroopOrTotalSpace =
+    parsedCcTroopSpace > 0
+      ? parsedCcTroopSpace
+      : backendCcHousing > 0
+      ? backendCcHousing
+      : totalCCUnits;
+  const ccDisplayValue =
+    parsedCcSpellSpace > 0
+      ? `${fmtNum(ccTroopOrTotalSpace)} + ${fmtNum(parsedCcSpellSpace)}`
+      : fmtNum(ccTroopOrTotalSpace);
+
+  const hasLoadout = army.heroLoadout && Object.keys(army.heroLoadout).length > 0;
+  const hasRecordCount = typeof army.sampleCount === "number" && army.sampleCount > 0;
 
   return (
     <GamePanel
       variant="wood"
       className="transition-all"
+      headerClassName="flex-wrap gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 [&>div:first-child]:basis-full sm:[&>div:first-child]:basis-0"
       onHeaderClick={() => setIsExpanded((prev) => !prev)}
       title={
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6">
-          {/* Left: #1 • Army Name + record count */}
-          <div className="shrink-0">
-            <div className="flex items-center gap-2">
-              <span className="game-title-stroke text-base sm:text-lg md:text-xl tracking-wide">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2.5 sm:gap-5 min-w-0">
+          {/* Left: #1 • Army Name + real record count */}
+          <div className="min-w-0 max-w-full">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="game-title-stroke font-game font-extrabold text-base sm:text-lg md:text-xl tracking-wide break-words">
                 #{army.rank} • {army.name}
               </span>
             </div>
-            <div className="text-[11px] sm:text-xs text-amber-200/75 font-semibold mt-0.5">
-              {army.sampleCount ? `${army.sampleCount} kayıt` : "649 kayıt"}
-            </div>
+            {hasRecordCount && (
+              <div className="text-xs text-amber-200/80 font-semibold mt-0.5 tabular-nums">
+                {fmtTemplate(t.meta.recordsCount, {
+                  count: fmtNum(army.sampleCount as number),
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Center: Stat Boxes */}
-          <div className="flex items-center gap-2">
+          {/* Center: Wrapping Stat Boxes */}
+          <div className="flex flex-wrap items-center gap-2">
             {/* Box 1: Usage Rate */}
             <div className="game-stat-box">
-              <span className="text-[10px] text-amber-200/90 font-bold uppercase tracking-wider">
-                Kullanım
+              <span className="text-xs text-amber-200/90 font-bold uppercase tracking-wider">
+                {t.meta.usageLabel}
               </span>
-              <span className="text-base sm:text-lg font-black text-amber-300">
-                %{army.usagePct.toFixed(1)}
+              <span className="font-game text-base sm:text-lg font-extrabold text-amber-300 tabular-nums">
+                {fmtPct(army.usagePct, 1)}
               </span>
             </div>
 
             {/* Box 2: 3-Star Rate */}
             <div className="game-stat-box">
-              <span className="text-[10px] text-emerald-200/90 font-bold uppercase tracking-wider">
-                3 Yıldız
+              <span className="text-xs text-emerald-200/90 font-bold uppercase tracking-wider">
+                {t.meta.threeStarLabel}
               </span>
-              <span className="text-base sm:text-lg font-black text-emerald-400">
-                %{army.threeStarRatePct.toFixed(1)}
+              <span className="font-game text-base sm:text-lg font-extrabold text-emerald-400 tabular-nums">
+                {fmtPct(army.threeStarRatePct, 1)}
               </span>
             </div>
           </div>
         </div>
       }
       headerRight={
-        <GameButton
-          variant="green"
-          size="md"
-          href={copyUrl}
-          target="_blank"
-          icon={<ExternalLink size={16} />}
-          className="px-4 py-2 text-xs sm:text-sm font-black whitespace-nowrap shrink-0 self-stretch sm:self-auto"
-          title="Doğrudan Clash of Clans oyununda açmak için tıkla"
-        >
-          Orduyu Kopyala
-        </GameButton>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <GameButton
+            variant="green"
+            size="md"
+            href={copyUrl || undefined}
+            target={copyUrl ? "_blank" : undefined}
+            disabled={!copyUrl}
+            icon={<ExternalLink size={16} />}
+            className="min-h-[44px] px-4 py-2 text-xs sm:text-sm font-extrabold whitespace-nowrap shrink-0"
+            title={t.meta.copyTooltip}
+          >
+            {t.meta.copyArmy}
+          </GameButton>
+
+          <button
+            type="button"
+            onClick={() => setIsExpanded((prev) => !prev)}
+            aria-expanded={isExpanded}
+            aria-controls={bodyId}
+            aria-label={
+              isExpanded
+                ? isTr
+                  ? "Ordu detaylarını daralt"
+                  : "Collapse army details"
+                : isTr
+                ? "Ordu detaylarını genişlet"
+                : "Expand army details"
+            }
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] rounded-xl bg-[#2B1F16]/85 hover:bg-[#3E2B1E] active:scale-95 border-2 border-[#4A2E1E] text-amber-200 transition-colors cursor-pointer shrink-0"
+          >
+            <ChevronDown
+              size={20}
+              className={cn(
+                "transition-transform duration-200",
+                isExpanded && "rotate-180"
+              )}
+            />
+          </button>
+        </div>
       }
     >
       {isExpanded && (
-        <div className="space-y-2.5">
-          {/* Capacity Row (Single line of StatPills under header) */}
+        <div id={bodyId} className="space-y-2.5">
+          {/* Real Capacity Row */}
           <div className="flex flex-wrap items-center gap-2">
             <StatPill
+              variant="amber"
               icon={<Swords size={12} className="text-amber-300" />}
-              value={`${totalTroopUnits}/352`}
-              title="Birlik Kapasitesi"
+              label={t.meta.troopCapLabel}
+              value={fmtNum(totalTroopHousing)}
+              title={t.meta.troopCapLabel}
             />
             <StatPill
-              icon={<Zap size={12} className="text-sky-300" />}
-              value={`${totalSpellUnits}/11`}
-              title="Büyü Kapasitesi"
+              variant="copper"
+              icon={<Zap size={12} className="text-orange-300" />}
+              label={t.meta.spellCapLabel}
+              value={fmtNum(totalSpellSpace)}
+              title={t.meta.spellCapLabel}
             />
             <StatPill
+              variant="amber"
               icon={<Shield size={12} className="text-amber-400" />}
-              value={`${totalSiegeUnits}/3`}
-              title="Kuşatma Makinesi Kapasitesi"
+              label={t.meta.siegeCapLabel}
+              value={fmtNum(totalSiegeUnits)}
+              title={t.meta.siegeCapLabel}
             />
             <StatPill
+              variant="green"
               icon={<Castle size={12} className="text-emerald-300" />}
-              value={`${totalCCUnits}/61`}
-              title="Klan Kalesi Birimleri"
+              label={t.meta.ccCapLabel}
+              value={ccDisplayValue}
+              title={t.meta.ccCapLabel}
             />
           </div>
 
-          {/* Unified Row 1 Box: Askerler + Büyüler + Kuşatma Makineleri Birleşik Kutu (Logo En Başa Sabitlendi) */}
+          {/* Unified Row 1 Box: Troops + Spells + Siege Machines */}
           <div className="game-slot-well flex items-stretch gap-1 sm:gap-1.5 p-1 w-full">
-            {/* Left slot gutter icon - FIXED at the start */}
             <div
               className="game-slot-gutter shrink-0 self-stretch min-h-[44px] sm:min-h-[50px] md:min-h-[56px] lg:min-h-[58px] flex items-center justify-center"
-              title="Saldırı Birlikleri, Büyüler ve Kuşatma Makineleri"
+              title={t.meta.sectionAttack}
             >
               <Swords size={14} />
             </div>
 
-            {/* Units Container (wraps cleanly to the right of fixed gutter) */}
             <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1 sm:gap-1.5">
-              {/* Troops (Askerler) */}
               {army.troops?.map((troop, idx) => (
                 <IconFrame
                   key={`troop-${troop.id}-${idx}`}
@@ -435,12 +601,10 @@ function MetaArmyCard({
                 />
               ))}
 
-              {/* Divider between Troops and Spells */}
               {army.spells && army.spells.length > 0 && (
                 <div className="w-[1.5px] h-7 sm:h-9 md:h-11 bg-amber-950/70 my-auto mx-0.5 shrink-0" />
               )}
 
-              {/* Spells (Büyüler) */}
               {army.spells?.map((spell, idx) => (
                 <IconFrame
                   key={`spell-${spell.id}-${idx}`}
@@ -450,12 +614,10 @@ function MetaArmyCard({
                 />
               ))}
 
-              {/* Divider between Spells and Siege */}
               {army.siegeMachines && army.siegeMachines.length > 0 && (
                 <div className="w-[1.5px] h-7 sm:h-9 md:h-11 bg-amber-950/70 my-auto mx-0.5 shrink-0" />
               )}
 
-              {/* Siege Machines (Kuşatma Makineleri) */}
               {army.siegeMachines?.map((sg, idx) => (
                 <IconFrame
                   key={`siege-${sg.id}-${idx}`}
@@ -467,75 +629,64 @@ function MetaArmyCard({
             </div>
           </div>
 
-          {/* Row 2: Kahramanlar & Klan Kalesi (Ayrı Kutular - Logolar En Başa Sabitlendi) */}
+          {/* Row 2: Heroes & Clan Castle */}
           <div className="flex flex-col lg:flex-row items-stretch gap-2.5 w-full">
-            {/* 1. Kahramanlar, Donanımlar ve Hayvanlar Kutusu */}
             {hasLoadout && (
-              <div className="game-slot-well flex items-stretch gap-1 sm:gap-1.5 p-1 flex-1 min-w-[280px]">
-                {/* Left slot gutter icon - FIXED at the start */}
+              <div className="game-slot-well flex items-stretch gap-1 sm:gap-1.5 p-1 w-full min-w-0 flex-1">
                 <div
                   className="game-slot-gutter shrink-0 self-stretch min-h-[44px] sm:min-h-[50px] md:min-h-[56px] lg:min-h-[58px] flex items-center justify-center"
-                  title="Kahramanlar, Donanımlar ve Hayvanlar"
+                  title={t.meta.sectionHeroes}
                 >
                   <Crown size={14} />
                 </div>
 
-                {/* Heroes Container (wraps cleanly to the right of fixed gutter) */}
                 <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1 sm:gap-1.5">
-                  {Object.entries(army.heroLoadout).map(([heroName, loadout]) => {
-                    const maxLvl = HERO_MAX_LEVELS[heroName] || 110;
-                    return (
-                      <div
-                        key={heroName}
-                        className="flex items-center gap-1 p-0.5 rounded-lg bg-black/40 border border-amber-950/50"
-                      >
-                        {/* Hero Tile */}
-                        <IconFrame
-                          name={heroName}
-                          size="hero"
-                          level={maxLvl}
-                          isMax={true}
-                        />
+                  {Object.entries(army.heroLoadout).map(([heroName, loadout]) => (
+                    <div
+                      key={heroName}
+                      className="flex items-center gap-1 p-0.5 rounded-lg bg-[#2B1F16]/80 border border-[#4A2E1E]"
+                    >
+                      <IconFrame name={heroName} size="hero" />
 
-                        {/* 2 Equipments on top row, 1 Pet on bottom row */}
-                        <div className="flex flex-col gap-0.5 justify-between h-[44px] sm:h-[50px] md:h-[56px] lg:h-[58px]">
-                          <div className="flex items-center gap-0.5">
-                            {loadout.primaryPair.slice(0, 2).map((eq, eIdx) => (
+                      <div className="flex flex-col gap-0.5 justify-between h-[44px] sm:h-[50px] md:h-[56px] lg:h-[58px]">
+                        <div className="flex items-center gap-0.5">
+                          {loadout.primaryPair.slice(0, 2).map((eq, eIdx) => {
+                            const eqRarity = resolveEquipmentRarity(eq, parsedArmy);
+                            return (
                               <IconFrame
                                 key={`${heroName}-eq-${eIdx}`}
                                 name={eq}
                                 size="equipment"
-                                rarity="epic"
+                                tileType="equipment"
+                                rarity={eqRarity}
+                                className={getEquipmentFrameClass(eqRarity)}
                               />
-                            ))}
-                          </div>
-                          {loadout.pet && (
-                            <IconFrame
-                              name={loadout.pet}
-                              size="pet"
-                              rarity="legendary"
-                            />
-                          )}
+                            );
+                          })}
                         </div>
+                        {loadout.pet && (
+                          <IconFrame
+                            name={loadout.pet}
+                            size="pet"
+                            rarity="legendary"
+                          />
+                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* 2. Klan Kalesi Kutusu */}
             {army.clanCastle && army.clanCastle.length > 0 && (
-              <div className="game-cc-well flex items-stretch gap-1 sm:gap-1.5 p-1 shrink-0 min-w-[180px]">
-                {/* Left slot gutter icon - FIXED at the start */}
+              <div className="game-cc-well flex items-stretch gap-1 sm:gap-1.5 p-1 w-full lg:w-auto min-w-0 shrink-0">
                 <div
                   className="game-slot-gutter shrink-0 self-stretch min-h-[44px] sm:min-h-[50px] md:min-h-[56px] lg:min-h-[58px] flex items-center justify-center"
-                  title="Klan Kalesi"
+                  title={t.meta.sectionCC}
                 >
                   <Castle size={14} />
                 </div>
 
-                {/* Clan Castle Container (wraps cleanly to the right of fixed gutter) */}
                 <div className="flex-1 min-w-0 flex flex-wrap items-center gap-1 sm:gap-1.5">
                   {army.clanCastle.map((cc, idx) => (
                     <IconFrame
@@ -556,14 +707,29 @@ function MetaArmyCard({
 }
 
 export default function MetaDashboardView() {
+  const {
+    locale,
+    isTr,
+    t,
+    fmtNum,
+    fmtPct,
+    fmtTime,
+    fmtTemplate,
+    getApiErrorMessage,
+  } = useLanguage();
+
   const [activeTab, setActiveTab] = useState<"armies" | "stats">("armies");
   const [loading, setLoading] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<unknown>(null);
   const [dashboard, setDashboard] = useState<MetaDashboardPayload | null>(null);
 
   // Phase 2 State (Usage Statistics)
-  const [selectedHeroEqFilter, setSelectedHeroEqFilter] = useState<string>("Tümü");
-  const [unitCategoryTab, setUnitCategoryTab] = useState<"troops" | "spells" | "siege" | "super">("troops");
+  const [selectedHeroEqFilter, setSelectedHeroEqFilter] = useState<string>(ALL_HERO_FILTER);
+  const [unitCategoryTab, setUnitCategoryTab] = useState<
+    "troops" | "spells" | "siege" | "super"
+  >("troops");
+
+  const errorMsg = fetchError ? getApiErrorMessage(fetchError, t.meta.errorLoad) : null;
 
   // Sync tab with URL hash parameter (e.g. #/meta?tab=stats or #/meta?tab=armies)
   useEffect(() => {
@@ -587,38 +753,41 @@ export default function MetaDashboardView() {
     window.location.hash = `${base}?tab=${tab}`;
   };
 
-  const fetchDashboard = useCallback(
-    async (force = false) => {
-      setLoading(true);
-      setErrorMsg(null);
-      try {
-        const data = await safeFetchJson<MetaDashboardPayload>(
-          `/api/v1/meta/top-analysis?sample_size=200&town_hall=18&force_refresh=${force}`
-        );
-        setDashboard(data);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "API Hatası";
-        setErrorMsg(msg);
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const fetchDashboard = useCallback(async (force = false) => {
+    setLoading(true);
+    setFetchError(null);
+    try {
+      const data = await safeFetchJson<MetaDashboardPayload>(
+        `/api/v1/meta/top-analysis?sample_size=200&town_hall=18&force_refresh=${force}`
+      );
+      setDashboard(data);
+    } catch (err: unknown) {
+      setFetchError(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchDashboard(false);
   }, [fetchDashboard]);
 
-  // Poll while background processing
+  // Poll every 3500ms while backend scanning/assembling is in progress
   useEffect(() => {
-    if (dashboard?.isProcessing) {
+    if (dashboard?.isProcessing && !loading) {
       const timer = setTimeout(() => {
         fetchDashboard(false);
       }, 3500);
       return () => clearTimeout(timer);
     }
-  }, [dashboard?.isProcessing, fetchDashboard]);
+  }, [
+    dashboard?.isProcessing,
+    dashboard?.progress?.processed,
+    dashboard?.progress?.percentage,
+    dashboard?.dataFetchedAt,
+    loading,
+    fetchDashboard,
+  ]);
 
   const activeArmies: RecommendedArmy[] =
     dashboard?.metaArmies?.recommendationsByTownHall?.["TH18"] ||
@@ -631,29 +800,26 @@ export default function MetaDashboardView() {
   const rawEquipments = stats?.equipmentUsage || [];
   const rawPairs = stats?.heroEquipmentPairs || [];
   const heroEqByHero = stats?.equipmentByHero || {};
-  // Combine all pairs from heroEquipmentPairs and equipmentByHero
   const combinedRawPairs = [...rawPairs];
   for (const hName of Object.keys(heroEqByHero)) {
     const list = heroEqByHero[hName] || [];
     combinedRawPairs.push(...list);
   }
 
-  // Canonicalize pairs:
-  // 1. MUST have exactly 2 valid equipment items (skip single equipment like "Meteor Staff")
-  // 2. Sort equipment names alphabetically so combination {A, B} and {B, A} are counted together as the same canonical pair
-  // 3. Sum their counts and usagePct
+  // Canonicalize pairs: strictly 2 valid equipment items, sorted alphabetically
   const pairMap = new Map<string, EquipmentPairStat>();
   for (const pair of combinedRawPairs) {
     if (!pair || !pair.hero) continue;
     const equips =
       pair.equipments && pair.equipments.length >= 2
         ? pair.equipments.slice(0, 2).map((s) => s.trim())
-        : (pair.pair || "").split("+").map((s) => s.trim()).filter(Boolean);
+        : (pair.pair || "")
+            .split("+")
+            .map((s) => s.trim())
+            .filter(Boolean);
 
-    // Filter out single items! A pair strictly requires 2 equipments.
     if (equips.length < 2) continue;
 
-    // Canonical order (alphabetical sort)
     const sortedEquips = [...equips].sort();
     const canonicalPairLabel = `${sortedEquips[0]} + ${sortedEquips[1]}`;
     const key = `${pair.hero}:::${canonicalPairLabel}`;
@@ -669,7 +835,10 @@ export default function MetaDashboardView() {
       });
     } else {
       existing.count += pair.count || 0;
-      existing.usagePct = Math.min(100.0, Number((existing.usagePct + (pair.usagePct || 0)).toFixed(2)));
+      existing.usagePct = Math.min(
+        100.0,
+        Number((existing.usagePct + (pair.usagePct || 0)).toFixed(2))
+      );
     }
   }
 
@@ -680,12 +849,12 @@ export default function MetaDashboardView() {
   const rawSieges = stats?.siegeUsage || [];
   const rawSuperTroops = stats?.superTroopUsage || [];
 
-  // 1. Merge Equipments (Only the 43 official ones from docs/Hero Equipment & public/icons/equipment)
+  // 1. Merge Equipments (43 official items)
   const validCanonicalKeys = new Set(CANONICAL_EQUIPMENTS.map((c) => `${c.hero}:::${c.name}`));
   const eqMap = new Map<string, { hero: string; name: string; count: number; usagePct: number }>();
   for (const eq of rawEquipments) {
     const key = `${eq.hero}:::${eq.name}`;
-    if (!validCanonicalKeys.has(key)) continue; // Filter out fake or misplaced equipments!
+    if (!validCanonicalKeys.has(key)) continue;
     eqMap.set(key, { ...eq });
   }
   for (const c of CANONICAL_EQUIPMENTS) {
@@ -696,39 +865,38 @@ export default function MetaDashboardView() {
   }
   const allEquipments = Array.from(eqMap.values());
 
-  // 2. Merge Pets (Only the 12 official ones from public/icons/pets)
+  // 2. Merge Pets (12 official items, zero fake default levels)
   const petMap = new Map<string, PetStat>();
   for (const p of rawPets) {
-    if (!CANONICAL_PETS.includes(p.name)) continue; // Filter out fake/scrapped pets!
+    if (!CANONICAL_PETS.includes(p.name)) continue;
     petMap.set(p.name, { ...p });
   }
   for (const name of CANONICAL_PETS) {
     if (!petMap.has(name)) {
-      petMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 10 });
+      petMap.set(name, { name, count: 0, usagePct: 0.0 });
     }
   }
   const pets = Array.from(petMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // Helper to distinguish super troops from normal troops
   const isSuperTroop = (name: string) =>
     CANONICAL_SUPER_TROOPS.includes(name) || name.startsWith("Super ");
 
-  // 3. Merge Troops (32 regular troops only - strictly NO super troops, NO unreleased/event units)
+  // 3. Merge Troops (zero fake default levels)
   const troopMap = new Map<string, UnitUsageStat>();
-  for (const t of rawTroops) {
-    const cleanName = t.name === "Head Hunter" ? "Headhunter" : t.name;
-    if (isSuperTroop(cleanName)) continue; // Never allow Super Troops in Birlikler!
-    if (!CANONICAL_TROOPS.includes(cleanName)) continue; // Never allow unreleased/fake units (e.g. Elephant Rider)!
-    troopMap.set(cleanName, { ...t, name: cleanName });
+  for (const item of rawTroops) {
+    const cleanName = item.name === "Head Hunter" ? "Headhunter" : item.name;
+    if (isSuperTroop(cleanName)) continue;
+    if (!CANONICAL_TROOPS.includes(cleanName)) continue;
+    troopMap.set(cleanName, { ...item, name: cleanName });
   }
   for (const name of CANONICAL_TROOPS) {
     if (!troopMap.has(name)) {
-      troopMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 1 });
+      troopMap.set(name, { name, count: 0, usagePct: 0.0 });
     }
   }
   const troops = Array.from(troopMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // 4. Merge Spells (17 canonical spells)
+  // 4. Merge Spells (zero fake default levels)
   const spellMap = new Map<string, UnitUsageStat>();
   for (const sp of rawSpells) {
     if (!CANONICAL_SPELLS.includes(sp.name)) continue;
@@ -736,12 +904,12 @@ export default function MetaDashboardView() {
   }
   for (const name of CANONICAL_SPELLS) {
     if (!spellMap.has(name)) {
-      spellMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 1 });
+      spellMap.set(name, { name, count: 0, usagePct: 0.0 });
     }
   }
   const spells = Array.from(spellMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // 5. Merge Sieges (9 canonical siege machines)
+  // 5. Merge Sieges (zero fake default levels)
   const siegeMap = new Map<string, UnitUsageStat>();
   for (const s of rawSieges) {
     if (!CANONICAL_SIEGES.includes(s.name)) continue;
@@ -749,14 +917,14 @@ export default function MetaDashboardView() {
   }
   for (const name of CANONICAL_SIEGES) {
     if (!siegeMap.has(name)) {
-      siegeMap.set(name, { name, count: 0, usagePct: 0.0, avgLevel: 5 });
+      siegeMap.set(name, { name, count: 0, usagePct: 0.0 });
     }
   }
   const sieges = Array.from(siegeMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
-  // 6. Merge Super Troops (17 canonical super troops only)
-  const superMap = new Map<string, { name: string; count: number; usagePct: number }>();
-  for (const st of [...rawSuperTroops, ...rawTroops.filter((t) => isSuperTroop(t.name))]) {
+  // 6. Merge Super Troops
+  const superMap = new Map<string, UnitUsageStat>();
+  for (const st of [...rawSuperTroops, ...rawTroops.filter((item) => isSuperTroop(item.name))]) {
     if (!CANONICAL_SUPER_TROOPS.includes(st.name)) continue;
     if (!superMap.has(st.name) || (st.usagePct || 0) > (superMap.get(st.name)?.usagePct || 0)) {
       superMap.set(st.name, { name: st.name, count: st.count || 0, usagePct: st.usagePct || 0.0 });
@@ -770,7 +938,7 @@ export default function MetaDashboardView() {
   const superTroops = Array.from(superMap.values()).sort((a, b) => b.usagePct - a.usagePct);
 
   const HERO_FILTER_OPTIONS = [
-    "Tümü",
+    ALL_HERO_FILTER,
     "Barbarian King",
     "Archer Queen",
     "Grand Warden",
@@ -780,61 +948,73 @@ export default function MetaDashboardView() {
   ];
 
   const filteredEquipments = allEquipments
-    .filter((eq) => selectedHeroEqFilter === "Tümü" || eq.hero === selectedHeroEqFilter)
+    .filter((eq) => selectedHeroEqFilter === ALL_HERO_FILTER || eq.hero === selectedHeroEqFilter)
     .sort((a, b) => b.usagePct - a.usagePct);
 
   const filteredPairs = allPairs
-    .filter((pair) => selectedHeroEqFilter === "Tümü" || pair.hero === selectedHeroEqFilter)
+    .filter(
+      (pair) => selectedHeroEqFilter === ALL_HERO_FILTER || pair.hero === selectedHeroEqFilter
+    )
     .sort((a, b) => b.usagePct - a.usagePct);
 
-  const formattedFetchedAt = dashboard?.dataFetchedAt
-    ? new Date(dashboard.dataFetchedAt).toLocaleTimeString("tr-TR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
+  const hasLiveSummary =
+    Boolean(dashboard) &&
+    ((dashboard?.totalPlayersAnalyzed ?? 0) > 0 ||
+      (dashboard?.totalRankedAttacksAnalyzed ?? 0) > 0 ||
+      !dashboard?.isProcessing);
+
+  const summaryText =
+    hasLiveSummary && dashboard
+      ? fmtTemplate(t.meta.summary, {
+          players: fmtNum(dashboard.totalPlayersAnalyzed ?? 0),
+          attacks: fmtNum(dashboard.totalRankedAttacksAnalyzed ?? 0),
+          time: dashboard.dataFetchedAt ? fmtTime(dashboard.dataFetchedAt) : "—",
+        })
+      : t.meta.summaryLoading;
+
+  const progressPct = Math.max(
+    5,
+    Math.min(100, Math.round(dashboard?.progress?.percentage ?? 10))
+  );
+
+  const activeUnitItems: UnitUsageStat[] = {
+    troops,
+    spells,
+    siege: sieges,
+    super: superTroops,
+  }[unitCategoryTab];
 
   return (
-    <div className="game-theme max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-4 flex flex-col">
-      {/* Main Outer Wooden Window Frame (Natural flow with main page) */}
+    <div className="game-theme w-full px-0 py-0 sm:py-1 flex flex-col">
+      {/* Main Outer Wooden Window Frame */}
       <div className="game-window-frame flex flex-col">
-        {/* Window Top Edge: Tab Bar Header stuck flush to the top edge of the panel */}
-        <div className="game-tab-strip shrink-0">
+        {/* Window Top Edge: Tab Bar */}
+        <div className="game-tab-strip shrink-0 px-2.5 sm:px-4 overflow-x-auto scrollbar-none">
           <GameTabBar>
             <GameTab
               active={activeTab === "armies"}
               onClick={() => switchTab("armies")}
               icon={<Swords size={18} />}
+              className="text-sm sm:text-base px-3 sm:px-5 py-2 sm:py-2.5"
             >
-              Meta Ordular
+              {t.meta.tabArmies}
             </GameTab>
             <GameTab
               active={activeTab === "stats"}
               onClick={() => switchTab("stats")}
               icon={<Shield size={18} />}
+              className="text-sm sm:text-base px-3 sm:px-5 py-2 sm:py-2.5"
             >
-              Kullanım İstatistikleri
+              {t.meta.tabStats}
             </GameTab>
           </GameTabBar>
         </div>
 
-        {/* Pinned Single-line Summary Bar */}
-        <div className="shrink-0 px-3 sm:px-6 py-2.5 border-b border-amber-950/40">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs sm:text-sm text-amber-100/90 font-medium">
-            <div className="truncate">
-              <span>
-                <strong className="text-amber-300 font-bold">
-                  {dashboard?.totalPlayersAnalyzed || 200}
-                </strong>{" "}
-                oyuncu •{" "}
-                <strong className="text-amber-300 font-bold">
-                  {(dashboard?.totalRankedAttacksAnalyzed || 3355).toLocaleString("tr-TR")}
-                </strong>{" "}
-                ranked saldırı • Son güncelleme:{" "}
-                <strong className="text-amber-300 font-bold">
-                  {formattedFetchedAt || "18:24"}
-                </strong>
-              </span>
+        {/* Pinned Live Summary Bar */}
+        <div className="shrink-0 px-2.5 sm:px-6 py-2.5 border-b border-amber-950/40">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg bg-[#2B1F16]/85 border border-[#4A2E1E] text-xs sm:text-sm text-amber-100/95 font-medium">
+            <div className="min-w-0 leading-relaxed tabular-nums">
+              <span>{summaryText}</span>
             </div>
 
             <div className="self-end sm:self-auto shrink-0">
@@ -842,59 +1022,94 @@ export default function MetaDashboardView() {
                 variant="green"
                 size="sm"
                 onClick={() => fetchDashboard(true)}
-                disabled={loading || dashboard?.isProcessing}
+                disabled={loading || Boolean(dashboard?.isProcessing)}
+                className="min-h-[44px] px-3.5 text-xs sm:text-sm font-extrabold"
                 icon={
                   <RefreshCw
-                    size={14}
+                    size={15}
                     className={loading || dashboard?.isProcessing ? "animate-spin" : ""}
                   />
                 }
-                title="En son liderlik tablosu verilerini yenile"
+                title={
+                  isTr
+                    ? "En son lider tablosu verilerini yenile"
+                    : "Refresh latest leaderboard data"
+                }
               >
-                Yenile
+                {loading || dashboard?.isProcessing ? t.common.refreshing : t.common.refresh}
               </GameButton>
             </div>
           </div>
 
-          {/* Background Processing Progress Bar */}
-          {dashboard?.isProcessing && dashboard.progress && (
-            <div className="game-panel-cream p-2.5 rounded-xl border border-amber-800 text-xs text-amber-950 flex items-center justify-between gap-3 mt-2">
-              <div className="flex items-center gap-2">
-                <RefreshCw size={14} className="animate-spin text-amber-800" />
-                <span className="font-bold">
-                  {dashboard.progress.message || "Lider tablosu taranıyor..."}
-                </span>
+          {/* Background Processing Progress Banner */}
+          {dashboard?.isProcessing && (
+            <div className="game-panel-cream p-3 rounded-xl border border-amber-800 text-xs sm:text-sm text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mt-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <RefreshCw size={15} className="animate-spin text-amber-800 shrink-0" />
+                <span className="font-bold leading-snug">{t.meta.scanning}</span>
               </div>
-              <div className="w-32 bg-amber-950/20 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-emerald-600 h-2.5 rounded-full transition-all duration-300"
-                  style={{ width: `${dashboard.progress.percentage || 15}%` }}
-                />
+              <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+                {dashboard.progress && dashboard.progress.target > 0 && (
+                  <span className="text-xs font-extrabold text-amber-900 tabular-nums shrink-0">
+                    {fmtNum(dashboard.progress.processed)}/{fmtNum(dashboard.progress.target)} (
+                    {fmtPct(progressPct, 0)})
+                  </span>
+                )}
+                <div className="flex-1 sm:w-32 bg-[#2B1F16]/20 rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className="bg-emerald-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${progressPct}%` }}
+                  />
+                </div>
               </div>
             </div>
           )}
 
           {/* Error Alert */}
           {errorMsg && (
-            <div className="game-panel-wood p-2.5 rounded-xl border border-red-800/80 text-xs text-red-200 flex items-center gap-2 mt-2">
-              <AlertCircle size={16} className="text-red-400 shrink-0" />
-              <span>{errorMsg}</span>
+            <div className="game-panel-wood p-3 rounded-xl border border-red-800/80 text-xs sm:text-sm text-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <AlertCircle size={16} className="text-amber-300 shrink-0" />
+                <span className="leading-snug">{errorMsg}</span>
+              </div>
+              <GameButton
+                variant="gold"
+                size="sm"
+                onClick={() => fetchDashboard(true)}
+                className="min-h-[40px] px-3 text-xs font-extrabold self-end sm:self-auto shrink-0"
+              >
+                {t.common.retry}
+              </GameButton>
             </div>
           )}
         </div>
 
-        {/* NATURAL CONTENT DIV (No inner scroll, expands with page) */}
-        <div className="px-3 sm:px-6 py-3 sm:py-4 space-y-4">
-          {/* Tab 1: Meta Ordular (Phase 1) */}
+        {/* Main Content */}
+        <div className="px-2.5 sm:px-6 py-3 sm:py-4 space-y-4">
+          {/* Tab 1: Meta Armies */}
           {activeTab === "armies" && (
             <div className="space-y-4">
-              {loading && !dashboard ? (
+              {(loading && !dashboard) || (dashboard?.isProcessing && activeArmies.length === 0) ? (
                 <div className="space-y-3">
+                  {dashboard?.isProcessing && (
+                    <div className="text-xs sm:text-sm text-amber-200/90 font-semibold px-1">
+                      {t.meta.scanning}
+                    </div>
+                  )}
                   {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="h-44 rounded-2xl bg-amber-950/20 animate-pulse border border-amber-950/30"
-                    />
+                    <GamePanel key={i} variant="wood" className="p-3 sm:p-4 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="space-y-1.5 flex-1 min-w-[180px]">
+                          <SkeletonBlock height="1.5rem" width="60%" />
+                          <SkeletonBlock height="0.875rem" width="35%" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <SkeletonBlock height="2.75rem" width="5rem" />
+                          <SkeletonBlock height="2.75rem" width="7.5rem" />
+                        </div>
+                      </div>
+                      <SkeletonBlock height="4.25rem" width="100%" />
+                    </GamePanel>
                   ))}
                 </div>
               ) : activeArmies.length > 0 ? (
@@ -907,425 +1122,442 @@ export default function MetaDashboardView() {
                     />
                   ))}
                 </div>
+              ) : errorMsg && !dashboard ? (
+                <GamePanel variant="wood" className="text-center py-10 space-y-3">
+                  <div className="text-sm text-amber-100 font-bold">{errorMsg}</div>
+                  <GameButton
+                    variant="green"
+                    size="sm"
+                    onClick={() => fetchDashboard(true)}
+                    className="min-h-[44px]"
+                  >
+                    {t.common.retry}
+                  </GameButton>
+                </GamePanel>
               ) : (
                 <GamePanel variant="wood" className="text-center py-10">
-                  <span className="text-amber-200/80 font-bold">
-                    Henüz yeterli battle log kaydı bulunamadı.
+                  <span className="text-sm text-amber-200/85 font-bold">
+                    {t.meta.noDataTitle}
                   </span>
                 </GamePanel>
               )}
             </div>
           )}
 
-          {/* Tab 2: Kullanım İstatistikleri (Phase 2) */}
+          {/* Tab 2: Usage Statistics */}
           {activeTab === "stats" && (
             <div className="space-y-4">
               {/* Header Note */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/40 border border-amber-950/50 text-xs text-amber-200/90 font-medium">
-                <span>
-                  * <strong className="text-amber-300">Kullanım Oranı:</strong> Analiz edilen{" "}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-[#2B1F16]/85 border border-[#4A2E1E] text-xs text-amber-100/90 font-medium">
+                <span className="leading-relaxed tabular-nums">
+                  *{" "}
                   <strong className="text-amber-300 font-bold">
-                  {(dashboard?.totalRankedAttacksAnalyzed || 3355).toLocaleString("tr-TR")}
-                </strong>{" "}
-                saldırı kaydının yüzde kaçında o öğenin orduya dahil edildiğini gösterir.
-              </span>
-              <span className="shrink-0 text-[11px] text-amber-300/80 font-bold px-2 py-0.5 rounded bg-amber-950/60 border border-amber-900/50">
-                TH18 Meta Havuzu
-              </span>
-            </div>
-
-            {loading && !dashboard ? (
-              <div className="space-y-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="h-44 rounded-2xl bg-amber-950/20 animate-pulse border border-amber-950/30"
-                  />
-                ))}
-              </div>
-            ) : !stats ? (
-              <GamePanel variant="wood" className="text-center py-10">
-                <span className="text-amber-200/80 font-bold">
-                  İstatistik verileri yüklenemedi. Lütfen &quot;Yenile&quot; butonuna basarak tekrar deneyin.
+                    {isTr ? "Kullanım Oranı" : "Usage Rate"}:
+                  </strong>{" "}
+                  {typeof dashboard?.totalRankedAttacksAnalyzed === "number" &&
+                  dashboard.totalRankedAttacksAnalyzed > 0
+                    ? `${fmtNum(dashboard.totalRankedAttacksAnalyzed)} ${
+                        isTr ? "saldırı" : "attacks"
+                      } • `
+                    : ""}
+                  {t.meta.statsNote}
                 </span>
-              </GamePanel>
-            ) : (
-              <>
-                {/* 1. KAHRAMANLAR */}
-                <GamePanel
-                  variant="wood"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Crown size={18} className="text-amber-300" />
-                      <span className="game-title-stroke text-base sm:text-lg tracking-wide">
-                        Kahramanlar
-                      </span>
-                      <span className="text-xs text-amber-200/75 font-semibold">
-                        ({heroes.length} Kahraman)
-                      </span>
-                    </div>
-                  }
-                >
-                  <div className="game-slot-well p-2.5 sm:p-3.5">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                      {heroes.map((hero) => (
-                        <div
-                          key={hero.name}
-                          className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                        >
-                          <IconFrame
-                            name={hero.name}
-                            size="unit"
-                            level={hero.avgLevel ? Math.round(hero.avgLevel) : undefined}
-                            isMax={hero.maxedPct ? hero.maxedPct > 95 : false}
-                          />
-                          <div
-                            className="text-xs text-amber-100 font-bold truncate max-w-full text-center mt-0.5"
-                            title={hero.name}
-                          >
-                            {hero.name}
-                          </div>
-                          <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                            %{hero.usagePct.toFixed(1)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </GamePanel>
+                <span className="shrink-0 text-xs text-amber-200 font-bold px-2.5 py-0.5 rounded bg-[#3E2B1E] border border-[#4A2E1E]">
+                  {isTr ? "TH18 Meta Havuzu" : "TH18 Meta Pool"}
+                </span>
+              </div>
 
-                {/* 2. KAHRAMAN EKİPMANLARI & EN ÇOK KULLANILAN İKİLİLER */}
-                <GamePanel
-                  variant="wood"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Zap size={18} className="text-amber-300" />
-                      <span className="game-title-stroke text-base sm:text-lg tracking-wide">
-                        Kahraman Ekipmanları & En Çok Kullanılan İkililer
-                      </span>
-                    </div>
-                  }
-                >
-                  <div className="space-y-3 p-1">
-                    {/* Hero Filter Tabs */}
-                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1.5 scrollbar-none border-b border-amber-950/40">
-                      {HERO_FILTER_OPTIONS.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => setSelectedHeroEqFilter(opt)}
-                          className={cn(
-                            "px-2.5 py-1 rounded-lg text-xs font-bold transition-all whitespace-nowrap",
-                            selectedHeroEqFilter === opt
-                              ? "bg-amber-600 text-white shadow-md border border-amber-400 font-black"
-                              : "bg-black/40 text-amber-200/80 hover:bg-black/60 hover:text-white border border-amber-950/40"
-                          )}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Two Column Layout on Desktop */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-                      {/* Left: Individual Equipments (7 cols) */}
-                      <div className="lg:col-span-7 flex flex-col gap-2">
-                        <div className="flex items-center justify-between text-xs text-amber-200/80 font-bold px-1">
-                          <span>Bireysel Ekipmanlar ({filteredEquipments.length})</span>
-                          <span className="text-[11px] text-amber-300/70">Kullanım sırasına göre</span>
-                        </div>
-                        <div className="game-slot-well p-2.5 flex-1">
-                          {filteredEquipments.length > 0 ? (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
-                              {filteredEquipments.map((eq) => (
-                                <div
-                                  key={`${eq.hero}-${eq.name}`}
-                                  className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1 text-center"
-                                >
-                                  <IconFrame name={eq.name} size="unit" rarity="epic" />
-                                  <div
-                                    className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                    title={`${eq.name} (${eq.hero})`}
-                                  >
-                                    {eq.name}
-                                  </div>
-                                  <div className="text-[10px] text-amber-300/80 font-semibold truncate max-w-full">
-                                    {eq.hero}
-                                  </div>
-                                  <div className="text-base font-black text-amber-300 font-['Lilita_One']">
-                                    %{eq.usagePct.toFixed(1)}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-8 text-xs text-amber-200/60 font-medium">
-                              Seçilen filtreye ait ekipman bulunamadı.
-                            </div>
-                          )}
-                        </div>
+              {(loading && !dashboard) ||
+              (dashboard?.isProcessing &&
+                (!stats || (dashboard?.totalRankedAttacksAnalyzed ?? 0) === 0)) ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <GamePanel key={i} variant="wood" className="p-3 sm:p-4 space-y-3">
+                      <SkeletonBlock height="1.5rem" width="45%" />
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                        {[1, 2, 3, 4, 5, 6].map((j) => (
+                          <SkeletonBlock key={j} height="6.5rem" width="100%" />
+                        ))}
                       </div>
-
-                      {/* Right: Top Pairs (5 cols) */}
-                      <div className="lg:col-span-5 flex flex-col gap-2">
-                        <div className="flex items-center justify-between text-xs text-amber-200/80 font-bold px-1">
-                          <span>En Çok Kullanılan İkililer ({filteredPairs.length})</span>
-                          <span className="text-[11px] text-amber-300/70">Birlikte kullanım</span>
-                        </div>
-                        <div className="game-slot-well p-2.5 flex-1 space-y-2">
-                          {filteredPairs.length > 0 ? (
-                            filteredPairs.map((pair, pIdx) => {
-                              const eq1 = pair.equipments?.[0] || pair.pair.split(" + ")[0];
-                              const eq2 = pair.equipments?.[1] || pair.pair.split(" + ")[1];
-                              return (
-                                <div
-                                  key={`${pair.hero}-${pair.pair}-${pIdx}`}
-                                  className="game-stat-tile p-2.5 flex items-center justify-between gap-3"
-                                >
-                                  {/* Two tiles side-by-side with uniform unit size */}
-                                  <div className="flex items-center gap-1.5 shrink-0">
-                                    <IconFrame name={eq1} size="unit" rarity="epic" />
-                                    {eq2 && <span className="text-amber-300 font-black text-sm">+</span>}
-                                    {eq2 && <IconFrame name={eq2} size="unit" rarity="epic" />}
-                                  </div>
-
-                                  {/* Info */}
-                                  <div className="flex-1 min-w-0 px-1">
-                                    <div
-                                      className="text-xs sm:text-sm text-amber-100 font-bold truncate"
-                                      title={pair.pair}
-                                    >
-                                      {pair.pair}
-                                    </div>
-                                    <div className="text-[11px] text-amber-300/80 font-semibold truncate">
-                                      {pair.hero}
-                                    </div>
-                                  </div>
-
-                                  {/* Usage Percentage Only */}
-                                  <div className="text-right shrink-0">
-                                    <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                      %{pair.usagePct.toFixed(1)}
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            })
-                          ) : (
-                            <div className="text-center py-8 text-xs text-amber-200/60 font-medium">
-                              Seçilen kahraman için ikili kombinasyon bulunamadı.
+                    </GamePanel>
+                  ))}
+                </div>
+              ) : !stats ||
+                (errorMsg && !dashboard) ||
+                ((dashboard?.totalRankedAttacksAnalyzed ?? 0) === 0 && heroes.length === 0) ? (
+                <GamePanel variant="wood" className="text-center py-10 space-y-3">
+                  <div className="text-sm text-amber-200/85 font-bold">
+                    {errorMsg || t.meta.noDataTitle}
+                  </div>
+                  <GameButton
+                    variant="green"
+                    size="sm"
+                    onClick={() => fetchDashboard(true)}
+                    className="min-h-[44px]"
+                  >
+                    {t.common.retry}
+                  </GameButton>
+                </GamePanel>
+              ) : (
+                <>
+                  {/* 1. HEROES */}
+                  <GamePanel
+                    variant="wood"
+                    title={
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Crown size={18} className="text-amber-300 shrink-0" />
+                        <span className="game-title-stroke font-game font-extrabold text-base sm:text-lg tracking-wide">
+                          {isTr ? "Kahramanlar" : "Heroes"}
+                        </span>
+                        <span className="text-xs text-amber-200/80 font-semibold tabular-nums">
+                          ({fmtNum(heroes.length)})
+                        </span>
+                      </div>
+                    }
+                  >
+                    <div className="game-slot-well p-2.5 sm:p-3.5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                        {heroes.map((hero) => (
+                          <div
+                            key={hero.name}
+                            className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                          >
+                            <IconFrame
+                              name={hero.name}
+                              size="unit"
+                              level={hero.avgLevel ? Math.round(hero.avgLevel) : undefined}
+                              isMax={hero.maxedPct ? hero.maxedPct > 95 : false}
+                            />
+                            <div className="text-xs text-amber-100 font-bold leading-snug break-words max-w-full text-center mt-0.5">
+                              {hero.name}
                             </div>
-                          )}
-                        </div>
+                            <div className="font-game text-base sm:text-lg font-extrabold text-amber-300 tabular-nums">
+                              {fmtPct(hero.usagePct, 1)}
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                </GamePanel>
+                  </GamePanel>
 
-                {/* 3. EVCİL HAYVANLAR (PETS) */}
-                <GamePanel
-                  variant="wood"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <span className="game-title-stroke text-base sm:text-lg tracking-wide">
-                        Evcil Hayvanlar
-                      </span>
-                      <span className="text-xs text-amber-200/75 font-semibold">
-                        ({pets.length} Pet)
-                      </span>
-                    </div>
-                  }
-                >
-                  <div className="game-slot-well p-2.5 sm:p-3.5">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                      {pets.map((pet) => (
-                        <div
-                          key={pet.name}
-                          className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                        >
-                          <IconFrame
-                            name={pet.name}
-                            size="unit"
-                            rarity="legendary"
-                            level={pet.avgLevel ? Math.round(pet.avgLevel) : 10}
-                          />
-                          <div
-                            className="text-xs text-amber-100 font-bold truncate max-w-full text-center mt-0.5"
-                            title={pet.name}
-                          >
-                            {pet.name}
-                          </div>
-                          <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                            %{pet.usagePct.toFixed(1)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </GamePanel>
+                  {/* 2. HERO EQUIPMENT & TOP PAIRINGS */}
+                  <GamePanel
+                    variant="wood"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <Zap size={18} className="text-amber-300 shrink-0" />
+                        <span className="game-title-stroke font-game font-extrabold text-base sm:text-lg tracking-wide">
+                          {t.meta.statsHeroEquipTitle}
+                        </span>
+                      </div>
+                    }
+                  >
+                    <div className="space-y-3 p-0.5 sm:p-1">
+                      {/* Hero Filter Tabs */}
+                      <div className="flex flex-wrap items-center gap-1.5 pb-2 border-b border-amber-950/40">
+                        {HERO_FILTER_OPTIONS.map((opt) => {
+                          const isSelected = selectedHeroEqFilter === opt;
+                          const label = opt === ALL_HERO_FILTER ? t.meta.filterAll : opt;
+                          return (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => setSelectedHeroEqFilter(opt)}
+                              className={cn(
+                                "min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap tabular-nums cursor-pointer",
+                                isSelected
+                                  ? "bg-amber-600 text-white shadow-md border border-amber-400 font-extrabold"
+                                  : "bg-[#2B1F16]/80 text-amber-200/85 hover:bg-[#3E2B1E] hover:text-white border border-[#4A2E1E]"
+                              )}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
 
-                {/* 4. BİRLİKLER, BÜYÜLER, KUŞATMA MAKİNELERİ, SÜPER BİRLİKLER */}
-                <GamePanel
-                  variant="wood"
-                  title={
-                    <div className="flex items-center gap-2">
-                      <Swords size={18} className="text-amber-300" />
-                      <span className="game-title-stroke text-base sm:text-lg tracking-wide">
-                        Birlikler, Büyüler ve Kuşatma Makineleri
-                      </span>
-                    </div>
-                  }
-                >
-                  <div className="space-y-3 p-1">
-                    {/* Category Selector Tabs */}
-                    <div className="flex flex-wrap items-center gap-1.5 border-b border-amber-950/40 pb-2">
-                      {[
-                        { id: "troops", label: "Birlikler", count: troops.length, icon: Swords },
-                        { id: "spells", label: "Büyüler", count: spells.length, icon: Zap },
-                        { id: "siege", label: "Kuşatma Makineleri", count: sieges.length, icon: Shield },
-                        { id: "super", label: "Süper Birlikler", count: superTroops.length, icon: Sparkles },
-                      ].map((cat) => {
-                        const Icon = cat.icon;
-                        const isActive = unitCategoryTab === cat.id;
-                        return (
-                          <button
-                            key={cat.id}
-                            onClick={() =>
-                              setUnitCategoryTab(
-                                cat.id as "troops" | "spells" | "siege" | "super"
-                              )
-                            }
-                            className={cn(
-                              "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
-                              isActive
-                                ? "bg-amber-600 text-white shadow-md border border-amber-400 font-black"
-                                : "bg-black/40 text-amber-200/80 hover:bg-black/60 hover:text-white border border-amber-950/40"
-                            )}
-                          >
-                            <Icon size={14} />
-                            <span>{cat.label}</span>
-                            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-black/40 font-semibold">
-                              {cat.count}
+                      {/* Two Column Layout on Desktop */}
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+                        {/* Left: Individual Equipment (7 cols) */}
+                        <div className="lg:col-span-7 flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-amber-200/85 font-bold px-1">
+                            <span className="tabular-nums">
+                              {isTr ? "Bireysel Ekipmanlar" : "Individual Equipment"} (
+                              {fmtNum(filteredEquipments.length)})
                             </span>
-                          </button>
-                        );
-                      })}
+                            <span className="text-xs text-amber-300/75 font-semibold">
+                              {isTr ? "Kullanım sırasına göre" : "Sorted by usage"}
+                            </span>
+                          </div>
+                          <div className="game-slot-well p-2.5 flex-1">
+                            {filteredEquipments.length > 0 ? (
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                                {filteredEquipments.map((eq) => {
+                                  const eqRarity = resolveEquipmentRarity(eq.name);
+                                  return (
+                                    <div
+                                      key={`${eq.hero}-${eq.name}`}
+                                      className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1 text-center"
+                                    >
+                                      <IconFrame
+                                        name={eq.name}
+                                        size="unit"
+                                        tileType="equipment"
+                                        rarity={eqRarity}
+                                        className={getEquipmentFrameClass(eqRarity)}
+                                      />
+                                      <div className="text-xs text-amber-100 font-bold leading-snug break-words max-w-full mt-0.5">
+                                        {eq.name}
+                                      </div>
+                                      <div className="text-xs text-amber-300/85 font-semibold leading-tight max-w-full">
+                                        {eq.hero}
+                                      </div>
+                                      <div className="font-game text-base font-extrabold text-amber-300 tabular-nums">
+                                        {fmtPct(eq.usagePct, 1)}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 text-xs sm:text-sm text-amber-200/75 font-medium">
+                                {t.meta.statsNoEquipFilter}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right: Top Equipment Pairs (5 cols) */}
+                        <div className="lg:col-span-5 flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-amber-200/85 font-bold px-1">
+                            <span className="tabular-nums">
+                              {t.meta.statsPairsTitle} ({fmtNum(filteredPairs.length)})
+                            </span>
+                            <span className="text-xs text-amber-300/75 font-semibold">
+                              {t.meta.statsTogetherRate}
+                            </span>
+                          </div>
+                          <div className="game-slot-well p-2.5 flex-1 space-y-2.5">
+                            {filteredPairs.length > 0 ? (
+                              filteredPairs.map((pair, pIdx) => {
+                                const eq1 = pair.equipments?.[0] || pair.pair.split(" + ")[0];
+                                const eq2 = pair.equipments?.[1] || pair.pair.split(" + ")[1];
+                                const r1 = resolveEquipmentRarity(eq1);
+                                const r2 = eq2 ? resolveEquipmentRarity(eq2) : "common";
+                                const barWidth = Math.max(0, Math.min(100, pair.usagePct));
+
+                                return (
+                                  <div
+                                    key={`${pair.hero}-${pair.pair}-${pIdx}`}
+                                    className="game-stat-tile p-2.5 sm:p-3 space-y-2"
+                                  >
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                                      {/* Icons row (+ mobile percentage right-aligned) */}
+                                      <div className="flex items-center justify-between sm:justify-start gap-2">
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                          <IconFrame
+                                            name={eq1}
+                                            size="unit"
+                                            tileType="equipment"
+                                            rarity={r1}
+                                            className={getEquipmentFrameClass(r1)}
+                                          />
+                                          {eq2 && (
+                                            <span className="text-amber-300 font-extrabold text-sm">
+                                              +
+                                            </span>
+                                          )}
+                                          {eq2 && (
+                                            <IconFrame
+                                              name={eq2}
+                                              size="unit"
+                                              tileType="equipment"
+                                              rarity={r2}
+                                              className={getEquipmentFrameClass(r2)}
+                                            />
+                                          )}
+                                        </div>
+
+                                        <div className="sm:hidden text-right shrink-0">
+                                          <span className="font-game text-lg font-extrabold text-amber-300 tabular-nums">
+                                            {fmtPct(pair.usagePct, 1)}
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      {/* Un-truncated wrapped pair title & hero subtitle */}
+                                      <div className="flex-1 min-w-0">
+                                        <div className="text-sm text-amber-100 font-bold leading-snug break-words">
+                                          {pair.pair}
+                                        </div>
+                                        <div className="text-xs text-amber-300/85 font-semibold mt-0.5">
+                                          {pair.hero}
+                                        </div>
+                                      </div>
+
+                                      {/* Desktop percentage right-aligned */}
+                                      <div className="hidden sm:block text-right shrink-0">
+                                        <span className="font-game text-base sm:text-lg font-extrabold text-amber-300 tabular-nums">
+                                          {fmtPct(pair.usagePct, 1)}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Warm Progress Bar */}
+                                    <div className="game-progress-bar-slot" aria-hidden="true">
+                                      <div
+                                        className="game-progress-bar-fill"
+                                        style={{ width: `${barWidth}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-center py-8 text-xs sm:text-sm text-amber-200/75 font-medium">
+                                {t.meta.statsNoPairs}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                  </GamePanel>
 
-                    {/* Content for Selected Category */}
-                    <div className="game-slot-well p-2.5 sm:p-3.5 space-y-3">
-                      {/* BİRLİKLER (Tam Katalog) */}
-                      {unitCategoryTab === "troops" && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                          {troops.map((t) => (
-                            <div
-                              key={t.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                            >
-                              <IconFrame
-                                name={t.name}
-                                size="unit"
-                                level={t.avgLevel ? Math.round(t.avgLevel) : undefined}
-                                isMax={t.maxedPct ? t.maxedPct > 95 : false}
-                              />
-                              <div
-                                className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                title={t.name}
-                              >
-                                {t.name}
-                              </div>
-                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                %{t.usagePct.toFixed(1)}
-                              </div>
+                  {/* 3. PETS */}
+                  <GamePanel
+                    variant="wood"
+                    title={
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="game-title-stroke font-game font-extrabold text-base sm:text-lg tracking-wide">
+                          {t.player.pets}
+                        </span>
+                        <span className="text-xs text-amber-200/80 font-semibold tabular-nums">
+                          ({fmtNum(pets.length)})
+                        </span>
+                      </div>
+                    }
+                  >
+                    <div className="game-slot-well p-2.5 sm:p-3.5">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                        {pets.map((pet) => (
+                          <div
+                            key={pet.name}
+                            className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                          >
+                            <IconFrame
+                              name={pet.name}
+                              size="unit"
+                              rarity="legendary"
+                              level={pet.avgLevel ? Math.round(pet.avgLevel) : undefined}
+                            />
+                            <div className="text-xs text-amber-100 font-bold leading-snug break-words max-w-full text-center mt-0.5">
+                              {pet.name}
                             </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* BÜYÜLER (Tam Katalog) */}
-                      {unitCategoryTab === "spells" && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                          {spells.map((s) => (
-                            <div
-                              key={s.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                            >
-                              <IconFrame
-                                name={s.name}
-                                size="unit"
-                                level={s.avgLevel ? Math.round(s.avgLevel) : undefined}
-                                isMax={s.maxedPct ? s.maxedPct > 95 : false}
-                              />
-                              <div
-                                className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                title={s.name}
-                              >
-                                {s.name}
-                              </div>
-                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                %{s.usagePct.toFixed(1)}
-                              </div>
+                            <div className="font-game text-base sm:text-lg font-extrabold text-amber-300 tabular-nums">
+                              {fmtPct(pet.usagePct, 1)}
                             </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* KUŞATMA MAKİNELERİ */}
-                      {unitCategoryTab === "siege" && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                          {sieges.map((sg) => (
-                            <div
-                              key={sg.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                            >
-                              <IconFrame
-                                name={sg.name}
-                                size="unit"
-                                level={sg.avgLevel ? Math.round(sg.avgLevel) : undefined}
-                                isMax={sg.maxedPct ? sg.maxedPct > 95 : false}
-                              />
-                              <div
-                                className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                title={sg.name}
-                              >
-                                {sg.name}
-                              </div>
-                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                %{sg.usagePct.toFixed(1)}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* SÜPER BİRLİKLER */}
-                      {unitCategoryTab === "super" && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
-                          {superTroops.map((st) => (
-                            <div
-                              key={st.name}
-                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
-                            >
-                              <IconFrame name={st.name} size="unit" />
-                              <div
-                                className="text-xs text-amber-100 font-bold truncate max-w-full"
-                                title={st.name}
-                              >
-                                {st.name}
-                              </div>
-                              <div className="text-base sm:text-lg font-black text-amber-300 font-['Lilita_One']">
-                                %{st.usagePct.toFixed(1)}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </GamePanel>
-              </>
-            )}
-          </div>
-        )}
+                  </GamePanel>
+
+                  {/* 4. TROOPS, SPELLS, SIEGE MACHINES, SUPER TROOPS */}
+                  <GamePanel
+                    variant="wood"
+                    title={
+                      <div className="flex items-center gap-2">
+                        <Swords size={18} className="text-amber-300 shrink-0" />
+                        <span className="game-title-stroke font-game font-extrabold text-base sm:text-lg tracking-wide">
+                          {t.meta.statsUnitsTitle}
+                        </span>
+                      </div>
+                    }
+                  >
+                    <div className="space-y-3 p-0.5 sm:p-1">
+                      {/* Category Selector Tabs */}
+                      <div className="flex flex-wrap items-center gap-1.5 border-b border-amber-950/40 pb-2">
+                        {[
+                          {
+                            id: "troops" as const,
+                            label: t.meta.filterTroops,
+                            count: troops.length,
+                            icon: Swords,
+                          },
+                          {
+                            id: "spells" as const,
+                            label: t.meta.filterSpells,
+                            count: spells.length,
+                            icon: Zap,
+                          },
+                          {
+                            id: "siege" as const,
+                            label: t.meta.filterSiege,
+                            count: sieges.length,
+                            icon: Shield,
+                          },
+                          {
+                            id: "super" as const,
+                            label: t.meta.filterSuper,
+                            count: superTroops.length,
+                            icon: Sparkles,
+                          },
+                        ].map((cat) => {
+                          const Icon = cat.icon;
+                          const isActive = unitCategoryTab === cat.id;
+                          return (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setUnitCategoryTab(cat.id)}
+                              className={cn(
+                                "flex items-center gap-1.5 min-h-[40px] px-3 py-1.5 rounded-lg text-xs font-bold transition-all tabular-nums cursor-pointer",
+                                isActive
+                                  ? "bg-amber-600 text-white shadow-md border border-amber-400 font-extrabold"
+                                  : "bg-[#2B1F16]/80 text-amber-200/85 hover:bg-[#3E2B1E] hover:text-white border border-[#4A2E1E]"
+                              )}
+                            >
+                              <Icon size={14} />
+                              <span>{cat.label}</span>
+                              <span className="text-xs px-1.5 py-0.5 rounded-full bg-[#2B1F16]/80 font-semibold tabular-nums">
+                                {fmtNum(cat.count)}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Unified Grid for Active Category */}
+                      <div className="game-slot-well p-2.5 sm:p-3.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3">
+                          {activeUnitItems.map((item) => (
+                            <div
+                              key={item.name}
+                              className="game-stat-tile p-2.5 flex flex-col items-center justify-center gap-1.5 text-center"
+                            >
+                              <IconFrame
+                                name={item.name}
+                                size="unit"
+                                level={item.avgLevel ? Math.round(item.avgLevel) : undefined}
+                                isMax={item.maxedPct ? item.maxedPct > 95 : false}
+                              />
+                              <div className="text-xs text-amber-100 font-bold leading-snug break-words max-w-full">
+                                {item.name}
+                              </div>
+                              <div className="font-game text-base sm:text-lg font-extrabold text-amber-300 tabular-nums">
+                                {fmtPct(item.usagePct, 1)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </GamePanel>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

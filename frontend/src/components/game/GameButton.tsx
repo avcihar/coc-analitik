@@ -57,9 +57,11 @@ export default function GameButton({
         rel={rel || (target === "_blank" ? "noopener noreferrer" : undefined)}
         className={baseClasses}
         role="button"
+        title={rest.title}
+        aria-label={rest["aria-label"]}
       >
         {icon && <span className="inline-flex shrink-0 items-center justify-center">{icon}</span>}
-        {children && <span className="game-text-stroke-sm select-none">{children}</span>}
+        {children && <span className="select-none font-extrabold drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]">{children}</span>}
       </a>
     );
   }
@@ -72,7 +74,7 @@ export default function GameButton({
       {...rest}
     >
       {icon && <span className="inline-flex shrink-0 items-center justify-center">{icon}</span>}
-      {children && <span className="game-text-stroke-sm select-none">{children}</span>}
+      {children && <span className="select-none font-extrabold drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]">{children}</span>}
     </button>
   );
 }

@@ -9,13 +9,14 @@
 // Ambiguous characters (O, I, 1, 5, S, etc.) are excluded by Supercell.
 export const VALID_TAG_CHARS = "0289PYLQGRJCUV";
 export const VALID_TAG_REGEX = /^[0289PYLQGRJCUV]{3,15}$/;
+const IMPLICIT_TAG_REGEX = /^[0289PYLQGRJCUV]{4,15}$/i;
 
 /**
  * Normalizes a Clash of Clans tag:
  * 1. Strips all whitespace
  * 2. Strips leading '#' characters
- * 3. Converts all 'O' characters to '0' (zero)
- * 4. Converts to uppercase
+ * 3. Converts to uppercase
+ * 4. Converts all 'O' characters to '0' (zero)
  */
 export function normalizeTag(raw: string): string {
   if (!raw) return "";
@@ -36,7 +37,7 @@ export function formatDisplayTag(raw: string): string {
 }
 
 /**
- * Validates whether a tag matches the Supercell tag format.
+ * Validates whether a clean tag matches the Supercell tag format.
  */
 export function isValidTag(cleanTag: string): boolean {
   if (!cleanTag) return false;
@@ -44,13 +45,18 @@ export function isValidTag(cleanTag: string): boolean {
 }
 
 /**
- * Determines whether a search string looks like a tag rather than a name.
+ * Determines whether a search string looks like a tag rather than a clan name.
+ * Only treats input as a #tag lookup when:
+ * - it explicitly starts with '#', OR
+ * - it contains no spaces, matches /^[0289PYLQGRJCUV]{4,}$/i, AND includes at least one digit
+ *   (so alphabetical clan names like "GURU" still search by name instead of failing tag lookup).
  */
 export function looksLikeTag(input: string): boolean {
   const trimmed = input.trim();
+  if (!trimmed) return false;
   if (trimmed.startsWith("#")) return true;
-  const clean = normalizeTag(trimmed);
-  return clean.length >= 3 && clean.length <= 15 && VALID_TAG_REGEX.test(clean);
+  if (/\s/.test(trimmed)) return false;
+  return IMPLICIT_TAG_REGEX.test(trimmed) && /\d/.test(trimmed);
 }
 
 // -----------------------------------------------------------------------------
@@ -80,7 +86,9 @@ export function getRecentPlayerSearches(): RecentPlayerSearchItem[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(PLAYER_HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -137,13 +145,17 @@ export function getRecentClanSearches(): RecentClanSearchItem[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(CLAN_HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-export function saveRecentClanSearch(item: Omit<RecentClanSearchItem, "timestamp">): RecentClanSearchItem[] {
+export function saveRecentClanSearch(
+  item: Omit<RecentClanSearchItem, "timestamp">
+): RecentClanSearchItem[] {
   if (typeof window === "undefined") return [];
   try {
     const current = getRecentClanSearches();
@@ -169,9 +181,12 @@ export function removeRecentClanSearch(queryOrTag: string): RecentClanSearchItem
   try {
     const current = getRecentClanSearches();
     const norm = queryOrTag.toLowerCase().trim();
-    const updated = current.filter(
-      (c) => c.query.toLowerCase().trim() !== norm && c.tag?.toLowerCase().trim() !== norm
-    );
+    const normTag = normalizeTag(queryOrTag);
+    const updated = current.filter((c) => {
+      const qMatch = c.query.toLowerCase().trim() === norm;
+      const tMatch = c.tag ? normalizeTag(c.tag) === normTag || c.tag.toLowerCase().trim() === norm : false;
+      return !qMatch && !tMatch;
+    });
     localStorage.setItem(CLAN_HISTORY_KEY, JSON.stringify(updated));
     return updated;
   } catch {

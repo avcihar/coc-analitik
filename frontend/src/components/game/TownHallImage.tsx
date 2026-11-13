@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { getTownHallImageUrl } from "@/lib/townHallsManifest";
+import { useLanguage } from "@/lib/i18n";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -28,21 +28,24 @@ export default function TownHallImage({
   className,
   size = 120,
 }: TownHallImageProps) {
+  const { isTr } = useLanguage();
   const [loadError, setLoadError] = useState(false);
   const src = getTownHallImageUrl(level, weaponLevel);
+  const label = isTr ? `Belediye Binası ${level}` : `Town Hall ${level}`;
+  const abbr = isTr ? "BB" : "TH";
 
   if (!src || loadError) {
     return (
       <div
         className={cn(
-          "flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#3B445B] to-[#252C3D] border-2 border-[#5A688A] shadow-md p-2 text-center select-none",
+          "flex flex-col items-center justify-center rounded-xl bg-gradient-to-b from-[#5A4332] to-[#362519] border-2 border-[#8C6848] shadow-md p-2 text-center select-none",
           className
         )}
         style={{ width: size, height: size }}
-        title={`Belediye Binası ${level}`}
+        title={label}
       >
-        <span className="text-[10px] text-amber-300 font-bold uppercase">BB</span>
-        <span className="game-text-stroke text-2xl font-black text-white">{level}</span>
+        <span className="text-[10px] text-amber-300 font-bold">{abbr}</span>
+        <span className="font-game text-2xl font-extrabold text-white tabular-nums">{level}</span>
       </div>
     );
   }
@@ -54,7 +57,7 @@ export default function TownHallImage({
     >
       <img
         src={src}
-        alt={`Belediye Binası ${level}`}
+        alt={label}
         loading="lazy"
         onError={() => setLoadError(true)}
         className="w-full h-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]"

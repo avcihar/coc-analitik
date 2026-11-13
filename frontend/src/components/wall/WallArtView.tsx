@@ -3,33 +3,22 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   PenTool,
-  RotateCw,
-  Maximize2,
   Download,
+  Camera,
   AlertTriangle,
   CheckCircle2,
-  Sparkles,
-  Layers,
-  Grid,
-  Box,
   Sliders,
   Info,
   Copy,
   Check,
-  Type,
-  Space,
   Move,
-  ArrowUp,
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
   Crosshair,
   RotateCcw,
-  Bug,
   Image as ImageIcon,
   ChevronDown,
   Plus,
   Minus,
+  ListOrdered,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -39,13 +28,9 @@ import {
   MIN_BITMAP_SCALE,
   MAX_BITMAP_SCALE,
   SCALE_STEP,
-  CLEAN_SCALES,
   computeWallArt,
   exportPlanPng,
   resolveChar,
-  snapAngleTo45,
-  is45DegreeLatticeAngle,
-  isHorizontalOnScreen,
 } from "@/lib/wallArtEngine";
 import { getAllBitmapFonts, getBitmapFont, BitmapFont } from "@/lib/bitmapFonts";
 import {
@@ -56,10 +41,12 @@ import {
 import {
   ASSETS_CONFIG,
   getSceneryConfig,
+  getSceneryDisplayName,
   SceneryAssetConfig,
   mapGridToScenery,
   mapSceneryToGrid,
 } from "@/lib/assetsConfig";
+import { useLanguage } from "@/lib/i18n";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -189,11 +176,9 @@ function BitmapFontPreview({
   );
 }
 
-const SCENE_ASPECT = 19.5 / 9;
-
 function useHoldAction(action: () => void, disabled?: boolean, initialDelay = 300, repeatInterval = 75) {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const actionRef = useRef(action);
   actionRef.current = action;
 
@@ -231,6 +216,7 @@ function useHoldAction(action: () => void, disabled?: boolean, initialDelay = 30
 }
 
 export default function WallArtView() {
+  const { locale, isTr, t, fmtNum, fmtTemplate } = useLanguage();
   const allFonts = useMemo(() => getAllBitmapFonts(), []);
 
   // Controls State
@@ -338,6 +324,10 @@ export default function WallArtView() {
     return getSceneryConfig(selectedSceneryId);
   }, [selectedSceneryId]);
 
+  const localizedSceneryName = useMemo(() => {
+    return getSceneryDisplayName(currentScenery.id, currentScenery.name, locale);
+  }, [currentScenery, locale]);
+
   // Load real scenery background dynamically when selected scenery changes
   useEffect(() => {
     setSceneryLoading(true);
@@ -363,16 +353,6 @@ export default function WallArtView() {
   const [hoveredCell, setHoveredCell] = useState<{ r: number; c: number } | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [copiedGuide, setCopiedGuide] = useState<boolean>(false);
-  const dragRef = useRef<{
-    active: boolean;
-    startX: number;
-    startY: number;
-    initOffsetX: number;
-    initOffsetY: number;
-    mode: "2d" | "3d";
-    startGridCol: number;
-    startGridRow: number;
-  } | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   // Canvas Refs
@@ -397,8 +377,8 @@ export default function WallArtView() {
         originalScale: scale,
         wasScaledDown: false,
         lineCount: 0,
-        linesInfo: "Font bulunamadı",
-        warnings: ["Hiç geçerli bitmap font bulunamadı."],
+        linesInfo: t.wall.noFontTitle,
+        warnings: [t.wall.noFontDesc],
         convertedChars: [],
         missingChars: [],
         buildGuide: [],
@@ -434,7 +414,7 @@ export default function WallArtView() {
       offsetX,
       offsetY
     );
-  }, [text, currentFont, scale, rotation, maxWalls, letterSpacing, convertTurkish, autoFit, preserveThinLines, offsetX, offsetY]);
+  }, [text, currentFont, scale, rotation, maxWalls, letterSpacing, convertTurkish, autoFit, preserveThinLines, offsetX, offsetY, t.wall.noFontTitle, t.wall.noFontDesc]);
 
   // ── Render 2D Grid Canvas ───────────────────────────────────────────────────
   useEffect(() => {
@@ -448,14 +428,13 @@ export default function WallArtView() {
     canvas.height = size;
     const cellSize = size / COC_GRID_SIZE;
 
-    // Background
+    // Background (Warm Clash dark wood / espresso)
     if (show2dSceneryBg && sceneryImg && sceneryImg.complete) {
-      // Draw subtle scenery background
       ctx.drawImage(sceneryImg, 0, 0, size, size);
-      ctx.fillStyle = "rgba(15, 23, 42, 0.75)";
+      ctx.fillStyle = "rgba(26, 18, 12, 0.78)";
       ctx.fillRect(0, 0, size, size);
     } else {
-      ctx.fillStyle = "#0F172A"; // Slate 900
+      ctx.fillStyle = "#1A120C";
       ctx.fillRect(0, 0, size, size);
     }
 
@@ -476,11 +455,11 @@ export default function WallArtView() {
           ctx.lineWidth = 1;
           ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
         } else {
-          // Grass tile checkerboard
-          ctx.fillStyle = (r + c) % 2 === 0 ? "rgba(20, 30, 51, 0.9)" : "rgba(16, 24, 40, 0.9)";
+          // Warm hearth tile checkerboard
+          ctx.fillStyle = (r + c) % 2 === 0 ? "rgba(38, 26, 18, 0.94)" : "rgba(29, 20, 14, 0.94)";
           ctx.fillRect(x, y, cellSize, cellSize);
 
-          ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+          ctx.strokeStyle = "rgba(255, 224, 178, 0.06)";
           ctx.lineWidth = 0.5;
           ctx.strokeRect(x, y, cellSize, cellSize);
         }
@@ -489,7 +468,7 @@ export default function WallArtView() {
 
     // Center Crosslines (between cell 22 and 23)
     const mid = 22 * cellSize;
-    ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
+    ctx.strokeStyle = "rgba(239, 68, 68, 0.45)";
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
 
@@ -526,7 +505,7 @@ export default function WallArtView() {
     if (sceneryImg && sceneryImg.complete) {
       ctx.drawImage(sceneryImg, 0, 0, width, height);
     } else {
-      ctx.fillStyle = "#0B111E";
+      ctx.fillStyle = "#1A120C";
       ctx.fillRect(0, 0, width, height);
     }
 
@@ -734,35 +713,35 @@ export default function WallArtView() {
   }, [selectedSceneryId, viewportSize.width, viewportSize.height, centerViewOnDiamond]);
 
   // 4 Corner Nudge Actions
-  // NW: Sütun - 1 (offsetX - 1)
+  // NW: Col - 1 (offsetX - 1)
   const canNudgeNW = offsetX > -20 && (result.wallCount === 0 || result.minCol > 0);
   const nudgeNW = useCallback(() => {
     setOffsetX((prev) => Math.max(-20, prev - 1));
   }, []);
   const nwHold = useHoldAction(nudgeNW, !canNudgeNW);
 
-  // SE: Sütun + 1 (offsetX + 1)
+  // SE: Col + 1 (offsetX + 1)
   const canNudgeSE = offsetX < 20 && (result.wallCount === 0 || result.maxCol < COC_GRID_SIZE - 1);
   const nudgeSE = useCallback(() => {
     setOffsetX((prev) => Math.min(20, prev + 1));
   }, []);
   const seHold = useHoldAction(nudgeSE, !canNudgeSE);
 
-  // NE: Satır - 1 (offsetY - 1)
+  // NE: Row - 1 (offsetY - 1)
   const canNudgeNE = offsetY > -20 && (result.wallCount === 0 || result.minRow > 0);
   const nudgeNE = useCallback(() => {
     setOffsetY((prev) => Math.max(-20, prev - 1));
   }, []);
   const neHold = useHoldAction(nudgeNE, !canNudgeNE);
 
-  // SW: Satır + 1 (offsetY + 1)
+  // SW: Row + 1 (offsetY + 1)
   const canNudgeSW = offsetY < 20 && (result.wallCount === 0 || result.maxRow < COC_GRID_SIZE - 1);
   const nudgeSW = useCallback(() => {
     setOffsetY((prev) => Math.min(20, prev + 1));
   }, []);
   const swHold = useHoldAction(nudgeSW, !canNudgeSW);
 
-  // Top Center Rotation Actions
+  // Rotation Actions
   const rotateCCW = useCallback(() => {
     setRotation((prev) => {
       let next = prev - 15;
@@ -1026,7 +1005,7 @@ export default function WallArtView() {
     }
   };
 
-  // Download Viewport PNG at 2x resolution
+  // Download Viewport Preview PNG at 2x resolution
   const handleExportViewport2x = useCallback(() => {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -1065,7 +1044,7 @@ export default function WallArtView() {
         );
       } else if (canvas2dRef.current) {
         const canvas = canvas2dRef.current;
-        ctx.fillStyle = "#0B111E";
+        ctx.fillStyle = "#1A120C";
         ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
         const pad = Math.round(exportCanvas.height * 0.05);
         const size = exportCanvas.height - pad * 2;
@@ -1073,16 +1052,38 @@ export default function WallArtView() {
         ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, startX, pad, size, size);
       }
 
+      // Localized preview caption pill at bottom-left
+      const caption = isTr
+        ? `CoC Analitik • "${text || "-"}" • ${result.wallCount}/${maxWalls} Duvar • ${localizedSceneryName}`
+        : `CoC Analytics • "${text || "-"}" • ${result.wallCount}/${maxWalls} Walls • ${localizedSceneryName}`;
+      ctx.font = "bold 20px -apple-system, sans-serif";
+      const metrics = ctx.measureText(caption);
+      const pillPadX = 16;
+      const pillH = 34;
+      const pillW = Math.min(exportCanvas.width - 32, metrics.width + pillPadX * 2);
+      const pillX = 16;
+      const pillY = exportCanvas.height - pillH - 16;
+
+      ctx.fillStyle = "rgba(26, 18, 12, 0.85)";
+      ctx.fillRect(pillX, pillY, pillW, pillH);
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.55)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pillX, pillY, pillW, pillH);
+      ctx.fillStyle = "#FFEB75";
+      ctx.textBaseline = "middle";
+      ctx.textAlign = "left";
+      ctx.fillText(caption, pillX + pillPadX, pillY + pillH / 2, pillW - pillPadX * 2);
+
       const dataUrl = exportCanvas.toDataURL("image/png");
       const link = document.createElement("a");
-      const safeText = text.trim() ? text.toLowerCase().replace(/[^a-z0-9]/g, "-") : "koy";
-      link.download = `coc-duvar-yazisi-${safeText}.png`;
+      const safeText = text.trim() ? text.toLowerCase().replace(/[^a-z0-9]/g, "-") : isTr ? "koy" : "village";
+      link.download = isTr ? `coc-duvar-onizleme-${safeText}.png` : `coc-wall-preview-${safeText}.png`;
       link.href = dataUrl;
       link.click();
     } finally {
       setIsExportingViewport(false);
     }
-  }, [viewMode, zoom, panX, panY, currentScenery, text]);
+  }, [viewMode, zoom, panX, panY, currentScenery, text, result.wallCount, maxWalls, localizedSceneryName, isTr]);
 
   // Download Blueprint PNG
   const handleDownloadPng = useCallback(() => {
@@ -1098,53 +1099,126 @@ export default function WallArtView() {
         rotation,
         offsetX,
         offsetY,
+        locale,
       });
 
       if (!dataUrl) return;
 
       const link = document.createElement("a");
-      link.download = `coc-duvar-yazisi-${text.toLowerCase().replace(/[^a-z0-9]/g, "-")}.png`;
+      const safeText = text.trim() ? text.toLowerCase().replace(/[^a-z0-9]/g, "-") : isTr ? "plan" : "blueprint";
+      link.download = isTr ? `coc-duvar-yazisi-${safeText}.png` : `coc-wall-art-${safeText}.png`;
       link.href = dataUrl;
       link.click();
     } finally {
       setIsExporting(false);
     }
-  }, [result, text, currentFont, rotation]);
+  }, [result, text, currentFont, rotation, offsetX, offsetY, locale, isTr]);
 
   // Copy Build Guide text
-  const handleCopyGuide = () => {
-    const lines = result.buildGuide.map(
-      (g) =>
-        `Satır ${g.row}: ${g.wallCount} duvar [${g.segments
+  const handleCopyGuide = async () => {
+    const lines = result.buildGuide.map((g) => {
+      if (isTr) {
+        return `Satır ${g.row}: ${g.wallCount} duvar [${g.segments
           .map((s) => (s.fromCol === s.toCol ? `Sütun ${s.fromCol}` : `Sütun ${s.fromCol}–${s.toCol} (${s.count} adet)`))
-          .join(", ")}]`
-    );
-    const fullText = [
-      `=== CoC Duvar Yazısı İnşa Rehberi ===`,
-      `Metin: "${text}"`,
-      `Font: ${currentFont?.name || "Bilinmiyor"} (Ölçek: ${result.effectiveScale}x, Açı: ${rotation}°)`,
-      `Toplam Duvar: ${result.wallCount} / ${result.maxWalls}`,
-      `Izgara: 44x44 Ana Köy`,
-      `------------------------------------`,
-      ...lines,
-    ].join("\n");
+          .join(", ")}]`;
+      }
+      return `Row ${g.row}: ${g.wallCount} walls [${g.segments
+        .map((s) => (s.fromCol === s.toCol ? `Col ${s.fromCol}` : `Col ${s.fromCol}–${s.toCol} (${s.count})`))
+        .join(", ")}]`;
+    });
 
-    navigator.clipboard.writeText(fullText);
-    setCopiedGuide(true);
-    setTimeout(() => setCopiedGuide(false), 2000);
+    const fullText = isTr
+      ? [
+          `=== CoC Duvar Yazısı İnşa Rehberi ===`,
+          `Metin: "${text}"`,
+          `Font: ${currentFont?.name || "Bilinmiyor"} (Ölçek: ${result.effectiveScale}x, Açı: ${rotation}°)`,
+          `Toplam Duvar: ${result.wallCount} / ${result.maxWalls}`,
+          `Izgara: 44x44 Ana Köy`,
+          `------------------------------------`,
+          ...lines,
+        ].join("\n")
+      : [
+          `=== CoC Wall Art Build Guide ===`,
+          `Text: "${text}"`,
+          `Font: ${currentFont?.name || "Unknown"} (Scale: ${result.effectiveScale}x, Angle: ${rotation}°)`,
+          `Total Walls: ${result.wallCount} / ${result.maxWalls}`,
+          `Grid: 44x44 Home Village`,
+          `------------------------------------`,
+          ...lines,
+        ].join("\n");
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(fullText);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = fullText;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopiedGuide(true);
+      setTimeout(() => setCopiedGuide(false), 2000);
+    } catch {
+      // Clipboard fallback failed silently
+    }
   };
 
-  const usagePct = Math.min(100, (result.wallCount / maxWalls) * 100);
+  const usagePct = Math.min(100, Math.round((result.wallCount / Math.max(1, maxWalls)) * 100));
+
+  // Localized non-duplicate supplementary notices
+  const localizedNotices = useMemo(() => {
+    const items: string[] = [];
+    if (result.isReadabilityLow) {
+      items.push(
+        isTr
+          ? `Bu boyutta harfler zor okunabilir (Harf yüksekliği: ${result.capHeight} hücre)`
+          : `Letters may be hard to read at this scale (Cap height: ${result.capHeight} cells)`
+      );
+    }
+    if (result.thickenedChars.length > 0) {
+      items.push(
+        isTr
+          ? `Bazı harflerde ince çizgiler korundu (${result.thickenedChars.join(", ")})`
+          : `Thin strokes reinforced on: ${result.thickenedChars.join(", ")}`
+      );
+    }
+    if ((offsetX !== 0 || offsetY !== 0) && result.warnings.some((w) => w.includes("kaydırma"))) {
+      items.push(
+        isTr
+          ? "Yazı kaydırma nedeniyle ızgara dışına taşıyor ve kırpılıyor."
+          : "Text extends outside the 44×44 grid due to offset and is clipped."
+      );
+    }
+    if (rotation % 45 !== 0 && result.warnings.some((w) => w.includes("Piksel harfleri"))) {
+      items.push(
+        isTr
+          ? "Ara açılar piksel harfleri bozabilir; 45° katlarını kullanın."
+          : "Intermediate angles may distort pixel glyphs; multiples of 45° are recommended."
+      );
+    }
+    if (!result.isCleanScale) {
+      items.push(
+        isTr
+          ? "Bu ölçekte harf kalınlıkları eşit olmayabilir."
+          : "Stroke thickness may be uneven at this fractional scale."
+      );
+    }
+    return items;
+  }, [result, isTr, offsetX, offsetY, rotation]);
 
   return (
     <div className="game-theme w-full max-w-7xl mx-auto px-0 sm:px-2 py-1 sm:py-4 flex flex-col animate-fadeIn pb-12">
       {/* Main Wooden Window Frame */}
       <div className="game-window-frame flex flex-col">
         {/* Window Top Edge: Tab Bar Strip */}
-        <div className="game-tab-strip shrink-0 justify-between items-end gap-2 px-3 sm:px-6">
+        <div className="game-tab-strip shrink-0 justify-between items-end flex-wrap gap-2 px-3 sm:px-6">
           <GameTabBar>
-            <GameTab active={true} icon={<PenTool size={18} />}>
-              Duvar Yazısı
+            <GameTab active={true} icon={<PenTool size={18} />} className="font-game">
+              {t.nav.wall}
             </GameTab>
           </GameTabBar>
 
@@ -1154,38 +1228,54 @@ export default function WallArtView() {
               size="sm"
               onClick={handleDownloadPng}
               disabled={isExporting || result.wallCount === 0}
-              icon={<Download size={14} />}
-              className="text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 whitespace-nowrap"
-              title="Koordinatlı ızgara ve inşa planını PNG olarak indir"
+              icon={<Download size={15} />}
+              className="min-h-[44px] text-xs sm:text-sm px-3 py-2 whitespace-nowrap font-game"
+              title={
+                isTr
+                  ? "Koordinatlı 44×44 ızgara ve inşa planını PNG olarak indir"
+                  : "Download coordinate 44×44 grid blueprint as PNG"
+              }
             >
-              PNG Planı İndir
+              {t.wall.downloadPlan}
             </GameButton>
           </div>
         </div>
 
         {/* Window Content Body */}
-        <div className="px-2.5 sm:px-6 py-2.5 sm:py-4 space-y-3 sm:space-y-4">
-          {/* a) 1. Kutu / Satır: Metin Kutusu + Duvar Limiti Kutusu */}
+        <div className="px-2.5 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
+          {/* Header Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-0.5">
+            <div>
+              <h1 className="font-game text-base sm:text-xl text-white game-text-stroke leading-tight">
+                {t.wall.title}
+              </h1>
+              <p className="text-xs sm:text-sm text-[#D8AF86] mt-0.5">{t.wall.subtitle}</p>
+            </div>
+          </div>
+
+          {/* Row 1: Text Input + Wall Budget Input (>=16px font size to prevent iOS Safari auto-zoom) */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Metin Kutusu (tam genişlik/flex-1, placeholder, sağda karakter sayacı 4/35) */}
-            <div className="relative flex-1 min-w-0 h-11 sm:h-12">
+            <div className="relative flex-1 min-w-0 h-12">
               <input
                 type="text"
                 value={text}
                 maxLength={35}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="Metin girin (örn. HARUN, COC, KLAN)..."
-                className="w-full h-full px-3.5 pr-14 rounded-xl bg-[#150B05] border-2 border-[#4E3120] text-sm sm:text-base font-black text-white placeholder-[#8C6D58] focus:outline-none focus:border-amber-400 shadow-inner tracking-wide"
+                placeholder={t.wall.textPlaceholder}
+                aria-label={t.wall.title}
+                className="w-full h-full px-3.5 pr-16 rounded-xl bg-[#1A120C] border-2 border-[#4E3120] text-base font-bold text-white placeholder-[#9E8069] focus:outline-none focus:border-amber-400 shadow-inner tracking-wide"
               />
-              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[11px] sm:text-xs font-bold text-[#D8AF86] pointer-events-none select-none">
-                {text.length}/35
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#D8AF86] pointer-events-none select-none tabular-nums">
+                {fmtNum(text.length)}/35
               </div>
             </div>
 
-            {/* Duvar Limiti Kutusu ("Duvar:" etiketi, min 1 max 2000 debounced input, w-20 sm:w-24, aynı yükseklik) */}
-            <div className="flex items-center justify-between gap-1 px-2 sm:px-2.5 h-11 sm:h-12 w-20 sm:w-24 rounded-xl bg-[#150B05] border-2 border-[#4E3120] shrink-0">
-              <span className="text-[11px] sm:text-xs font-bold text-[#FFEB75] whitespace-nowrap">Duvar:</span>
+            <div className="flex items-center justify-between gap-1.5 px-2.5 sm:px-3 h-12 min-w-[118px] sm:min-w-[136px] rounded-xl bg-[#1A120C] border-2 border-[#4E3120] shrink-0">
+              <label htmlFor="wall-budget-input" className="text-xs sm:text-sm font-bold text-[#FFEB75] whitespace-nowrap">
+                {t.wall.wallsLabel}
+              </label>
               <input
+                id="wall-budget-input"
                 type="number"
                 min={1}
                 max={2000}
@@ -1197,421 +1287,745 @@ export default function WallArtView() {
                   else if (val > 2000) setWallInputText("2000");
                   else setWallInputText(String(val));
                 }}
-                className="w-9 sm:w-11 bg-transparent text-xs sm:text-sm font-mono font-black text-white text-right focus:outline-none"
+                className="w-14 sm:w-16 bg-transparent text-base font-mono font-black text-white text-right tabular-nums focus:outline-none"
               />
             </div>
           </div>
 
-          {/* b) Türkçe Uyarı Şeridi (Varsa) */}
+          {/* Turkish Character Normalization Notice */}
           {result.convertedChars && result.convertedChars.length > 0 && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300/95 font-medium">
-              <Info size={14} className="shrink-0 text-amber-400" />
-              <span>Türkçe karakterler otomatik uyarlandı: <strong className="text-amber-200">{result.convertedChars.join(", ")}</strong></span>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-xs sm:text-sm text-amber-200 font-medium">
+              <Info size={15} className="shrink-0 text-amber-400" />
+              <span>
+                {t.wall.turkishAdapted}{" "}
+                <strong className="text-amber-100">{result.convertedChars.join(", ")}</strong>
+              </span>
             </div>
           )}
 
-          {/* c) 2. Kutu / Satır: Font Seçici */}
-          <div className="border-2 border-[#4E3120] rounded-xl overflow-hidden bg-[#150B05]">
-            <button
-              type="button"
-              onClick={() => setFontPickerOpen((prev) => !prev)}
-              className="w-full h-11 sm:h-12 flex items-center justify-between px-3 sm:px-4 hover:bg-[#25150C] transition-colors cursor-pointer select-none text-left"
-            >
-              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden flex-1 min-w-0 mr-2">
-                <span className="text-xs sm:text-sm font-bold text-[#FFEB75] shrink-0 whitespace-nowrap">
-                  Font: <strong className="text-white font-black">{currentFont?.name}</strong>
-                </span>
-                {currentFont && (
-                  <div className="flex-1 max-w-[180px] sm:max-w-[280px] shrink overflow-hidden">
+          {/* Missing Fonts State */}
+          {!currentFont && (
+            <div className="p-4 rounded-xl bg-[#1A120C] border-2 border-red-800/70 flex items-center gap-3 text-sm text-red-200">
+              <AlertTriangle size={18} className="text-red-400 shrink-0" />
+              <div>
+                <div className="font-game text-white">{t.wall.noFontTitle}</div>
+                <div className="text-xs text-red-200/90">{t.wall.noFontDesc}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Row 2: Bitmap Font Selector */}
+          {currentFont && (
+            <div className="border-2 border-[#4E3120] rounded-xl overflow-hidden bg-[#1A120C]">
+              <button
+                type="button"
+                onClick={() => setFontPickerOpen((prev) => !prev)}
+                aria-expanded={fontPickerOpen}
+                className="w-full min-h-[48px] flex items-center justify-between px-3 sm:px-4 py-1.5 hover:bg-[#261A12] transition-colors cursor-pointer select-none text-left"
+              >
+                <div className="flex items-center gap-2 sm:gap-3 overflow-hidden flex-1 min-w-0 mr-2">
+                  <span className="text-xs sm:text-sm font-bold text-[#FFEB75] shrink-0 whitespace-nowrap">
+                    {t.wall.fontLabel}{" "}
+                    <strong className="font-game text-white">{currentFont.name}</strong>
+                  </span>
+                  <div className="flex-1 max-w-[160px] sm:max-w-[260px] shrink overflow-hidden">
                     <BitmapFontPreview font={currentFont} text={text} convertTurkish={convertTurkish} />
                   </div>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#D8AF86] font-bold shrink-0">
-                <span>{fontPickerOpen ? "Kapat" : "Değiştir"}</span>
-                <ChevronDown
-                  size={16}
-                  className={cn("transition-transform duration-200 text-amber-400", fontPickerOpen && "rotate-180")}
-                />
-              </div>
-            </button>
-
-            {fontPickerOpen && (
-              <div className="p-3 border-t-2 border-[#4E3120] bg-[#120803] space-y-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-56 overflow-y-auto scrollbar-thin scrollbar-thumb-amber-700 pr-1">
-                  {allFonts.map((font) => {
-                    const isSelected = selectedFontId === font.id;
-                    return (
-                      <button
-                        key={font.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedFontId(font.id);
-                          setFontPickerOpen(false);
-                        }}
-                        className={cn(
-                          "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2",
-                          isSelected
-                            ? "bg-amber-500/15 border-amber-500/60 shadow-sm"
-                            : "bg-[#1E1008] border-[#3D2517] hover:border-amber-500/40"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white truncate">{font.name}</span>
-                          {isSelected && <CheckCircle2 size={13} className="text-amber-400 shrink-0" />}
-                        </div>
-                        <div className="w-full flex items-center justify-center my-0.5">
-                          <BitmapFontPreview font={font} text={text} convertTurkish={convertTurkish} />
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] text-[#A68870] font-semibold pt-1 border-t border-[#3D2517]">
-                          <span>{font.height} Hücre Yükseklik</span>
-                          <span>{font.supportedChars.length} Glif</span>
-                        </div>
-                      </button>
-                    );
-                  })}
                 </div>
+                <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#D8AF86] font-bold shrink-0">
+                  <span>{fontPickerOpen ? t.wall.closeBtn : t.wall.changeBtn}</span>
+                  <ChevronDown
+                    size={16}
+                    className={cn("transition-transform duration-200 text-amber-400", fontPickerOpen && "rotate-180")}
+                  />
+                </div>
+              </button>
+
+              {fontPickerOpen && (
+                <div className="p-3 border-t-2 border-[#4E3120] bg-[#140D08] space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto pr-1">
+                    {allFonts.map((font) => {
+                      const isSelected = selectedFontId === font.id;
+                      return (
+                        <button
+                          key={font.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedFontId(font.id);
+                            setFontPickerOpen(false);
+                          }}
+                          className={cn(
+                            "min-h-[44px] p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2",
+                            isSelected
+                              ? "bg-amber-500/15 border-amber-500/70 shadow-sm"
+                              : "bg-[#261A12] border-[#4E3120] hover:border-amber-500/50"
+                          )}
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="font-game text-xs sm:text-sm text-white truncate">{font.name}</span>
+                            {isSelected && <CheckCircle2 size={15} className="text-amber-400 shrink-0" />}
+                          </div>
+                          <div className="w-full flex items-center justify-center my-0.5">
+                            <BitmapFontPreview font={font} text={text} convertTurkish={convertTurkish} />
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-[#D8AF86] font-semibold pt-1.5 border-t border-[#3D2517] tabular-nums">
+                            <span>{fmtTemplate(t.wall.glyphHeight, { height: fmtNum(font.height) })}</span>
+                            <span>
+                              {fmtNum(font.supportedChars.length)} {isTr ? "Glif" : "Glyphs"}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Row 3: Settings Bar (Text Scale, Letter Spacing, Auto-fit, Advanced Drawer) */}
+          <div className="bg-[#1A120C] border-2 border-[#4E3120] rounded-xl px-3 sm:px-4 py-2 space-y-2.5 text-xs sm:text-sm font-bold text-[#EAD5BA]">
+            <div className="flex flex-wrap items-center justify-between gap-y-2 gap-x-4">
+              {/* Text Scale Slider */}
+              <div className="flex items-center gap-2 min-h-[44px] shrink-0">
+                <label htmlFor="wall-scale-slider" className="text-xs sm:text-sm text-[#FFEB75] shrink-0">
+                  {t.wall.fontSizeLabel}
+                </label>
+                <input
+                  id="wall-scale-slider"
+                  type="range"
+                  min={MIN_BITMAP_SCALE}
+                  max={MAX_BITMAP_SCALE}
+                  step={SCALE_STEP}
+                  value={scale}
+                  onChange={(e) => setScale(Number(e.target.value))}
+                  className="game-slider !w-24 sm:!w-28"
+                />
+                <span className="text-white font-mono text-xs sm:text-sm shrink-0 tabular-nums">
+                  {scale}x
+                  {result.wasScaledDown && (
+                    <span className="text-amber-400 text-xs ml-1 font-bold">
+                      ({result.effectiveScale}x)
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              {/* Letter Spacing Slider */}
+              <div className="flex items-center gap-2 min-h-[44px] shrink-0">
+                <label htmlFor="wall-spacing-slider" className="text-xs sm:text-sm text-[#FFEB75] shrink-0">
+                  {t.wall.letterSpacingLabel}
+                </label>
+                <input
+                  id="wall-spacing-slider"
+                  type="range"
+                  min={0}
+                  max={4}
+                  step={1}
+                  value={letterSpacing}
+                  onChange={(e) => setLetterSpacing(Number(e.target.value))}
+                  className="game-slider !w-20 sm:!w-24"
+                />
+                <span className="text-white font-mono text-xs sm:text-sm shrink-0 tabular-nums">
+                  {letterSpacing}
+                </span>
+              </div>
+
+              {/* Auto-fit Checkbox */}
+              <label className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none shrink-0 hover:text-white">
+                <input
+                  type="checkbox"
+                  checked={autoFit}
+                  onChange={(e) => setAutoFit(e.target.checked)}
+                  className="game-checkbox"
+                />
+                <span className="text-xs sm:text-sm">{t.wall.autoFitLabel}</span>
+              </label>
+
+              {/* Advanced Options Toggle */}
+              <button
+                type="button"
+                onClick={() => setIsOtherSettingsOpen((prev) => !prev)}
+                aria-expanded={isOtherSettingsOpen}
+                className="min-h-[44px] px-3 rounded-xl bg-[#261A12] border border-[#4E3120] hover:border-amber-400/60 flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#FFEB75] cursor-pointer transition-colors"
+              >
+                <Sliders size={15} className="text-amber-400 shrink-0" />
+                <span>{isTr ? "Gelişmiş" : "Advanced"}</span>
+                <ChevronDown
+                  size={15}
+                  className={cn("transition-transform duration-200 text-amber-400", isOtherSettingsOpen && "rotate-180")}
+                />
+              </button>
+            </div>
+
+            {isOtherSettingsOpen && (
+              <div className="pt-2.5 border-t border-[#3A2317] flex flex-wrap items-center justify-between gap-x-5 gap-y-2">
+                <label className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none hover:text-white">
+                  <input
+                    type="checkbox"
+                    checked={convertTurkish}
+                    onChange={(e) => setConvertTurkish(e.target.checked)}
+                    className="game-checkbox"
+                  />
+                  <span className="text-xs sm:text-sm">
+                    {isTr ? "Türkçe harfleri ASCII'ye uyarla (Ç→C, Ş→S)" : "Normalize Turkish chars (Ç→C, Ş→S)"}
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none hover:text-white">
+                  <input
+                    type="checkbox"
+                    checked={preserveThinLines}
+                    onChange={(e) => setPreserveThinLines(e.target.checked)}
+                    className="game-checkbox"
+                  />
+                  <span className="text-xs sm:text-sm">
+                    {isTr ? "0.5x ölçekte ince çizgileri koru" : "Preserve thin strokes at 0.5x"}
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none hover:text-white">
+                  <input
+                    type="checkbox"
+                    checked={showDebugGrid}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setShowDebugGrid(next);
+                      if (next && viewMode !== "3d") setViewMode("3d");
+                    }}
+                    className="game-checkbox"
+                  />
+                  <span className="text-xs sm:text-sm">
+                    {isTr ? "3D Sahne 44×44 Hizalama Izgarası" : "3D Scenery 44×44 Alignment Grid"}
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none hover:text-white">
+                  <input
+                    type="checkbox"
+                    checked={show2dSceneryBg}
+                    onChange={(e) => {
+                      const next = e.target.checked;
+                      setShow2dSceneryBg(next);
+                      if (next && viewMode !== "2d") setViewMode("2d");
+                    }}
+                    className="game-checkbox"
+                  />
+                  <span className="text-xs sm:text-sm">
+                    {isTr ? "2D Izgarada Sahne Arka Planı" : "2D Grid Scenery Backdrop"}
+                  </span>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOffsetX(0);
+                    setOffsetY(0);
+                  }}
+                  disabled={offsetX === 0 && offsetY === 0}
+                  className="min-h-[44px] px-3 rounded-xl bg-[#261A12] border border-[#4E3120] hover:border-amber-400/60 disabled:opacity-45 disabled:cursor-not-allowed flex items-center gap-1.5 text-xs font-bold text-amber-200 cursor-pointer tabular-nums transition-colors"
+                >
+                  <RotateCcw size={14} className="text-amber-400" />
+                  <span>
+                    {isTr ? "Konumu Sıfırla" : "Reset Offset"} ({offsetX >= 0 ? `+${offsetX}` : offsetX}, {offsetY >= 0 ? `+${offsetY}` : offsetY})
+                  </span>
+                </button>
               </div>
             )}
           </div>
 
-          {/* d) 3. Kutu / Satır: Ayar Şeridi */}
-          <div className="bg-black/30 border border-amber-950/50 rounded-xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-y-2 gap-x-4 min-h-[44px] sm:min-h-[48px] text-xs font-bold text-[#EAD5BA]">
-            {/* Yazı Boyutu */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-[#FFEB75] shrink-0">Yazı boyutu:</span>
-              <input
-                type="range"
-                min={MIN_BITMAP_SCALE}
-                max={MAX_BITMAP_SCALE}
-                step={SCALE_STEP}
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-                className="w-20 sm:w-28 accent-amber-500 cursor-pointer"
-              />
-              <span className="text-white font-mono text-xs shrink-0">
-                {scale}x
-                {result.wasScaledDown && (
-                  <span className="text-amber-400 text-[10px] ml-1 font-bold">
-                    ({result.effectiveScale}x)
-                  </span>
+          {/* Wall Budget Meter (ALWAYS visible on 390px Mobile & Desktop) */}
+          <div className="rounded-xl bg-[#1A120C] border-2 border-[#4E3120] px-3 sm:px-4 py-2.5 space-y-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "w-2.5 h-2.5 rounded-full shrink-0",
+                    result.isOverBudget
+                      ? "bg-red-500 animate-pulse"
+                      : usagePct >= 85
+                      ? "bg-amber-400"
+                      : "bg-emerald-400"
+                  )}
+                />
+                <span className="font-game text-xs sm:text-sm text-[#FFEB75]">
+                  {isTr ? "Duvar Bütçesi" : "Wall Budget"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <span
+                  className={cn(
+                    "font-mono text-sm sm:text-base font-black tabular-nums",
+                    result.isOverBudget ? "text-red-400" : "text-white"
+                  )}
+                >
+                  {fmtNum(result.wallCount)} / {fmtNum(maxWalls)}
+                </span>
+                <span
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-bold tabular-nums border",
+                    result.isOverBudget
+                      ? "bg-red-950/70 border-red-500/60 text-red-300"
+                      : usagePct >= 85
+                      ? "bg-amber-950/70 border-amber-500/50 text-amber-300"
+                      : "bg-emerald-950/60 border-emerald-500/40 text-emerald-300"
+                  )}
+                >
+                  {usagePct}%
+                </span>
+              </div>
+            </div>
+
+            <div className="h-2 w-full rounded-full bg-[#110A06] border border-[#3A2317] overflow-hidden">
+              <div
+                className={cn(
+                  "h-full transition-all duration-300 rounded-full",
+                  result.isOverBudget
+                    ? "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500"
+                    : usagePct >= 85
+                    ? "bg-gradient-to-r from-amber-400 to-orange-500"
+                    : "bg-gradient-to-r from-emerald-500 to-amber-400"
                 )}
-              </span>
+                style={{ width: `${usagePct}%` }}
+              />
             </div>
 
-            {/* Harf Aralığı */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-[#FFEB75] shrink-0">Harf aralığı:</span>
-              <input
-                type="range"
-                min={0}
-                max={4}
-                step={1}
-                value={letterSpacing}
-                onChange={(e) => setLetterSpacing(Number(e.target.value))}
-                className="w-16 sm:w-20 accent-amber-500 cursor-pointer"
-              />
-              <span className="text-white font-mono text-xs shrink-0">{letterSpacing}</span>
-            </div>
-
-            {/* Otomatik Sığdır Onay Kutusu */}
-            <label className="flex items-center gap-2 cursor-pointer select-none shrink-0 hover:text-white">
-              <input
-                type="checkbox"
-                checked={autoFit}
-                onChange={(e) => setAutoFit(e.target.checked)}
-                className="w-4 h-4 rounded text-amber-500 focus:ring-amber-400 bg-[#150B05] border-[#4E3120] cursor-pointer"
-              />
-              <span className="text-xs">Otomatik sığdır</span>
-            </label>
+            {result.isOverBudget && (
+              <div className="flex items-center gap-1.5 text-xs font-bold text-red-300 pt-0.5">
+                <AlertTriangle size={14} className="text-red-400 shrink-0" />
+                <span>
+                  {fmtTemplate(t.wall.budgetExceeded, {
+                    excess: fmtNum(result.wallCount - maxWalls),
+                  })}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* (b) SAHNE PANELİ (Sabit 19.5/9 oran, Zoom/Pan, Oyun Tarzı Kontroller) */}
-          <div
-            ref={viewportRef}
-            tabIndex={0}
-            onKeyDown={handleKeyDown}
-            onWheel={handleWheel}
-            onPointerDown={handleViewportPointerDown}
-            onPointerMove={handleViewportPointerMove}
-            onPointerUp={handleViewportPointerUp}
-            onPointerCancel={handleViewportPointerUp}
-            className={cn(
-              "relative w-full max-w-[1100px] mx-auto overflow-hidden select-none touch-none rounded-xl border-3 border-[#28160C] shadow-2xl bg-[#0B111E] focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-shadow",
-              isDragging
-                ? dragInfoRef.current?.type === "pan"
-                  ? "cursor-grabbing"
-                  : "cursor-move"
-                : cursorMode === "move"
-                ? "cursor-move"
-                : "cursor-grab"
-            )}
-            style={{
-              aspectRatio: `${SCENE_ASPECT}`,
-              maxHeight: "80vh",
-            }}
-          >
-            {/* Canvas Rendering (3D Scenery + Walls) */}
-            {viewMode === "3d" ? (
-              <div
-                className="absolute top-0 left-0 will-change-transform"
-                style={{
-                  width: `${currentScenery.naturalWidth}px`,
-                  height: `${currentScenery.naturalHeight}px`,
-                  transform: `translate3d(${panX}px, ${panY}px, 0px) scale(${
-                    viewportSize.width > 0
-                      ? Math.max(viewportSize.width / currentScenery.naturalWidth, viewportSize.height / currentScenery.naturalHeight) * zoom
-                      : 1
-                  })`,
-                  transformOrigin: "0 0",
-                }}
-              >
-                <canvas
-                  ref={canvas3dRef}
+          {/* ── CANVAS VIEWPORT (100% Unobstructed on <sm Mobile; Only outer-corner nudges on >=sm) ── */}
+          <div className="space-y-2.5 max-w-[1100px] mx-auto w-full">
+            <div
+              ref={viewportRef}
+              tabIndex={0}
+              onKeyDown={handleKeyDown}
+              onWheel={handleWheel}
+              onPointerDown={handleViewportPointerDown}
+              onPointerMove={handleViewportPointerMove}
+              onPointerUp={handleViewportPointerUp}
+              onPointerCancel={handleViewportPointerUp}
+              className={cn(
+                "relative w-full overflow-hidden select-none touch-none rounded-xl border-2 border-[#4E3120] shadow-2xl bg-[#1A120C] aspect-[16/10] sm:aspect-[19.5/9] focus:outline-none focus:ring-2 focus:ring-amber-500/50 transition-shadow",
+                isDragging
+                  ? dragInfoRef.current?.type === "pan"
+                    ? "cursor-grabbing"
+                    : "cursor-move"
+                  : cursorMode === "move"
+                  ? "cursor-move"
+                  : "cursor-grab"
+              )}
+              style={{
+                maxHeight: "78vh",
+              }}
+            >
+              {/* Canvas Rendering (3D Scenery + Walls OR 2D Grid) */}
+              {viewMode === "3d" ? (
+                <div
+                  className="absolute top-0 left-0 will-change-transform"
                   style={{
                     width: `${currentScenery.naturalWidth}px`,
                     height: `${currentScenery.naturalHeight}px`,
+                    transform: `translate3d(${panX}px, ${panY}px, 0px) scale(${
+                      viewportSize.width > 0
+                        ? Math.max(viewportSize.width / currentScenery.naturalWidth, viewportSize.height / currentScenery.naturalHeight) * zoom
+                        : 1
+                    })`,
+                    transformOrigin: "0 0",
                   }}
-                />
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center p-4">
-                <canvas
-                  ref={canvas2dRef}
-                  className="max-h-full max-w-full rounded-xl shadow-xl border border-amber-500/30"
-                  style={{ aspectRatio: "1 / 1" }}
-                />
-              </div>
-            )}
+                >
+                  <canvas
+                    ref={canvas3dRef}
+                    style={{
+                      width: `${currentScenery.naturalWidth}px`,
+                      height: `${currentScenery.naturalHeight}px`,
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center p-3 sm:p-4 bg-[#1A120C]">
+                  <canvas
+                    ref={canvas2dRef}
+                    className="max-h-full max-w-full rounded-xl shadow-xl border border-amber-500/35"
+                    style={{ aspectRatio: "1 / 1" }}
+                  />
+                </div>
+              )}
 
-            {/* Scenery Loading Spinner Overlay */}
-            {sceneryLoading && (
-              <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs flex flex-col items-center justify-center gap-2 z-40 rounded-xl pointer-events-none">
-                <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
-                <span className="text-xs text-amber-300 font-bold">Sahne Yükleniyor...</span>
-              </div>
-            )}
+              {/* Scenery Loading Overlay */}
+              {sceneryLoading && (
+                <div className="absolute inset-0 bg-[#1A120C]/80 backdrop-blur-sm flex flex-col items-center justify-center gap-2 z-40 rounded-xl pointer-events-none">
+                  <div className="w-8 h-8 border-3 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs sm:text-sm text-amber-300 font-bold">{t.wall.loadingScene}</span>
+                </div>
+              )}
 
-            {/* Floating Drag Indicator */}
-            {isDragging && (
-              <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-[#1A1009]/95 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/60 shadow-xl backdrop-blur pointer-events-none flex items-center gap-2 z-30 animate-pulse">
-                <Move size={14} className="text-amber-400" />
-                <span>
-                  {dragInfoRef.current?.type === "text"
-                    ? `Yazı Taşınıyor: X: ${offsetX > 0 ? `+${offsetX}` : offsetX}, Y: ${offsetY > 0 ? `+${offsetY}` : offsetY}`
-                    : `Sahne Kaydırılıyor (Zoom: ${zoom.toFixed(1)}x)`}
-                </span>
-              </div>
-            )}
-
-            {/* ── OYUN İÇİ KONTROLLER ── */}
-
-            {/* TOP CENTER: Green Rotate Buttons & Degree Display */}
-            <div className="absolute top-2 sm:top-3.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 sm:gap-3 pointer-events-auto">
-              <button
-                type="button"
-                {...ccwHold}
-                className="game-btn-panel-green rounded-full w-8 h-8 sm:w-11 sm:h-11"
-                title="Saat Yönünün Tersi Döndür (-15°)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-              </button>
-
-              <button
-                type="button"
-                onClick={resetRotation}
-                onDoubleClick={resetRotation}
-                className="flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-4 sm:py-1.5 rounded-full bg-[#180E08]/90 border border-[#3D2517] sm:border-2 backdrop-blur-sm cursor-pointer hover:border-amber-400 transition-colors shadow-lg active:scale-95"
-                title="Açıyı Varsayılana (-45°) Sıfırla"
-              >
-                <span className="font-['Lilita_One'] text-sm sm:text-lg text-white tracking-wider game-text-stroke">
-                  {rotation}°
-                </span>
-                {rotation % 45 !== 0 && (
-                  <span title="Piksel harfleri bozabilir; 45° katları önerilir">
-                    <AlertTriangle size={12} className="text-amber-400 animate-pulse" />
+              {/* Floating Drag Indicator (Non-interactive, active only while dragging) */}
+              {isDragging && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-[#1A120C]/95 text-amber-300 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/60 shadow-xl pointer-events-none flex items-center gap-2 z-30 whitespace-nowrap tabular-nums">
+                  <Move size={14} className="text-amber-400 shrink-0" />
+                  <span>
+                    {dragInfoRef.current?.type === "text"
+                      ? fmtTemplate(t.wall.draggingText, {
+                          x: offsetX > 0 ? `+${offsetX}` : offsetX,
+                          y: offsetY > 0 ? `+${offsetY}` : offsetY,
+                        })
+                      : fmtTemplate(t.wall.panningScene, { zoom: zoom.toFixed(1) })}
                   </span>
-                )}
-              </button>
+                </div>
+              )}
 
-              <button
-                type="button"
-                {...cwHold}
-                className="game-btn-panel-green rounded-full w-8 h-8 sm:w-11 sm:h-11"
-                title="Saat Yönünde Döndür (+15°)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
-                </svg>
-              </button>
-            </div>
-
-            {/* TOP LEFT: Corner NW (↖) Button */}
-            <div className="absolute top-2 sm:top-3.5 left-2 sm:left-4 z-30 pointer-events-auto">
-              <button
-                type="button"
-                {...nwHold}
-                disabled={!canNudgeNW}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-8 h-8 sm:w-11 sm:h-11"
-                title="Yazıyı Sütun Boyunca Yukarı-Sola Kaydır (Sütun -1)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 18L18 6M6 6h10M6 6v10" />
-                </svg>
-              </button>
-            </div>
-
-            {/* TOP RIGHT: 2D/3D Toggle Switch + Corner NE (↗) Button (8px gap, NE never obscured) */}
-            <div className="absolute top-2 sm:top-3.5 right-2 sm:right-4 z-30 flex items-center gap-1.5 sm:gap-2 pointer-events-auto">
-              {/* 2D / 3D Switch */}
-              <div className="flex items-center p-0.5 rounded-lg sm:rounded-xl bg-[#22130A]/90 border border-[#3D2517] backdrop-blur-sm shadow-md">
+              {/* DESKTOP ONLY (>= sm): 4 Outer-Corner Directional Nudge Buttons (Never overlap each other or center) */}
+              <div className="hidden sm:block">
                 <button
                   type="button"
-                  onClick={() => setViewMode("2d")}
-                  className={cn(
-                    "px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded text-[9px] sm:text-xs font-black transition-all cursor-pointer font-['Lilita_One']",
-                    viewMode === "2d" ? "bg-amber-500 text-slate-950 shadow" : "text-amber-200/70 hover:text-white"
-                  )}
+                  {...nwHold}
+                  disabled={!canNudgeNW}
+                  className="absolute top-3 left-3 z-20 game-btn-panel-green rounded-xl w-11 h-11"
+                  aria-label={isTr ? "Yukarı-Sola Kaydır (Sütun -1)" : "Nudge North-West (Col -1)"}
+                  title={isTr ? "Yazıyı Sütun Boyunca Yukarı-Sola Kaydır (Sütun -1)" : "Nudge North-West (Col -1)"}
                 >
-                  2D
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode("3d")}
-                  className={cn(
-                    "px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded text-[9px] sm:text-xs font-black transition-all cursor-pointer font-['Lilita_One']",
-                    viewMode === "3d" ? "bg-amber-500 text-slate-950 shadow" : "text-amber-200/70 hover:text-white"
-                  )}
-                >
-                  3D
-                </button>
-              </div>
-
-              {/* NE Arrow Button */}
-              <button
-                type="button"
-                {...neHold}
-                disabled={!canNudgeNE}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-8 h-8 sm:w-11 sm:h-11"
-                title="Yazıyı Satır Boyunca Yukarı-Sağa Kaydır (Satır -1)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 18L18 6M8 6h10M18 6v10" />
-                </svg>
-              </button>
-            </div>
-
-            {/* RIGHT EDGE: Zoom + / − & Center Reset View */}
-            <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-1 sm:gap-1.5 pointer-events-auto">
-              <button
-                type="button"
-                onClick={() => handleZoomStep(1.25)}
-                disabled={zoom >= 4.0}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-7 h-7 sm:w-9 sm:h-9"
-                title="Yakınlaştır (+)"
-              >
-                <Plus size={14} strokeWidth={3} className="sm:w-4 sm:h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleZoomStep(1 / 1.25)}
-                disabled={zoom <= 1.0}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-7 h-7 sm:w-9 sm:h-9"
-                title="Uzaklaştır (−)"
-              >
-                <Minus size={14} strokeWidth={3} className="sm:w-4 sm:h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => centerViewOnDiamond(1.0)}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-7 h-7 sm:w-9 sm:h-9 text-cyan-200"
-                title="Görünümü Sıfırla (Ortala)"
-              >
-                <Crosshair size={14} strokeWidth={2.5} className="sm:w-4 sm:h-4" />
-              </button>
-            </div>
-
-            {/* BOTTOM LEFT: Corner SW (↙) Button + Status Bar */}
-            <div className="absolute bottom-2 sm:bottom-3.5 left-2 sm:left-4 z-30 flex items-center gap-2 pointer-events-auto">
-              <button
-                type="button"
-                {...swHold}
-                disabled={!canNudgeSW}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-8 h-8 sm:w-11 sm:h-11"
-                title="Yazıyı Satır Boyunca Aşağı-Sola Kaydır (Satır +1)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M18 6L6 18M6 18h10M6 18V8" />
-                </svg>
-              </button>
-
-              {/* Status Pill */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#180E08]/90 border border-[#3A2317] backdrop-blur-sm shadow-md">
-                <div className={cn("w-2 h-2 rounded-full", result.isOverBudget ? "bg-red-500 animate-pulse" : "bg-emerald-400")} />
-                <span className={cn("text-xs font-black font-['Lilita_One'] tracking-wide", result.isOverBudget ? "text-red-400" : "text-[#FFEB75]")}>
-                  {result.wallCount} / {maxWalls} duvar
-                </span>
-              </div>
-            </div>
-
-            {/* BOTTOM CENTER: Large Green Confirmation Checkmark Button */}
-            <div className="absolute bottom-2 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-30 pointer-events-auto">
-              <button
-                type="button"
-                onClick={handleExportViewport2x}
-                disabled={isExportingViewport}
-                className="game-btn-panel-green rounded-xl sm:rounded-2xl w-11 h-11 sm:w-14 sm:h-14"
-                title="Mevcut Görünümü 2 Kat Çözünürlükte PNG Olarak İndir"
-              >
-                {isExportingViewport ? (
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 18L18 6M6 6h10M6 6v10" />
                   </svg>
-                )}
-              </button>
+                </button>
+
+                <button
+                  type="button"
+                  {...neHold}
+                  disabled={!canNudgeNE}
+                  className="absolute top-3 right-3 z-20 game-btn-panel-green rounded-xl w-11 h-11"
+                  aria-label={isTr ? "Yukarı-Sağa Kaydır (Satır -1)" : "Nudge North-East (Row -1)"}
+                  title={isTr ? "Yazıyı Satır Boyunca Yukarı-Sağa Kaydır (Satır -1)" : "Nudge North-East (Row -1)"}
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 18L18 6M8 6h10M18 6v10" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  {...swHold}
+                  disabled={!canNudgeSW}
+                  className="absolute bottom-3 left-3 z-20 game-btn-panel-green rounded-xl w-11 h-11"
+                  aria-label={isTr ? "Aşağı-Sola Kaydır (Satır +1)" : "Nudge South-West (Row +1)"}
+                  title={isTr ? "Yazıyı Satır Boyunca Aşağı-Sola Kaydır (Satır +1)" : "Nudge South-West (Row +1)"}
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 6L6 18M6 18h10M6 18V8" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  {...seHold}
+                  disabled={!canNudgeSE}
+                  className="absolute bottom-3 right-3 z-20 game-btn-panel-green rounded-xl w-11 h-11"
+                  aria-label={isTr ? "Aşağı-Sağa Kaydır (Sütun +1)" : "Nudge South-East (Col +1)"}
+                  title={isTr ? "Yazıyı Sütun Boyunca Aşağı-Sağa Kaydır (Sütun +1)" : "Nudge South-East (Col +1)"}
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M6 6L18 18M8 18h10M18 8v10" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            {/* BOTTOM RIGHT: Corner SE (↘) Button */}
-            <div className="absolute bottom-2 sm:bottom-3.5 right-2 sm:right-4 z-30 pointer-events-auto">
-              <button
-                type="button"
-                {...seHold}
-                disabled={!canNudgeSE}
-                className="game-btn-panel-green rounded-lg sm:rounded-xl w-8 h-8 sm:w-11 sm:h-11"
-                title="Yazıyı Sütun Boyunca Aşağı-Sağa Kaydır (Sütun +1)"
-              >
-                <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 6L18 18M8 18h10M18 8v10" />
-                </svg>
-              </button>
+            {/* ── DOCKED CANVAS CONTROL BAR (Outside Canvas: Zero Overlap on Mobile 390px & Desktop) ── */}
+            <div className="rounded-xl bg-[#261A12] border-2 border-[#4E3120] p-2.5 sm:p-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 shadow-inner">
+              {/* Transform & Viewport Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Rotate Group (-15° / Reset -45° / +15°) */}
+                <div className="flex items-center gap-1" role="group" aria-label={isTr ? "Döndürme kontrolleri" : "Rotation controls"}>
+                  <button
+                    type="button"
+                    {...ccwHold}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Saat yönünün tersi döndür (-15°)" : "Rotate counter-clockwise (-15°)"}
+                    title={isTr ? "Saat Yönünün Tersi Döndür (-15°)" : "Rotate Counter-Clockwise (-15°)"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                      <path d="M3 3v5h5" />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={resetRotation}
+                    className="min-h-[44px] min-w-[64px] px-2.5 rounded-xl bg-[#1A120C] border-2 border-[#4E3120] hover:border-amber-400 transition-colors cursor-pointer flex items-center justify-center gap-1 shadow-inner active:scale-95"
+                    title={isTr ? "Açıyı varsayılana (-45°) sıfırla" : "Reset angle to default (-45°)"}
+                  >
+                    <span className="font-game text-sm sm:text-base text-white tabular-nums">
+                      {rotation}°
+                    </span>
+                    {rotation % 45 !== 0 && (
+                      <AlertTriangle
+                        size={14}
+                        className="text-amber-400 shrink-0"
+                        aria-label={isTr ? "45° katları önerilir" : "Multiples of 45° recommended"}
+                      />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    {...cwHold}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Saat yönünde döndür (+15°)" : "Rotate clockwise (+15°)"}
+                    title={isTr ? "Saat Yönünde Döndür (+15°)" : "Rotate Clockwise (+15°)"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                      <path d="M21 3v5h-5" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Zoom Group (- / 100% Reset / +) */}
+                <div className="flex items-center gap-1" role="group" aria-label={isTr ? "Yakınlaştırma kontrolleri" : "Zoom controls"}>
+                  <button
+                    type="button"
+                    onClick={() => handleZoomStep(1 / 1.25)}
+                    disabled={zoom <= 1.0}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Uzaklaştır (-)" : "Zoom out (-)"}
+                    title={isTr ? "Uzaklaştır (−)" : "Zoom Out (−)"}
+                  >
+                    <Minus size={18} strokeWidth={3} />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => centerViewOnDiamond(1.0)}
+                    className="min-h-[44px] min-w-[68px] px-2.5 rounded-xl bg-[#1A120C] border-2 border-[#4E3120] hover:border-amber-400 transition-colors cursor-pointer flex items-center justify-center gap-1 text-xs sm:text-sm font-game text-[#FFEB75] tabular-nums active:scale-95"
+                    title={isTr ? "Görünümü %100 sıfırla ve ortala" : "Reset zoom to 100% and center view"}
+                  >
+                    <Crosshair size={13} className="text-amber-400 shrink-0" />
+                    <span>{Math.round(zoom * 100)}%</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleZoomStep(1.25)}
+                    disabled={zoom >= 4.0}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Yakınlaştır (+)" : "Zoom in (+)"}
+                    title={isTr ? "Yakınlaştır (+)" : "Zoom In (+)"}
+                  >
+                    <Plus size={18} strokeWidth={3} />
+                  </button>
+                </div>
+
+                {/* 2D / 3D Switch */}
+                <div
+                  className="flex items-center p-0.5 rounded-xl bg-[#1A120C] border-2 border-[#4E3120]"
+                  role="group"
+                  aria-label={isTr ? "Görünüm modu" : "View mode"}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("2d")}
+                    className={cn(
+                      "min-w-[44px] min-h-[40px] px-2.5 rounded-lg text-xs sm:text-sm font-game transition-all cursor-pointer",
+                      viewMode === "2d" ? "bg-amber-500 text-[#1A120C] shadow" : "text-amber-200/80 hover:text-white"
+                    )}
+                  >
+                    2D
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("3d")}
+                    className={cn(
+                      "min-w-[44px] min-h-[40px] px-2.5 rounded-lg text-xs sm:text-sm font-game transition-all cursor-pointer",
+                      viewMode === "3d" ? "bg-amber-500 text-[#1A120C] shadow" : "text-amber-200/80 hover:text-white"
+                    )}
+                  >
+                    3D
+                  </button>
+                </div>
+
+                {/* Mobile-only Directional Nudge Arrows (< sm) */}
+                <div
+                  className="flex sm:hidden items-center gap-1"
+                  role="group"
+                  aria-label={isTr ? "Konum kaydırma okları" : "Position nudge controls"}
+                >
+                  <button
+                    type="button"
+                    {...nwHold}
+                    disabled={!canNudgeNW}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Yukarı-Sola Kaydır" : "Nudge North-West"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 18L18 6M6 6h10M6 6v10" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    {...neHold}
+                    disabled={!canNudgeNE}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Yukarı-Sağa Kaydır" : "Nudge North-East"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 18L18 6M8 6h10M18 6v10" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    {...swHold}
+                    disabled={!canNudgeSW}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Aşağı-Sola Kaydır" : "Nudge South-West"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6L6 18M6 18h10M6 18V8" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    {...seHold}
+                    disabled={!canNudgeSE}
+                    className="game-btn-panel-green rounded-xl min-w-[44px] min-h-[44px]"
+                    aria-label={isTr ? "Aşağı-Sağa Kaydır" : "Nudge South-East"}
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M6 6L18 18M8 18h10M18 8v10" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Export & Build Guide Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <GameButton
+                  variant="gold"
+                  size="sm"
+                  onClick={handleExportViewport2x}
+                  disabled={isExportingViewport || (viewMode === "3d" && sceneryLoading)}
+                  icon={
+                    isExportingViewport ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Camera size={16} />
+                    )
+                  }
+                  className="min-h-[44px] px-3 py-2 text-xs sm:text-sm whitespace-nowrap font-game"
+                  title={
+                    isTr
+                      ? "Mevcut köy görünümünü 2 kat çözünürlükte önizleme PNG olarak indir"
+                      : "Save current village preview as 2x PNG image"
+                  }
+                >
+                  {t.wall.downloadPreview}
+                </GameButton>
+
+                <GameButton
+                  variant="blue"
+                  size="sm"
+                  onClick={handleCopyGuide}
+                  disabled={result.wallCount === 0}
+                  icon={copiedGuide ? <Check size={16} /> : <Copy size={16} />}
+                  className="min-h-[44px] px-3 py-2 text-xs sm:text-sm whitespace-nowrap font-game"
+                  title={
+                    isTr
+                      ? "Satır satır koordinatlı inşa rehberini panoya kopyala"
+                      : "Copy row-by-row coordinate build guide to clipboard"
+                  }
+                >
+                  {copiedGuide ? t.wall.copiedGuide : t.wall.copyGuide}
+                </GameButton>
+
+                <button
+                  type="button"
+                  onClick={() => setIsGuideOpen((prev) => !prev)}
+                  disabled={result.buildGuide.length === 0}
+                  aria-expanded={isGuideOpen}
+                  className="min-h-[44px] min-w-[44px] px-3 rounded-xl bg-[#1A120C] border-2 border-[#4E3120] hover:border-amber-400/60 disabled:opacity-45 disabled:cursor-not-allowed flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#FFEB75] cursor-pointer transition-colors"
+                  title={isTr ? "Satır bazlı koordinat listesini göster/gizle" : "Toggle row-by-row coordinate list"}
+                >
+                  <ListOrdered size={16} className="text-amber-400 shrink-0" />
+                  <span className="tabular-nums">{fmtNum(result.buildGuide.length)}</span>
+                  <ChevronDown
+                    size={15}
+                    className={cn("transition-transform duration-200 text-amber-400", isGuideOpen && "rotate-180")}
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* (c) AÇILIR KAPANIR "ARKA PLAN / SAHNE" PANELİ (Kapalıyken hafif öne çıkan ahşap panel) */}
-          <div className="rounded-xl overflow-hidden border-2 border-[#673E26] shadow-[0_4px_10px_rgba(0,0,0,0.5),inset_0_1.5px_0_rgba(255,255,255,0.22)] bg-gradient-to-b from-[#563421] via-[#462A1B] to-[#361F12] transition-all">
+          {/* Collapsible Row-by-Row Build Guide Drawer */}
+          {isGuideOpen && result.buildGuide.length > 0 && (
+            <div className="rounded-xl bg-[#1A120C] border-2 border-[#4E3120] p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-game text-xs sm:text-sm text-[#FFEB75]">
+                  {isTr ? "Satır Bazlı Koordinat Rehberi (1–44)" : "Row-by-Row Build Guide (1–44)"}
+                </span>
+                <span className="text-xs text-[#D8AF86] tabular-nums">
+                  {fmtTemplate(t.wall.filledRows, { filled: fmtNum(result.buildGuide.length) })}
+                </span>
+              </div>
+              <div className="max-h-52 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pr-1">
+                {result.buildGuide.map((g) => (
+                  <div
+                    key={g.row}
+                    className="rounded-lg bg-[#261A12] border border-[#4E3120] px-2.5 py-2 text-xs text-[#EAD5BA] flex flex-col gap-1 tabular-nums"
+                  >
+                    <div className="flex items-center justify-between font-bold">
+                      <span className="text-[#FFEB75]">
+                        {isTr ? `Satır ${g.row}` : `Row ${g.row}`}
+                      </span>
+                      <span className="text-amber-300">
+                        {fmtNum(g.wallCount)} {isTr ? "duvar" : "walls"}
+                      </span>
+                    </div>
+                    <div className="text-xs text-[#D8AF86] font-mono">
+                      {g.segments
+                        .map((s) =>
+                          s.fromCol === s.toCol
+                            ? `${isTr ? "Süt" : "C"}${s.fromCol}`
+                            : `${isTr ? "Süt" : "C"}${s.fromCol}–${s.toCol}(${s.count})`
+                        )
+                        .join(", ")}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Collapsible Scenery Selector Panel */}
+          <div className="rounded-xl overflow-hidden border-2 border-[#673E26] shadow-[0_4px_10px_rgba(0,0,0,0.45),inset_0_1.5px_0_rgba(255,255,255,0.2)] bg-gradient-to-b from-[#563421] via-[#462A1B] to-[#361F12] transition-all">
             <button
               type="button"
               onClick={() => setIsSceneryOpen((prev) => !prev)}
-              className="w-full h-11 sm:h-12 flex items-center justify-between px-3.5 sm:px-4 hover:brightness-110 active:brightness-95 transition-all cursor-pointer select-none text-left group"
+              aria-expanded={isSceneryOpen}
+              className="w-full min-h-[48px] flex items-center justify-between px-3.5 sm:px-4 py-1.5 hover:brightness-110 active:brightness-95 transition-all cursor-pointer select-none text-left group"
             >
               <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold text-[#FFEB75] min-w-0 truncate">
-                <div className="p-1 rounded-lg bg-[#24130A] border border-[#673E26] text-amber-400 shrink-0 shadow-inner">
+                <div className="p-1.5 rounded-lg bg-[#261A12] border border-[#673E26] text-amber-400 shrink-0 shadow-inner">
                   <ImageIcon size={15} />
                 </div>
-                <span className="shrink-0 text-[#FFEB75]">Tema / Sahne:</span>
-                <span className="text-white font-black truncate">{currentScenery.name}</span>
-                <span className="hidden sm:inline text-[11px] text-[#C4A48A] font-mono shrink-0">
-                  ({availableSceneries.length} Sahne)
+                <span className="shrink-0 text-[#FFEB75]">{t.wall.sceneryLabel}</span>
+                <span className="font-game text-white truncate">{localizedSceneryName}</span>
+                <span className="hidden sm:inline text-xs text-[#D8AF86] font-mono shrink-0 tabular-nums">
+                  ({fmtNum(availableSceneries.length)})
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#EAD5BA] font-bold shrink-0 ml-2 group-hover:text-white transition-colors">
-                <span>{isSceneryOpen ? "Kapat" : "Değiştir"}</span>
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#EAD5BA] font-bold shrink-0 ml-2 group-hover:text-white transition-colors">
+                <span>{isSceneryOpen ? t.wall.closeBtn : t.wall.changeBtn}</span>
                 <ChevronDown
                   size={16}
                   className={cn("transition-transform duration-200 text-amber-400", isSceneryOpen && "rotate-180")}
@@ -1620,10 +2034,11 @@ export default function WallArtView() {
             </button>
 
             {isSceneryOpen && (
-              <div className="p-3.5 border-t-2 border-[#24130A] bg-[#120803] space-y-2">
-                <div className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-8 gap-2.5 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-amber-700 p-1">
+              <div className="p-3 sm:p-3.5 border-t-2 border-[#261A12] bg-[#160E09] space-y-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2.5 max-h-72 overflow-y-auto p-1">
                   {availableSceneries.map((sc) => {
                     const isSelected = sc.id === selectedSceneryId;
+                    const displayName = getSceneryDisplayName(sc.id, sc.name, locale);
                     return (
                       <button
                         key={sc.id}
@@ -1633,27 +2048,27 @@ export default function WallArtView() {
                           centerViewOnDiamond(1.0);
                         }}
                         className={cn(
-                          "relative rounded-xl overflow-hidden border-2 transition-all cursor-pointer aspect-square group",
+                          "relative min-h-[44px] rounded-xl overflow-hidden border-2 transition-all cursor-pointer aspect-square group",
                           isSelected
-                            ? "border-amber-400 ring-2 ring-amber-400/50 scale-105 shadow-md shadow-amber-500/30 z-10"
-                            : "border-[#3D2517] hover:border-amber-400/60 opacity-80 hover:opacity-100 hover:scale-102"
+                            ? "border-amber-400 ring-2 ring-amber-400/50 shadow-md shadow-amber-500/30 z-10"
+                            : "border-[#4E3120] hover:border-amber-400/60 opacity-85 hover:opacity-100"
                         )}
-                        title={`${sc.name} (${sc.naturalWidth}×${sc.naturalHeight})`}
+                        title={`${displayName} (${sc.naturalWidth}×${sc.naturalHeight})`}
                       >
                         <img
                           src={sc.thumb}
-                          alt={sc.name}
+                          alt={displayName}
                           loading="lazy"
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-1 text-center">
-                          <span className="text-[9px] font-bold text-white truncate block leading-tight">
-                            {sc.name}
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent px-1.5 py-1 text-center">
+                          <span className="text-xs font-bold text-white truncate block leading-tight">
+                            {displayName}
                           </span>
                         </div>
                         {isSelected && (
-                          <div className="absolute top-1 right-1 bg-amber-400 text-slate-950 p-0.5 rounded-full shadow">
-                            <Check size={10} strokeWidth={3} />
+                          <div className="absolute top-1.5 right-1.5 bg-amber-400 text-[#1A120C] p-0.5 rounded-full shadow">
+                            <Check size={12} strokeWidth={3} />
                           </div>
                         )}
                       </button>
@@ -1664,59 +2079,73 @@ export default function WallArtView() {
             )}
           </div>
 
-          {/* (d) TEK SATIRLIK ÖZET */}
-          <div className="bg-black/40 border border-amber-950/50 rounded-lg px-3 sm:px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-amber-100/90 font-medium">
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          {/* Summary Stats Strip */}
+          <div className="bg-[#1A120C] border-2 border-[#4E3120] rounded-xl px-3 sm:px-4 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs sm:text-sm text-[#EAD5BA] font-medium">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
               <span>
-                Toplam: <strong className="text-amber-300 font-bold">{result.wallCount} / {maxWalls}</strong>
+                {t.wall.totalWalls}{" "}
+                <strong className={cn("font-bold tabular-nums", result.isOverBudget ? "text-red-400" : "text-amber-300")}>
+                  {fmtNum(result.wallCount)} / {fmtNum(maxWalls)}
+                </strong>
               </span>
               <span className="text-[#5A3824]">•</span>
               <span>
-                Kalan: <strong className="text-amber-300 font-bold">{Math.max(0, maxWalls - result.wallCount)}</strong>
+                {t.wall.remainingWalls}{" "}
+                <strong className="text-amber-300 font-bold tabular-nums">
+                  {fmtNum(Math.max(0, maxWalls - result.wallCount))}
+                </strong>
               </span>
               <span className="text-[#5A3824]">•</span>
               <span>
-                Kapsama:{" "}
-                <strong className="text-amber-300 font-bold">
+                {t.wall.boundsLabel}{" "}
+                <strong className="text-amber-300 font-bold tabular-nums">
                   {result.maxCol > 0 ? `${result.maxCol - result.minCol + 1}×${result.maxRow - result.minRow + 1}` : "0×0"}
                 </strong>
               </span>
               <span className="text-[#5A3824]">•</span>
               <span>
-                Harf yüksekliği:{" "}
-                <strong className={cn("font-bold", result.isReadabilityLow ? "text-amber-400" : "text-emerald-400")}>
-                  {result.capHeight} hücre
+                {t.wall.letterHeightLabel}{" "}
+                <strong className={cn("font-bold tabular-nums", result.isReadabilityLow ? "text-amber-400" : "text-emerald-400")}>
+                  {fmtNum(result.capHeight)} {t.wall.cellsUnit}
                 </strong>
               </span>
             </div>
 
-            <div className="text-[11px] text-[#A68870] font-mono shrink-0">
-              {result.buildGuide.length} dolu satır / 44
+            <div className="flex items-center gap-3 text-xs text-[#D8AF86] font-mono shrink-0 tabular-nums">
+              {hoveredCell && viewMode === "3d" && !isDragging && (
+                <span className="text-amber-300">
+                  {isTr ? "Sat" : "R"}
+                  {hoveredCell.r + 1} · {isTr ? "Süt" : "C"}
+                  {hoveredCell.c + 1}
+                </span>
+              )}
+              <span>{fmtTemplate(t.wall.filledRows, { filled: fmtNum(result.buildGuide.length) })}</span>
             </div>
           </div>
 
-          {/* Uyarılar (Yalnızca bütçe aşımı veya hata varsa) */}
-          {(result.isOverBudget || !result.fitsInGrid || result.missingChars.length > 0 || (result.warnings && result.warnings.length > 0)) && (
-            <div className="game-panel-wood p-2.5 rounded-xl border border-red-800/80 text-xs text-red-200 flex items-center gap-2">
-              <AlertTriangle size={15} className="text-red-400 shrink-0" />
-              <div className="flex flex-wrap items-center gap-2">
+          {/* Alerts Banner (Budget Exceeded / Grid Overflow / Missing Chars / Localized Notices) */}
+          {(result.isOverBudget || !result.fitsInGrid || result.missingChars.length > 0 || localizedNotices.length > 0) && (
+            <div className="rounded-xl bg-[#2B120E] border-2 border-red-800/80 p-3 text-xs sm:text-sm text-red-200 flex items-start gap-2.5">
+              <AlertTriangle size={16} className="text-red-400 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-1">
                 {result.isOverBudget && (
-                  <span className="font-bold">
-                    Duvar sayısı bütçesi aşıldı ({result.wallCount} / {maxWalls})!
+                  <span className="font-bold text-red-100">
+                    {fmtTemplate(t.wall.budgetExceeded, { excess: fmtNum(result.wallCount - maxWalls) })}
                   </span>
                 )}
                 {!result.fitsInGrid && (
-                  <span className="font-bold">
-                    Metin 44x44 ızgaraya sığmıyor!
-                  </span>
+                  <span className="font-bold text-red-100">{t.wall.gridOverflow}</span>
                 )}
                 {result.missingChars.length > 0 && (
                   <span>
-                    Desteklenmeyen karakterler: {result.missingChars.join(", ")}
+                    {isTr ? "Desteklenmeyen karakterler:" : "Unsupported characters:"}{" "}
+                    <strong className="text-amber-200">{result.missingChars.join(", ")}</strong>
                   </span>
                 )}
-                {result.warnings?.map((w, idx) => (
-                  <span key={idx}>{w}</span>
+                {localizedNotices.map((msg, idx) => (
+                  <span key={idx} className="text-amber-200/95">
+                    {msg}
+                  </span>
                 ))}
               </div>
             </div>

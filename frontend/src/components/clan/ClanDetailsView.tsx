@@ -2,30 +2,24 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Swords, Hammer, Shield, AlertCircle, RefreshCw, Landmark } from "lucide-react";
-import GameWindow from "@/components/game/GameWindow";
 import GraySegmented, { type GraySegmentedItem } from "@/components/game/GraySegmented";
 import SkeletonBlock from "@/components/game/SkeletonBlock";
 import GameButton from "@/components/game/GameButton";
 import { safeFetchJson } from "@/lib/apiClient";
+import { useLanguage } from "@/lib/i18n";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 import ClanHeaderCard from "./ClanHeaderCard";
 import ClanMemberList from "./ClanMemberList";
 import ClanWarLogModal from "./ClanWarLogModal";
 import type { ClanDetails, ClanDetailsViewProps, ClanVillageTab, ClanMember } from "./types";
 import "./clan.css";
 
-export type { ClanDetailsViewProps };
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
-const VILLAGE_TABS: GraySegmentedItem<ClanVillageTab>[] = [
-  { id: "home", label: "Asıl Köy", icon: <Swords className="w-4 h-4 mr-1.5" /> },
-  { id: "builderBase", label: "İnşaatçı Üssü", icon: <Hammer className="w-4 h-4 mr-1.5" /> },
-  { id: "capital", label: "Klan Başkenti", icon: <Shield className="w-4 h-4 mr-1.5" /> },
-];
+export type { ClanDetailsViewProps };
 
 const DEFAULT_FALLBACK_TAG = "UUJL8CYP";
 
@@ -45,11 +39,22 @@ export default function ClanDetailsView({
   onRefresh,
   className,
 }: ClanDetailsViewProps) {
+  const { isTr, t, fmtNum, getApiErrorMessage } = useLanguage();
+
   const [villageTab, setVillageTab] = useState<ClanVillageTab>("home");
   const [fetchedClan, setFetchedClan] = useState<ClanDetails | null>(null);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isWarLogOpen, setIsWarLogOpen] = useState<boolean>(false);
+
+  const villageTabs = useMemo<GraySegmentedItem<ClanVillageTab>[]>(
+    () => [
+      { id: "home", label: t.clan.tabHome, icon: <Swords className="w-4 h-4 shrink-0" /> },
+      { id: "builderBase", label: t.clan.tabBuilder, icon: <Hammer className="w-4 h-4 shrink-0" /> },
+      { id: "capital", label: t.clan.tabCapital, icon: <Shield className="w-4 h-4 shrink-0" /> },
+    ],
+    [t]
+  );
 
   // Determine current active clan tag from prop or URL hash (e.g. #/klan/UUJL8CYP?vurgula=...)
   const targetClanTag = useMemo(() => {
@@ -67,20 +72,22 @@ export default function ClanDetailsView({
   }, [propClan?.tag, propClanTag]);
 
   // Fetch clan if not provided in props
-  const loadClanData = useCallback(async (tag: string) => {
-    if (propClan) return;
-    setIsFetching(true);
-    setFetchError(null);
-    try {
-      const data = await safeFetchJson<ClanDetails>(`/api/v1/clans/${encodeURIComponent(tag)}`);
-      setFetchedClan(data);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Klan bilgileri yüklenirken bir hata oluştu.";
-      setFetchError(msg);
-    } finally {
-      setIsFetching(false);
-    }
-  }, [propClan]);
+  const loadClanData = useCallback(
+    async (tag: string) => {
+      if (propClan) return;
+      setIsFetching(true);
+      setFetchError(null);
+      try {
+        const data = await safeFetchJson<ClanDetails>(`/api/v1/clans/${encodeURIComponent(tag)}`);
+        setFetchedClan(data);
+      } catch (err: unknown) {
+        setFetchError(getApiErrorMessage(err));
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [propClan, getApiErrorMessage]
+  );
 
   useEffect(() => {
     if (!propClan && targetClanTag) {
@@ -139,35 +146,37 @@ export default function ClanDetailsView({
 
   return (
     <div className={cn("w-full -mt-3 sm:-mt-6 flex flex-col", className)}>
-      <div className="w-full space-y-0 overflow-x-hidden">
-        {/* 1. Üst Alt-Düğme Şeridi: Asıl Köy, İnşaatçı Üssü, Klan Başkenti - Flush at top */}
-        <div className="w-full flex items-end justify-between gap-3 pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
-          <div className="flex-1 min-w-0">
-            <GraySegmented
-              items={VILLAGE_TABS}
+      <div className="w-full space-y-0">
+        {/* 1. Top Segmented Bar + Always-Visible Refresh Button */}
+        <div className="w-full flex flex-col-reverse sm:flex-row sm:items-end justify-between gap-1.5 sm:gap-2 pl-1.5 sm:pl-4 pr-1 sm:pr-3 border-b-2 border-[#5A5552]/50">
+          <div className="w-full sm:flex-1 min-w-0">
+            <GraySegmented<ClanVillageTab>
+              items={villageTabs}
               activeId={villageTab}
               onChange={(id) => setVillageTab(id)}
               className="w-full sm:w-auto"
             />
           </div>
 
-          {/* Yenileme Düğmesi */}
           <button
             type="button"
             onClick={handleManualRefresh}
             disabled={isLoading}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/10 hover:bg-black/20 text-gray-700 text-xs font-bold transition-all cursor-pointer disabled:opacity-50 shrink-0 mb-1 mr-2 sm:mr-4"
-            title="Klan verilerini yenile"
+            aria-label={t.common.refresh}
+            title={t.common.refresh}
+            className="self-end inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3 sm:px-3.5 py-2 rounded-xl bg-[#D8CFC0]/90 hover:bg-[#C9BEAB] border border-[#9E907C] text-[#2D251E] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0 mb-1 shadow-sm"
           >
-            <RefreshCw className={cn("w-3.5 h-3.5", isLoading && "animate-spin")} />
-            <span>Yenile</span>
+            <RefreshCw className={cn("w-4 h-4 shrink-0", isLoading && "animate-spin")} />
+            <span className="whitespace-nowrap">
+              {isLoading ? t.common.refreshing : t.common.refresh}
+            </span>
           </button>
         </div>
 
-        {/* 2. Yükleme Durumu */}
+        {/* 2. Loading State */}
         {isLoading && !currentClan && (
-          <div className="space-y-4 mt-3">
-            <SkeletonBlock height="240px" className="rounded-2xl rounded-tl-none" />
+          <div className="space-y-4 pt-4 sm:pt-6">
+            <SkeletonBlock height="240px" className="rounded-2xl" />
             <SkeletonBlock height="48px" className="rounded-xl" />
             <div className="space-y-2">
               {[...Array(6)].map((_, i) => (
@@ -177,64 +186,75 @@ export default function ClanDetailsView({
           </div>
         )}
 
-        {/* 3. Hata Durumu */}
+        {/* 3. Error State */}
         {errorMessage && !isLoading && (
-          <div className="p-5 rounded-2xl bg-rose-900/15 border-2 border-rose-500/40 text-center space-y-3 mt-3">
-            <div className="flex items-center justify-center gap-2 text-rose-700 font-bold">
-              <AlertCircle className="w-5 h-5" />
-              <span className="text-base font-black">Klan Bilgisi Yüklenemedi</span>
+          <div
+            role="alert"
+            className="p-5 rounded-2xl bg-red-100 border-2 border-red-400 text-center space-y-3 mt-4"
+          >
+            <div className="flex items-center justify-center gap-2 text-red-900 font-bold">
+              <AlertCircle className="w-5 h-5 text-red-700" />
+              <span className="text-base font-black">
+                {isTr ? "Klan Bilgisi Yüklenemedi" : "Unable to Load Clan Data"}
+              </span>
             </div>
-            <p className="text-xs text-rose-800 font-medium max-w-lg mx-auto">
+            <p className="text-xs sm:text-sm text-red-900 font-medium max-w-lg mx-auto">
               {errorMessage}
             </p>
-            <GameButton variant="green" size="sm" onClick={handleManualRefresh}>
-              Tekrar Dene
+            <GameButton variant="green" size="sm" onClick={handleManualRefresh} className="min-h-[44px]">
+              {t.common.retry}
             </GameButton>
           </div>
         )}
 
-        {/* 4. Başarılı Durum: Klan İçeriği */}
+        {/* 4. Loaded State */}
         {currentClan && !isLoading && (
           <div className="space-y-4 sm:space-y-5 pt-4 sm:pt-6">
-            {/* Üst Bilgi Bloğu (Mavi-Gri / Harita zeminli panel) */}
             <ClanHeaderCard
               clan={currentClan}
               onScoutClanInCwl={onScoutClanInCwl}
               onOpenWarLog={handleOpenWarLog}
-              className={villageTab === "home" ? "rounded-tl-none mt-0" : "mt-0"}
+              className="mt-0"
             />
 
-            {/* Klan Başkenti Görünümü */}
             {villageTab === "capital" ? (
-              <div className="clan-header-panel p-5 sm:p-6 text-white space-y-4">
-                <div className="flex items-center gap-2.5 border-b border-white/20 pb-3">
-                  <Landmark className="w-6 h-6 text-amber-300" />
+              <div className="clan-header-panel p-5 sm:p-6 text-[#FFF8EE] space-y-4">
+                <div className="flex items-center gap-2.5 border-b border-white/15 pb-3">
+                  <Landmark className="w-6 h-6 text-amber-300 shrink-0" />
                   <h3 className="game-text-stroke text-lg sm:text-xl font-black">
-                    Klan Başkenti Durumu
+                    {t.clan.tabCapital}
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-black/25 p-4 border border-white/10 space-y-1">
-                    <span className="text-xs text-gray-300 font-semibold block">Başkent Ligi</span>
+                  <div className="rounded-xl bg-[#281C14]/[0.92] p-4 border border-[#5B402D] space-y-1">
+                    <span className="text-xs sm:text-[13px] text-[#E7D9C8] font-semibold block">
+                      {isTr ? "Başkent Ligi" : "Capital League"}
+                    </span>
                     <span className="text-lg font-black text-amber-300 block">
-                      {currentClan.capitalLeague?.name || "Lige Yerleşmemiş"}
+                      {currentClan.capitalLeague?.name &&
+                      currentClan.capitalLeague.name.toLowerCase() !== "unranked"
+                        ? currentClan.capitalLeague.name
+                        : t.common.unranked}
                     </span>
                   </div>
-                  <div className="rounded-xl bg-black/25 p-4 border border-white/10 space-y-1">
-                    <span className="text-xs text-gray-300 font-semibold block">Başkent Puanı</span>
-                    <span className="text-lg font-black text-white block">
-                      {currentClan.clanCapitalPoints?.toLocaleString() || "0"}
+                  <div className="rounded-xl bg-[#281C14]/[0.92] p-4 border border-[#5B402D] space-y-1">
+                    <span className="text-xs sm:text-[13px] text-[#E7D9C8] font-semibold block">
+                      {t.clan.capitalPoints}
+                    </span>
+                    <span className="text-lg font-black text-[#FFF8EE] block tabular-nums">
+                      {fmtNum(currentClan.clanCapitalPoints ?? 0)}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-200 font-medium">
-                  Haftalık Başkent Baskınları tamamlandığında kazanılan Başkent Madalyaları ve klan ilerlemesi burada listelenir.
+                <p className="text-xs sm:text-sm text-[#F5EFE6]/90 font-medium leading-relaxed">
+                  {isTr
+                    ? "Haftalık Başkent Baskınları tamamlandığında kazanılan Başkent Kupası ve lig ilerlemesi resmi klan profilinden derlenir."
+                    : "Clan Capital league tier and capital trophy points are pulled directly from official clan data."}
                 </p>
               </div>
             ) : (
-              /* Üye Listesi (klanim-uyeler.png) */
               <ClanMemberList
                 members={activeMembers}
                 maxMembers={50}
@@ -244,7 +264,6 @@ export default function ClanDetailsView({
               />
             )}
 
-            {/* Savaş Günlüğü Modalı (Yalnızca herkese açık ise açılabilir) */}
             {Boolean(currentClan.isWarLogPublic) && (
               <ClanWarLogModal
                 clan={currentClan}
