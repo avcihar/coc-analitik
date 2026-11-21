@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>CoC Analitik - Ana Sayfa</title>
+<!-- Plus Jakarta Sans Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "outline-variant": "#414939",
+            "on-primary-container": "#214800",
+            "on-primary-fixed-variant": "#265100",
+            "error-container": "#93000a",
+            "surface-tint": "#8ddb50",
+            "primary-fixed-dim": "#8ddb50",
+            "outline": "#8b9480",
+            "on-tertiary-container": "#513c00",
+            "on-primary": "#183800",
+            "surface-bright": "#4f3221",
+            "surface-container-low": "#2d1507",
+            "surface-container-highest": "#4a2e1d",
+            "surface-container-lowest": "#1d0800",
+            "background": "#230d02",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "on-background": "#ffdbc9",
+            "on-secondary-container": "#432100",
+            "primary-container": "#72bd36",
+            "on-error": "#690005",
+            "primary-fixed": "#a8f86a",
+            "error": "#ffb4ab",
+            "surface-variant": "#4a2e1d",
+            "on-secondary": "#4d2600",
+            "surface-container-high": "#3e2313",
+            "tertiary-fixed": "#ffdf9a",
+            "on-primary-fixed": "#0c2000",
+            "surface-dim": "#230d02",
+            "on-surface": "#ffdbc9",
+            "secondary-fixed": "#ffdcc3",
+            "inverse-surface": "#ffdbc9",
+            "inverse-primary": "#356b00",
+            "surface": "#230d02",
+            "on-tertiary-fixed": "#251a00",
+            "inverse-on-surface": "#452a19",
+            "on-error-container": "#ffdad6",
+            "tertiary-fixed-dim": "#f5bf29",
+            "on-tertiary": "#3f2e00",
+            "surface-container": "#32190a",
+            "primary": "#8ddb50",
+            "on-surface-variant": "#c1cab4",
+            "on-secondary-fixed": "#2f1500",
+            "tertiary-container": "#d6a300",
+            "on-secondary-fixed-variant": "#6e3900",
+            "tertiary": "#f5bf29",
+            "secondary-fixed-dim": "#ffb77d",
+            "secondary-container": "#d97707",
+            "secondary": "#ffb77d"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "sans-serif"],
+            "body": ["Plus Jakarta Sans", "sans-serif"],
+            "label": ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    /* Global Base Reset & Fonts */
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #1a0b03;
+      color: #ffdbc9;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      min-height: max(884px, 100dvh);
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Clash of Clans Inset & Wood Gradients */
+    .bg-wood-window {
+      background: linear-gradient(180deg, #5A3A28 0%, #4A2E1E 52%, #3B2214 100%);
+      border: 3.5px solid #28160C;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.16), 0 5px 0 #1E0F08;
+    }
+
+    .bg-wood-card {
+      background: linear-gradient(180deg, #7E5B47 0%, #6E4D3A 55%, #583929 100%);
+      border: 1.5px solid #3B2214;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.14), 0 3px 0 #1E0F08;
+    }
+
+    .bg-wood-card:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.1), 0 1px 0 #1E0F08;
+    }
+
+    .bg-inset-well {
+      background: linear-gradient(180deg, #342219 0%, #26160F 100%);
+      border: 1.5px solid #22140D;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+    }
+
+    .bg-banner-strip {
+      background: linear-gradient(180deg, #5E3F32 0%, #462C22 100%);
+      border-bottom: 2px solid #24140C;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Game Buttons */
+    .btn-green {
+      background: linear-gradient(180deg, #72BD36 0%, #519E23 100%);
+      border: 2px solid #142E06;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.4);
+    }
+    .btn-green:active {
+      background: linear-gradient(180deg, #519E23 0%, #3B7518 100%);
+      transform: translateY(1px);
+    }
+
+    /* Tab active merge */
+    .tab-active {
+      background: linear-gradient(180deg, #5A3A28 0%, #4A2E1E 100%);
+      border-top: 3.5px solid #28160C;
+      border-left: 3.5px solid #28160C;
+      border-right: 3.5px solid #28160C;
+      border-bottom: none;
+      margin-bottom: -3.5px;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col items-center justify-start overflow-x-hidden p-0 m-0">
+<!-- Mobile Frame Container (Max 390px, Zero Horizontal Overflow) -->
+<div class="w-full max-w-[390px] min-h-screen flex flex-col relative overflow-x-hidden pb-24 bg-surface-container-lowest">
+<!-- 1. ÜST BAŞLIK / APP BAR -->
+<header class="w-full h-14 bg-surface-container-high z-50 flex items-center justify-between px-4 sticky top-0 shadow-md border-b-2 border-outline-variant">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/60 shadow-inner">
+<span class="material-symbols-outlined text-primary text-xl" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<h1 class="font-headline text-lg font-extrabold tracking-tight text-on-surface drop-shadow-sm flex items-center gap-1.5">
+          CoC Analitik
+        </h1>
+</div>
+<!-- Trailing Action Button -->
+<button aria-label="Arama Yap" class="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-surface-container text-on-surface-variant hover:bg-surface-bright active:scale-95 transition-all duration-150 border border-outline-variant/50" type="button">
+<span class="material-symbols-outlined text-xl">search</span>
+</button>
+</header>
+<!-- CONTENT WRAPPER -->
+<main class="w-full px-2.5 pt-3 flex flex-col">
+<!-- 2. TEK KOYU AHŞAP OYUN PENCERESİ -->
+<div class="w-full flex flex-col">
+<!-- Tek "Ana Sayfa" Sekmesi -->
+<div class="flex items-end px-3 w-full relative z-10">
+<button class="tab-active min-h-[44px] px-4 py-2 rounded-t-xl flex items-center gap-1.5 shadow-[inset_0_2px_0_rgba(255,255,255,0.18)]" type="button">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1;">cottage</span>
+<span class="font-headline text-xs font-extrabold text-on-surface tracking-wide">Ana Sayfa</span>
+</button>
+</div>
+<!-- Ana Ahşap Pencere Gövdesi -->
+<div class="bg-wood-window rounded-[22px] rounded-tl-none p-2.5 flex flex-col gap-3 relative z-0">
+<!-- 3. DURUM / DUYURU & HIZLI ARA ÇUBUĞU (Entegre Hızlı Arama Alanı) -->
+<section class="bg-banner-strip rounded-xl p-2.5 flex flex-col gap-2 border border-[#3E2519]">
+<div class="flex items-center justify-between gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-8 h-8 rounded-lg bg-surface-container-lowest/80 flex items-center justify-center flex-shrink-0 border border-outline-variant/40">
+<span class="material-symbols-outlined text-tertiary text-lg">campaign</span>
+</div>
+<p class="font-headline text-xs font-bold text-[#F3E5D8] leading-tight truncate">
+                Oyuncu ve klan araçlarını keşfet!
+              </p>
+</div>
+</div>
+<!-- Entegre Hızlı Giriş ve Arama Butonu -->
+<div class="flex items-center gap-2 w-full">
+<div class="flex-1 bg-inset-well rounded-xl h-11 px-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg flex-shrink-0">tag</span>
+<input aria-label="Oyuncu veya klan etiketi" class="w-full bg-transparent border-none p-0 text-xs font-label font-bold text-on-surface placeholder:text-outline focus:outline-none focus:ring-0 uppercase tracking-wider" placeholder="#P89PCUPUQ" type="text"/>
+</div>
+<button class="btn-green flex-shrink-0 h-11 min-h-[44px] px-3.5 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition-transform duration-100" type="button">
+<span class="material-symbols-outlined text-white text-base">search</span>
+<span class="font-label text-xs font-extrabold text-white tracking-wider">Hızlı Ara</span>
+</button>
+</div>
+</section>
+<!-- 4. VARYANT 1: BENTO / 2 SÜTUNLU KOMPAKT GRID YERLEŞİMİ (6 ADET ARAÇ) -->
+<div class="grid grid-cols-2 gap-2.5 w-full">
+<!-- Kart 1: Oyuncu Ara -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">person_search</span>
+</div>
+<div class="w-7 h-7 rounded-lg bg-[#2E1A10]/60 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  Oyuncu Ara
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  Etiketle oyuncu profilini gör
+                </p>
+</div>
+</div>
+<!-- Alt Bilgi Oyuğu -->
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-tertiary flex-shrink-0">history</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                Son aranan: #P89PCUPUQ
+              </span>
+</div>
+</article>
+<!-- Kart 2: Klan Ara -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">groups</span>
+</div>
+<div class="w-7 h-7 rounded-lg bg-[#2E1A10]/60 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  Klan Ara
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  Ad veya filtreyle klan bul
+                </p>
+</div>
+</div>
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-secondary flex-shrink-0">tune</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                Konum, üye sayısı, seviye filtreleri
+              </span>
+</div>
+</article>
+<!-- Kart 3: Meta & Ordu -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">swords</span>
+</div>
+<span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-surface-container-high text-tertiary border border-tertiary/20">CANLI</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  Meta &amp; Ordu
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  En çok kazanan meta ordular
+                </p>
+</div>
+</div>
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-primary flex-shrink-0">military_tech</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                200 oyuncu • Son güncelleme 21:33
+              </span>
+</div>
+</article>
+<!-- Kart 4: Duvar Yazısı -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">grid_view</span>
+</div>
+<div class="w-7 h-7 rounded-lg bg-[#2E1A10]/60 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  Duvar Yazısı
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  Köyünde duvarlarla yazı yaz
+                </p>
+</div>
+</div>
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-outline flex-shrink-0">border_all</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                44x44 ana köy
+              </span>
+</div>
+</article>
+<!-- Kart 5: CWL Rakip Analizi -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">sports_kabaddi</span>
+</div>
+<div class="w-7 h-7 rounded-lg bg-[#2E1A10]/60 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  CWL Rakip Analizi
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  Rakip kadroyu ve ordularını incele
+                </p>
+</div>
+</div>
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-secondary-fixed flex-shrink-0">shield_lock</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                Klan etiketiyle
+              </span>
+</div>
+</article>
+<!-- Kart 6: Cevher Analizi -->
+<article class="bg-wood-card rounded-xl p-2.5 flex flex-col justify-between cursor-pointer transition-transform duration-150 min-h-[148px]">
+<div class="flex flex-col gap-2">
+<div class="flex items-start justify-between">
+<div class="w-10 h-10 min-w-[40px] min-h-[40px] rounded-lg bg-inset-well flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-tertiary text-xl">diamond</span>
+</div>
+<div class="w-7 h-7 rounded-lg bg-[#2E1A10]/60 flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline text-xs font-extrabold text-[#F3E5D8] leading-snug">
+                  Cevher Analizi
+                </h2>
+<p class="font-body text-[11px] text-[#D7CCC8] line-clamp-2 leading-tight mt-0.5">
+                  Ekipman cevher planı ve süre tahmini
+                </p>
+</div>
+</div>
+<div class="bg-inset-well rounded-md px-2 py-1.5 flex items-center gap-1 mt-2">
+<span class="material-symbols-outlined text-[11px] text-primary flex-shrink-0">construction</span>
+<span class="font-label text-[10px] font-semibold text-on-surface-variant tabular-nums truncate">
+                TH18 ekipmanları
+              </span>
+</div>
+</article>
+</div>
+<!-- Supercell Fan Content Policy Yasal Notu -->
+<footer class="mt-1 px-1 py-1.5 text-center">
+<p class="font-body text-[10px] leading-tight text-outline">
+              Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+            </p>
+</footer>
+</div>
+</div>
+</main>
+<!-- 5. ALT SABİT GEZİNME ÇUBUĞU (BottomNavBar) -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 py-1.5 min-h-[56px] max-w-[390px] mx-auto bg-surface-container-highest shadow-[0_-4px_12px_rgba(0,0,0,0.5)] border-t-2 border-outline-variant rounded-t-lg">
+<!-- Hedef 1: Ana Sayfa (Aktif Navigasyon) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-lg bg-surface-container text-primary border border-primary-container active:scale-95 duration-100" href="#ana-sayfa">
+<span class="material-symbols-outlined text-xl mb-0.5" style="font-variation-settings: 'FILL' 1;">cottage</span>
+<span class="font-label text-[11px] font-bold leading-tight">Ana Sayfa</span>
+</a>
+<!-- Hedef 2: Oyuncu & Klan (Pasif) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#oyuncu-klan">
+<span class="material-symbols-outlined text-xl mb-0.5">groups</span>
+<span class="font-label text-[11px] font-bold leading-tight">Oyuncu &amp; Klan</span>
+</a>
+<!-- Hedef 3: Meta (Pasif) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#meta">
+<span class="material-symbols-outlined text-xl mb-0.5">military_tech</span>
+<span class="font-label text-[11px] font-bold leading-tight">Meta</span>
+</a>
+<!-- Hedef 4: CWL (Pasif) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#cwl">
+<span class="material-symbols-outlined text-xl mb-0.5">swords</span>
+<span class="font-label text-[11px] font-bold leading-tight">CWL</span>
+</a>
+<!-- Hedef 5: Daha Fazla (Pasif) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#daha-fazla">
+<span class="material-symbols-outlined text-xl mb-0.5">more_horiz</span>
+<span class="font-label text-[11px] font-bold leading-tight">Daha Fazla</span>
+</a>
+</nav>
+</div>
+<!-- Hafif Etkileşim Scripti -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const quickSearchBtn = document.querySelector('.btn-green');
+      if (quickSearchBtn) {
+        quickSearchBtn.addEventListener('click', () => {
+          quickSearchBtn.classList.add('brightness-125');
+          setTimeout(() => quickSearchBtn.classList.remove('brightness-125'), 180);
+        });
+      }
+
+      const cards = document.querySelectorAll('article');
+      cards.forEach(card => {
+        card.addEventListener('touchstart', () => {
+          card.style.transform = 'scale(0.97)';
+        }, { passive: true });
+        card.addEventListener('touchend', () => {
+          card.style.transform = 'none';
+        }, { passive: true });
+      });
+    });
+  </script>
+</body></html>

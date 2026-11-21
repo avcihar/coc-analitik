@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cevher Analizi — CoC Analitik</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed-variant": "#6e3900",
+            "outline-variant": "#414939",
+            "on-primary-fixed": "#0c2000",
+            "surface-container-highest": "#4a2e1d",
+            "outline": "#8b9480",
+            "inverse-primary": "#356b00",
+            "on-primary-fixed-variant": "#265100",
+            "tertiary": "#f5bf29",
+            "on-secondary-fixed": "#2f1500",
+            "on-secondary": "#4d2600",
+            "secondary": "#ffb77d",
+            "on-tertiary": "#3f2e00",
+            "on-primary-container": "#214800",
+            "on-tertiary-fixed": "#251a00",
+            "primary": "#8ddb50",
+            "on-primary": "#183800",
+            "secondary-fixed-dim": "#ffb77d",
+            "error-container": "#93000a",
+            "error": "#ffb4ab",
+            "on-surface-variant": "#c1cab4",
+            "inverse-surface": "#ffdbc9",
+            "on-secondary-container": "#432100",
+            "primary-fixed-dim": "#8ddb50",
+            "surface-variant": "#4a2e1d",
+            "surface-bright": "#4f3221",
+            "tertiary-fixed-dim": "#f5bf29",
+            "on-error-container": "#ffdad6",
+            "surface-container": "#32190a",
+            "inverse-on-surface": "#452a19",
+            "primary-fixed": "#a8f86a",
+            "secondary-container": "#d97707",
+            "tertiary-container": "#d6a300",
+            "on-background": "#ffdbc9",
+            "surface-dim": "#230d02",
+            "surface-container-low": "#2d1507",
+            "tertiary-fixed": "#ffdf9a",
+            "primary-container": "#72bd36",
+            "surface-tint": "#8ddb50",
+            "on-tertiary-container": "#513c00",
+            "on-surface": "#ffdbc9",
+            "surface": "#230d02",
+            "secondary-fixed": "#ffdcc3",
+            "on-error": "#690005",
+            "background": "#230d02",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "surface-container-high": "#3e2313",
+            "surface-container-lowest": "#1d0800"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      color: #ffdbc9;
+    }
+    .num-tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-[#14100C] min-h-screen flex flex-col justify-between selection:bg-primary selection:text-on-primary">
+<!-- TopNavBar (Shared Component) -->
+<header class="w-full bg-surface-container-high dark:bg-surface-container-high border-b border-surface-container-highest dark:border-surface-container-highest shadow-[0_4px_12px_rgba(29,8,0,0.5)] sticky top-0 z-50">
+<div class="w-full max-w-[1360px] mx-auto px-4 flex items-center justify-between h-14">
+<!-- Brand Logo / Kalkan İkonu -->
+<a class="font-headline font-extrabold text-base text-on-surface dark:text-on-surface tracking-wide flex items-center gap-2 active:scale-95 transition-transform duration-150" href="#">
+<span class="w-8 h-8 rounded-[8px] bg-surface-container flex items-center justify-center border-2 border-surface-container-highest text-tertiary">
+<span class="material-symbols-outlined fill-icon text-xl" data-icon="shield">shield</span>
+</span>
+<span>CoC Analitik</span>
+</a>
+<!-- Desktop Navigation Links -->
+<nav class="hidden md:flex items-center gap-6 font-headline font-bold text-sm tracking-tight">
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-on-surface dark:hover:text-on-surface transition-colors pb-1" href="#">Ana Sayfa</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-on-surface dark:hover:text-on-surface transition-colors pb-1" href="#">Oyuncu &amp; Klan</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-on-surface dark:hover:text-on-surface transition-colors pb-1" href="#">Meta &amp; Ordu</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-on-surface dark:hover:text-on-surface transition-colors pb-1" href="#">CWL Keşif</a>
+<a class="text-tertiary-fixed-dim dark:text-tertiary-fixed-dim border-b-2 border-tertiary-fixed-dim dark:border-tertiary-fixed-dim font-extrabold pb-1" href="#">Cevher Analizi</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant font-medium hover:text-on-surface dark:hover:text-on-surface transition-colors pb-1" href="#">Duvar Yazısı</a>
+</nav>
+<!-- Empty right side per requirements (No search bar, no trailing action) -->
+<div class="w-8 md:hidden flex items-center justify-end">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+</div>
+</div>
+</header>
+<!-- Ana İçerik Çerçevesi -->
+<main class="w-full max-w-[1360px] mx-auto px-4 py-6 md:py-8 flex-1">
+<!-- Oyun Penceresi (GameWindow Ahşap Varyant) -->
+<div class="w-full rounded-[20px] bg-gradient-to-b from-[#5A3A28] via-[#4A2E1E] to-[#3B2214] border-[3.5px] border-[#28160C] shadow-[0_6px_0_#1E0F08,0_12px_24px_rgba(0,0,0,0.85)] relative pt-0 overflow-hidden">
+<!-- Üst Şerit & Birleşik Aktif Sekme -->
+<div class="w-full bg-[#341E12] border-b-2 border-[#24140C] px-4 pt-2 flex items-end justify-between">
+<div class="bg-[#5A3A28] text-white px-6 py-2.5 rounded-t-[10px] border-t-[2.5px] border-x-[2.5px] border-[#2C180E] font-headline font-extrabold text-sm tracking-wide -mb-[2px] shadow-[inset_0_1.5px_0_rgba(255,255,255,0.25)] flex items-center gap-2">
+<span class="material-symbols-outlined fill-icon text-tertiary text-lg" data-icon="diamond">diamond</span>
+<span>Cevher Analizi</span>
+</div>
+<span class="hidden sm:inline-block text-[11px] font-bold text-[#c1cab4]/70 pb-2">Varyant 2: 3 Sütunlu Komuta Matrisi</span>
+</div>
+<div class="p-4 md:p-6 flex flex-col gap-5">
+<!-- 1. Üst Başlık & TH Seçici Çubuğu (Tüm genişlik boyunca üst bar) -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#382B22] p-3 md:px-4 md:py-3 rounded-[14px] border-2 border-[#24140C] shadow-[inset_0_2px_0_rgba(255,255,255,0.08)]">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-[8px] bg-[#251911] border border-[#5A3A28] flex items-center justify-center text-tertiary shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+<span class="material-symbols-outlined text-xl" data-icon="analytics">analytics</span>
+</div>
+<div>
+<h3 class="font-headline font-extrabold text-base md:text-lg text-white tracking-wide">
+Cevher Analizi
+</h3>
+<span class="text-[11px] text-[#c1cab4] font-medium block">Belediye Binası ve İlerleme Seviyesi</span>
+</div>
+</div>
+<!-- TH Seçici Butonları (TH11 - TH18) -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH11</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH12</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH13</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH14</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH15</button>
+<button class="min-h-[40px] min-w-[46px] px-3 rounded-[8px] border-[2.5px] border-[#142E06] bg-gradient-to-b from-[#9CE04A] via-[#72BD36] to-[#519E23] text-white font-headline font-extrabold text-xs num-tabular shadow-[inset_0_1.5px_0_rgba(255,255,255,0.45)] active:scale-95 transition-transform" type="button">TH16</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH17</button>
+<button class="min-h-[40px] min-w-[42px] px-2.5 rounded-[8px] border-2 border-[#3C3A38] bg-[#2A1F17] hover:bg-[#382B22] text-[#c1cab4] font-headline font-bold text-xs num-tabular active:scale-95 transition-transform" type="button">TH18</button>
+</div>
+</div>
+<!-- 2. 3 Sütunlu Asimetrik Komuta Matrisi (Izgara: 12 Sütun -> Sol 4 / Orta 4 / Sağ 4) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<!-- ================= SOL SÜTUN (Kontrol & Parametreler - 4 Kolon) ================= -->
+<section class="lg:col-span-4 bg-gradient-to-b from-[#5E4634] via-[#4E3828] to-[#3E2B1E] rounded-[16px] border-[3px] border-[#261810] p-4 md:p-5 shadow-[inset_0_2px_0_rgba(255,255,255,0.12)] flex flex-col gap-4">
+<div class="flex items-center justify-between border-b-2 border-[#2C180E] pb-3">
+<h2 class="font-headline font-extrabold text-base text-white tracking-wide flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-xl" data-icon="tune">tune</span>
+Simülasyon Ayarları
+</h2>
+<span class="text-[11px] font-bold bg-[#251911] text-[#E5D5BA] px-2.5 py-1 rounded-full border border-[#3A2317]">
+Canlı Hesap
+</span>
+</div>
+<!-- Mevcut Envanter 3 Giriş Kutusu -->
+<div>
+<label class="block font-headline font-bold text-xs uppercase tracking-wider text-[#FAF3E0] mb-2">
+Mevcut Envanter
+</label>
+<div class="grid grid-cols-3 gap-2">
+<!-- Parlak -->
+<div class="bg-[#251911] p-2 rounded-[10px] border-2 border-[#22140D] shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="flex items-center gap-1 mb-1 text-[11px] font-bold text-[#6ED3F7]">
+<span class="w-2 h-2 rounded-full bg-[#6ED3F7] inline-block shadow-[0_0_6px_#6ED3F7]"></span>
+Parlak
+</div>
+<input class="w-full min-h-[42px] bg-[#FFFFFF] text-[#2A2018] font-headline font-extrabold text-sm px-1.5 rounded-[8px] border-[2px] border-[#5A5552] focus:outline-none focus:border-[#72BD36] num-tabular text-center" type="text" value="24.500"/>
+</div>
+<!-- Işıltılı -->
+<div class="bg-[#251911] p-2 rounded-[10px] border-2 border-[#22140D] shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="flex items-center gap-1 mb-1 text-[11px] font-bold text-[#D97706]">
+<span class="w-2 h-2 rounded-full bg-[#D97706] inline-block shadow-[0_0_6px_#D97706]"></span>
+Işıltılı
+</div>
+<input class="w-full min-h-[42px] bg-[#FFFFFF] text-[#2A2018] font-headline font-extrabold text-sm px-1.5 rounded-[8px] border-[2px] border-[#5A5552] focus:outline-none focus:border-[#72BD36] num-tabular text-center" type="text" value="1.840"/>
+</div>
+<!-- Yıldızlı -->
+<div class="bg-[#251911] p-2 rounded-[10px] border-2 border-[#22140D] shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="flex items-center gap-1 mb-1 text-[11px] font-bold text-tertiary">
+<span class="w-2 h-2 rounded-full bg-tertiary inline-block shadow-[0_0_6px_#f5bf29]"></span>
+Yıldızlı
+</div>
+<input class="w-full min-h-[42px] bg-[#FFFFFF] text-[#2A2018] font-headline font-extrabold text-sm px-1.5 rounded-[8px] border-[2px] border-[#5A5552] focus:outline-none focus:border-[#72BD36] num-tabular text-center" type="text" value="120"/>
+</div>
+</div>
+</div>
+<!-- Lig Kademesi -->
+<div>
+<label class="block font-headline font-bold text-xs uppercase tracking-wider text-[#FAF3E0] mb-1.5">
+Lig Kademesi
+</label>
+<div class="relative">
+<select class="w-full min-h-[44px] appearance-none bg-[#FFFFFF] text-[#2A2018] font-headline font-bold text-sm px-3.5 py-2 rounded-[10px] border-[2.5px] border-[#5A5552] focus:outline-none focus:border-[#72BD36]">
+<option selected="">Efsane Lig</option>
+<option>Titan I</option>
+<option>Titan II</option>
+<option>Şampiyon I</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#5A5552]">
+<span class="material-symbols-outlined" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Klan Savaşı -->
+<div>
+<label class="block font-headline font-bold text-xs uppercase tracking-wider text-[#FAF3E0] mb-1.5">
+Klan Savaşı
+</label>
+<div class="grid grid-cols-3 gap-1.5">
+<button class="min-h-[42px] rounded-[10px] border-[2.5px] border-[#142E06] bg-gradient-to-b from-[#9CE04A] via-[#72BD36] to-[#519E23] text-white font-headline font-extrabold text-xs tracking-wide shadow-[inset_0_1.5px_0_rgba(255,255,255,0.45)] active:scale-95 transition-transform flex items-center justify-center" type="button">
+Sürekli
+</button>
+<button class="min-h-[42px] rounded-[10px] border-[2.5px] border-[#3C3A38] bg-gradient-to-b from-[#EFECE5] via-[#D4D1C9] to-[#B2AFA7] text-[#2D251E] font-headline font-bold text-xs tracking-wide shadow-[inset_0_1.5px_0_rgba(255,255,255,0.45)] active:scale-95 transition-transform flex items-center justify-center" type="button">
+Haftada 2
+</button>
+<button class="min-h-[42px] rounded-[10px] border-[2.5px] border-[#3C3A38] bg-gradient-to-b from-[#EFECE5] via-[#D4D1C9] to-[#B2AFA7] text-[#2D251E] font-headline font-bold text-xs tracking-wide shadow-[inset_0_1.5px_0_rgba(255,255,255,0.45)] active:scale-95 transition-transform flex items-center justify-center" type="button">
+Haftada 1
+</button>
+</div>
+</div>
+<!-- Açma / Kapama (Toggle) Kontrolleri -->
+<div class="bg-[#251911] p-3 rounded-[12px] border-2 border-[#22140D] flex flex-col gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)] mt-1">
+<!-- Toggle 1 -->
+<label class="flex items-center justify-between cursor-pointer min-h-[42px] px-1">
+<span class="font-headline font-bold text-xs text-[#FAF3E0] max-w-[200px] leading-tight">
+CWL Katılımı (Şampiyon III)
+</span>
+<div class="relative inline-flex items-center flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-[#1D150F] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#72BD36] border-2 border-[#382014]"></div>
+</div>
+</label>
+<div class="h-[1px] bg-[#342219]"></div>
+<!-- Toggle 2 -->
+<label class="flex items-center justify-between cursor-pointer min-h-[42px] px-1">
+<span class="font-headline font-bold text-xs text-[#FAF3E0] max-w-[200px] leading-tight">
+Baskın madalyası / Tüccar Haftalık Alım
+</span>
+<div class="relative inline-flex items-center flex-shrink-0">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-[#1D150F] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#72BD36] border-2 border-[#382014]"></div>
+</div>
+</label>
+<div class="h-[1px] bg-[#342219]"></div>
+<!-- Toggle 3 -->
+<label class="flex items-center justify-between cursor-pointer min-h-[42px] px-1">
+<span class="font-headline font-bold text-xs text-[#FAF3E0] max-w-[200px] leading-tight">
+Altın Bilet / Etkinlik Geçişi
+</span>
+<div class="relative inline-flex items-center flex-shrink-0">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-[#1D150F] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#72BD36] border-2 border-[#382014]"></div>
+</div>
+</label>
+</div>
+</section>
+<!-- ================= ORTA SÜTUN (Merkezi Çıktı & Tahmin Motoru - 4 Kolon) ================= -->
+<section class="lg:col-span-4 flex flex-col gap-5">
+<!-- Tüm Ekipmanlar MAX Tahmini Kartı -->
+<div class="bg-gradient-to-b from-[#5E4634] via-[#4E3828] to-[#3E2B1E] rounded-[16px] border-[3px] border-[#261810] p-4 md:p-5 shadow-[inset_0_2px_0_rgba(255,255,255,0.12)]">
+<div class="flex flex-col gap-1 mb-4">
+<div class="flex items-center justify-between">
+<span class="text-[11px] uppercase font-headline font-bold tracking-wider text-[#FAF3E0]">Tüm Ekipmanlar MAX Tahmini</span>
+<span class="text-[11px] font-semibold text-[#c1cab4] bg-[#251911] px-2.5 py-1 rounded-full border border-[#342219]">
+26 Mart 2028
+</span>
+</div>
+<span class="font-headline font-extrabold text-2xl md:text-3xl text-white num-tabular tracking-tight">510 Gün (~17 Ay)</span>
+</div>
+<!-- Üç Cevher Gereksinim Çubuklu Kartları -->
+<div class="space-y-2.5 mb-4">
+<!-- Parlak -->
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D]">
+<div class="flex justify-between items-center mb-1">
+<span class="font-headline font-bold text-xs text-[#6ED3F7] flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#6ED3F7]"></span> Parlak Gereksinimi
+</span>
+<span class="font-headline font-extrabold text-xs text-white num-tabular">182.000</span>
+</div>
+<div class="w-full h-2 bg-[#110B07] rounded-full overflow-hidden p-[1px] border border-[#342219]">
+<div class="bg-gradient-to-r from-[#1A7198] to-[#6ED3F7] h-full rounded-full" style="width: 58%"></div>
+</div>
+</div>
+<!-- Işıltılı -->
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D]">
+<div class="flex justify-between items-center mb-1">
+<span class="font-headline font-bold text-xs text-[#D97706] flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-[#D97706]"></span> Işıltılı Gereksinimi
+</span>
+<span class="font-headline font-extrabold text-xs text-white num-tabular">9.800</span>
+</div>
+<div class="w-full h-2 bg-[#110B07] rounded-full overflow-hidden p-[1px] border border-[#342219]">
+<div class="bg-gradient-to-r from-[#8A5603] to-[#D97706] h-full rounded-full" style="width: 44%"></div>
+</div>
+</div>
+<!-- Yıldızlı -->
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D]">
+<div class="flex justify-between items-center mb-1">
+<span class="font-headline font-bold text-xs text-tertiary flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span> Yıldızlı Gereksinimi
+</span>
+<span class="font-headline font-extrabold text-xs text-white num-tabular">1.480</span>
+</div>
+<div class="w-full h-2 bg-[#110B07] rounded-full overflow-hidden p-[1px] border border-[#342219]">
+<div class="bg-gradient-to-r from-[#DB930D] to-[#FFEB75] h-full rounded-full" style="width: 31%"></div>
+</div>
+</div>
+</div>
+<!-- Senaryo Karşılaştırması Şeridi -->
+<div class="grid grid-cols-3 gap-2 bg-[#1E130B] p-2 rounded-[10px] border border-[#2C180E] text-center">
+<div class="p-1">
+<span class="block text-[10px] font-bold uppercase tracking-wider text-[#c1cab4]">En iyi</span>
+<span class="font-headline font-extrabold text-xs text-primary num-tabular">420 Gün</span>
+</div>
+<div class="p-1 border-x border-[#342219] bg-[#2A1B10] rounded-[6px]">
+<span class="block text-[10px] font-bold uppercase tracking-wider text-tertiary">Tahmini</span>
+<span class="font-headline font-extrabold text-xs text-white num-tabular">510 Gün</span>
+</div>
+<div class="p-1">
+<span class="block text-[10px] font-bold uppercase tracking-wider text-[#c1cab4]">En kötü</span>
+<span class="font-headline font-extrabold text-xs text-secondary num-tabular">645 Gün</span>
+</div>
+</div>
+</div>
+<!-- Günlük ve Periyodik Gelir Kartı -->
+<div class="bg-gradient-to-b from-[#5E4634] via-[#4E3828] to-[#3E2B1E] rounded-[16px] border-[3px] border-[#261810] p-4 md:p-5 shadow-[inset_0_2px_0_rgba(255,255,255,0.12)]">
+<div class="flex items-center justify-between mb-3 border-b border-[#382014] pb-2.5">
+<span class="font-headline font-extrabold text-sm text-white tracking-wide">Günlük &amp; Periyodik Gelir</span>
+<span class="font-headline font-extrabold text-[11px] bg-[#142E06] text-primary px-2.5 py-1 rounded-full border border-primary/40 num-tabular">
+Ort. +1.120 / Gün
+</span>
+</div>
+<div class="space-y-2 text-xs font-headline">
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D] flex justify-between items-center">
+<span class="font-semibold text-[#FAF3E0] text-[11px]">Günlük Yıldız Bonusu</span>
+<span class="font-bold text-white text-[11px] num-tabular">1.000 P / 54 I (+0 Y)</span>
+</div>
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D] flex justify-between items-center">
+<span class="font-semibold text-[#FAF3E0] text-[11px]">Klan Savaşı Galibiyeti</span>
+<span class="font-bold text-white text-[11px] num-tabular">720 P / 36 I (+6 Y)</span>
+</div>
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D] flex justify-between items-center">
+<span class="font-semibold text-[#FAF3E0] text-[11px]">Baskın Madalyası Takası</span>
+<span class="font-bold text-white text-[11px] num-tabular">600 I (1.200 M)</span>
+</div>
+<div class="bg-[#251911] p-2.5 rounded-[10px] border border-[#22140D] flex justify-between items-center">
+<span class="font-semibold text-[#FAF3E0] text-[11px]">Aylık Özel Etkinlik</span>
+<span class="font-bold text-white text-[11px] num-tabular">3.400 P / 180 I (+120 Y)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= SAĞ SÜTUN (Aktif Ekipman Kadrosu - 4 Kolon) ================= -->
+<section class="lg:col-span-4 bg-gradient-to-b from-[#5E4634] via-[#4E3828] to-[#3E2B1E] rounded-[16px] border-[3px] border-[#261810] p-4 md:p-5 shadow-[inset_0_2px_0_rgba(255,255,255,0.12)] flex flex-col">
+<div class="flex items-center justify-between border-b-2 border-[#2C180E] pb-3 mb-3.5">
+<h3 class="font-headline font-extrabold text-base text-white tracking-wide flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-xl" data-icon="swords">swords</span>
+İçe Aktarılan Ekipmanlar
+</h3>
+<span class="text-xs font-bold text-[#E5D5BA] bg-[#251911] px-2.5 py-1 rounded-full border border-[#3A2317]">
+8 Ekipman
+</span>
+</div>
+<!-- 2 Sütun Kompakt Kart Matrisi -->
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Ekipman 1 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="sports_mma">sports_mma</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 21</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Dev Eldiven</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 27
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 2 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="science">science</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 18</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Öfke Şişesi</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 18
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 3 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="ac_unit">ac_unit</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 24</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Dondurucu Ok</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 27
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 4 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="favorite">favorite</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 15</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Şifa Kuklası</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 18
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 5 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="menu_book">menu_book</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 18</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Ebedi Kitap</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 18
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 6 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="local_fire_department">local_fire_department</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 20</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Ateş Topu</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 27
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 7 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="rocket_launch">rocket_launch</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 18</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Roket Mızrağı</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 27
+</span>
+</div>
+</div>
+</div>
+<!-- Ekipman 8 -->
+<div class="bg-[#251911] rounded-[10px] border-2 border-[#22140D] p-2.5 flex items-center gap-2.5 shadow-[inset_0_2px_4px_rgba(0,0,0,0.65)]">
+<div class="w-11 h-11 rounded-[8px] bg-[#342219] border-2 border-[#5A3A28] flex-shrink-0 relative flex items-center justify-center text-[#c1cab4]">
+<span class="absolute top-0.5 left-0.5 bg-[#120C08] text-[9px] font-extrabold text-[#FAF3E0] px-0.5 rounded-[3px] leading-tight num-tabular">x1</span>
+<span class="material-symbols-outlined text-xl" data-icon="shield">shield</span>
+<span class="absolute bottom-0.5 left-0.5 bg-[#120C08] text-[8px] font-extrabold text-tertiary px-0.5 rounded-[2px] leading-tight num-tabular">Lv 18</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="font-headline font-bold text-xs text-white truncate">Kalkan</div>
+<div class="mt-1">
+<span class="text-[10px] font-extrabold bg-gradient-to-r from-[#FDD64B] to-[#D88E10] text-[#261501] border border-[#613B00] px-1.5 py-0.5 rounded-[4px] leading-none num-tabular inline-block">
+MAX 18
+</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full border-t border-surface-container dark:border-surface-container bg-surface-container-lowest dark:bg-surface-container-lowest mt-8">
+<div class="w-full max-w-[1360px] mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<div class="font-body text-xs text-on-surface-variant dark:text-on-surface-variant leading-relaxed max-w-2xl">
+<span class="font-headline font-bold text-xs text-on-surface dark:text-on-surface block mb-1">CoC Analitik</span>
+© 2025 CoC Analitik. Bu uygulama Supercell ile bağlantılı değildir, Supercell tarafından desteklenmemekte veya onaylanmamaktadır. Fan Content Policy kapsamındadır.
+</div>
+<div class="flex items-center gap-6 font-body text-xs text-on-surface-variant dark:text-on-surface-variant">
+<a class="hover:text-on-surface dark:hover:text-on-surface transition-colors active:opacity-80" href="#">Kullanım Şartları</a>
+<a class="hover:text-on-surface dark:hover:text-on-surface transition-colors active:opacity-80" href="#">Gizlilik Politikası</a>
+<a class="hover:text-on-surface dark:hover:text-on-surface transition-colors active:opacity-80" href="#">İletişim</a>
+</div>
+</div>
+</footer>
+</body></html>

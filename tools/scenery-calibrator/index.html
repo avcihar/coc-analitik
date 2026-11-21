@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scenery Grid Kalibrasyon Stüdyosu</title>
+  <style>
+    :root {
+      --bg-app: #090c12;
+      --bg-panel: #111622;
+      --bg-card: #171e2e;
+      --bg-card-hover: #1e273b;
+      --bg-input: #0c1018;
+      --border: #263147;
+      --border-strong: #374766;
+      --text-main: #edf2f7;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --accent: #38bdf8;
+      --accent-bg: rgba(56, 189, 248, 0.14);
+
+      --c-top: #ef4444;
+      --c-right: #3b82f6;
+      --c-bottom: #22c55e;
+      --c-left: #f59e0b;
+      --c-all: #a855f7;
+
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --err: #ef4444;
+      --manual: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg-app);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, sans-serif;
+      font-size: 13px;
+      line-height: 1.4;
+      user-select: none;
+    }
+
+    input, button {
+      font-family: inherit;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2b374e;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3d4e6e;
+    }
+
+    .studio {
+      display: grid;
+      grid-template-columns: 300px 1fr 340px;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR */
+    .sidebar {
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .sidebar-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      flex-shrink: 0;
+    }
+
+    .count-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 7px;
+      padding: 7px 28px 7px 10px;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 6px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 15px;
+      line-height: 1;
+      padding: 2px 5px;
+      display: none;
+    }
+    .search-clear.visible {
+      display: block;
+    }
+    .search-clear:hover {
+      color: var(--text-main);
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .pill-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.12s;
+    }
+
+    .pill-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    .pill-count {
+      font-size: 10px;
+      opacity: 0.78;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scenery-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .scenery-item {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 10px;
+      padding: 7px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      width: 100%;
+      transition: background 0.12s, border-color 0.12s;
+      align-items: center;
+    }
+
+    .scenery-item:hover {
+      background: var(--bg-card);
+      border-color: var(--border);
+    }
+
+    .scenery-item.active {
+      background: #1a2438;
+      border-color: var(--accent);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .scenery-thumb {
+      width: 46px;
+      height: 46px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #0b0e14;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .scenery-meta {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .scenery-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .scenery-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-main);
+    }
+
+    .scenery-sub {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scenery-id {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 10.5px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .badge-ok {
+      background: rgba(34, 197, 94, 0.14);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, 0.32);
+    }
+    .badge-manual {
+      background: rgba(56, 189, 248, 0.14);
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.32);
+    }
+    .badge-warn {
+      background: rgba(245, 158, 11, 0.14);
+      color: #fcd34d;
+      border-color: rgba(245, 158, 11, 0.34);
+    }
+
+    .sidebar-footer {
+      padding: 9px 10px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+      background: #0e131d;
+    }
+
+    .nav-index {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      min-width: 52px;
+    }
+
+    /* BUTTONS */
+    .btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--bg-card-hover);
+      border-color: var(--border-strong);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn.active {
+      background: var(--accent-bg);
+      border-color: var(--accent);
+      color: #e0f2fe;
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #0369a1;
+      border-color: #7dd3fc;
+    }
+
+    .btn-primary.dirty-pulse {
+      background: #16a34a;
+      border-color: #4ade80;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.3);
+    }
+    .btn-primary.dirty-pulse:hover:not(:disabled) {
+      background: #15803d;
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11.5px;
+    }
+
+    /* MAIN VIEWPORT */
+    .viewport-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+      background: #07090e;
+    }
+
+    .viewport-toolbar {
+      min-height: 46px;
+      padding: 6px 12px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .active-scenery-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .active-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .mono-chip {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .toolbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: inline-flex;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .btn-group .btn {
+      border: none;
+      border-right: 1px solid var(--border);
+      border-radius: 0;
+      padding: 5px 9px;
+    }
+    .btn-group .btn:last-child {
+      border-right: none;
+    }
+
+    .zoom-readout {
+      min-width: 54px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 11.5px;
+      color: var(--text-main);
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border);
+    }
+
+    .reason-banner {
+      display: none;
+      padding: 7px 12px;
+      background: rgba(245, 158, 11, 0.12);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fde68a;
+      font-size: 12px;
+      align-items: center;
+      gap: 8px;
+    }
+    .reason-banner.visible {
+      display: flex;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      background-color: #07090e;
+      background-image:
+        linear-gradient(45deg, #0c1018 25%, transparent 25%),
+        linear-gradient(-45deg, #0c1018 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #0c1018 75%),
+        linear-gradient(-45deg, transparent 75%, #0c1018 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    #gridCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    .canvas-hud {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      background: rgba(11, 15, 24, 0.86);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 10px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      pointer-events: none;
+    }
+
+    .canvas-hud strong {
+      color: var(--text-main);
+    }
+
+    .canvas-legend {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      background: rgba(11, 15, 24, 0.84);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: 11px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(7, 9, 14, 0.65);
+      font-size: 13px;
+      color: var(--text-main);
+      pointer-events: none;
+    }
+    .loading-overlay.visible {
+      display: flex;
+    }
+
+    /* RIGHT INSPECTOR */
+    .inspector {
+      background: var(--bg-panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .inspector-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .toggle-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toggle-label strong {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .toggle-label span {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .switch {
+      position: relative;
+      width: 38px;
+      height: 21px;
+      flex-shrink: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #273247;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      transition: 0.16s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      transition: 0.16s;
+    }
+
+    .switch input:checked + .slider {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(17px);
+      background: #ffffff;
+    }
+
+    .action-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .handle-pills {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+    }
+
+    .handle-pill {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 2px;
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.12s;
+    }
+
+    .handle-pill:hover {
+      border-color: var(--border-strong);
+      color: var(--text-main);
+    }
+
+    .handle-pill.active {
+      background: #1b263b;
+      border-color: var(--handle-color, var(--accent));
+      color: var(--text-main);
+      box-shadow: 0 0 0 1px var(--handle-color, var(--accent));
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .coord-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .coord-row {
+      display: grid;
+      grid-template-columns: 64px 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .coord-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .num-field {
+      display: flex;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0 6px;
+      transition: border-color 0.12s;
+    }
+
+    .num-field:focus-within {
+      border-color: var(--accent);
+    }
+
+    .num-field span {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-dim);
+      margin-right: 4px;
+    }
+
+    .num-field input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12px;
+      padding: 5px 0;
+      outline: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .metric-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .metric-box span {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .metric-box strong {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ratio-ok { color: #4ade80; }
+    .ratio-warn { color: #fbbf24; }
+
+    .skew-alert {
+      display: none;
+      font-size: 11px;
+      color: #fcd34d;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      border-radius: 6px;
+      padding: 6px 8px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .skew-alert.visible {
+      display: flex;
+    }
+
+    .shortcut-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px 10px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .shortcut-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    kbd {
+      background: var(--bg-input);
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 10px;
+      color: var(--text-main);
+    }
+
+    .range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .range-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .inspector-footer {
+      padding: 11px 12px;
+      border-top: 1px solid var(--border);
+      background: #0e131d;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .save-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .check-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .check-label input {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--ok);
+      cursor: pointer;
+    }
+
+    .dirty-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      background: var(--bg-card);
+    }
+
+    .dirty-badge.dirty {
+      color: #fde047;
+      border-color: rgba(250, 204, 21, 0.45);
+      background: rgba(250, 204, 21, 0.12);
+    }
+
+    .save-btn {
+      width: 100%;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    /* TOASTS */
+    .toast-stack {
+      position: fixed;
+      right: 356px;
+      bottom: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 99;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(17, 22, 34, 0.96);
+      border: 1px solid var(--border-strong);
+      border-left: 3px solid var(--accent);
+      color: var(--text-main);
+      padding: 9px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+      max-width: 340px;
+      animation: fadeSlide 0.18s ease-out;
+    }
+
+    .toast.ok { border-left-color: var(--ok); }
+    .toast.warn { border-left-color: var(--warn); }
+    .toast.err { border-left-color: var(--err); }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-dim);
+      padding: 28px 12px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="studio">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-row">
+          <div class="brand-title">
+            <span class="brand-dot"></span>
+            <span>Scenery Kalibrasyon</span>
+          </div>
+          <span class="count-pill" id="totalCountPill">0 / 0</span>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Sahne adı veya id ara..." autocomplete="off" />
+          <button class="search-clear" id="searchClearBtn" title="Aramayı temizle">&times;</button>
+        </div>
+
+        <div class="filter-pills" id="filterPills">
+          <button class="pill-btn active" data-status="ALL">Tümü <span class="pill-count" id="cntAll">0</span></button>
+          <button class="pill-btn" data-status="Doğrulandı">Doğrulandı <span class="pill-count" id="cntOk">0</span></button>
+          <button class="pill-btn" data-status="Elle düzeltildi">Elle düzeltildi <span class="pill-count" id="cntManual">0</span></button>
+          <button class="pill-btn" data-status="Güvenilmez">Güvenilmez <span class="pill-count" id="cntWarn">0</span></button>
+        </div>
+      </div>
+
+      <div class="scenery-list" id="sceneryList"></div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-sm" id="prevBtn">&larr; Önceki</button>
+        <span class="nav-index" id="navIndexLabel">0 / 0</span>
+        <button class="btn btn-sm" id="nextBtn">Sonraki &rarr;</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CANVAS VIEWPORT -->
+    <main class="viewport-col">
+      <header class="viewport-toolbar">
+        <div class="active-scenery-info">
+          <span class="active-name" id="activeName">Yükleniyor...</span>
+          <span class="mono-chip" id="activeId">-</span>
+          <span class="mono-chip" id="activeDims">0×0</span>
+          <span class="badge badge-ok" id="activeStatusBadge">-</span>
+          <span class="mono-chip" id="activeMethodChip">-</span>
+        </div>
+
+        <div class="toolbar-controls">
+          <div class="btn-group">
+            <button class="btn btn-sm active" id="modeEditBtn" title="Köşe ve merkez tutamaçlarını sürükle">Düzenle</button>
+            <button class="btn btn-sm" id="modePanBtn" title="Tuvali kaydır (veya Space + sürükle)">Kaydır</button>
+          </div>
+
+          <div class="btn-group">
+            <button class="btn btn-sm" id="zoomOutBtn" title="Uzaklaş">&minus;</button>
+            <span class="zoom-readout" id="zoomReadout">100%</span>
+            <button class="btn btn-sm" id="zoomInBtn" title="Yakınlaş">+</button>
+            <button class="btn btn-sm" id="zoomFitBtn" title="Görseli ekrana sığdır">Sığdır</button>
+            <button class="btn btn-sm" id="zoom100Btn" title="1:1 doğal piksel boyutu">100%</button>
+          </div>
+
+          <button class="btn btn-sm" id="wallOverlayBtn" title="Köşelerde ve merkezde Wall19 duvar önizlemesi göster">Örnek Duvar</button>
+        </div>
+      </header>
+
+      <div class="reason-banner" id="reasonBanner">
+        <strong>Güvenilmez Notu:</strong>
+        <span id="reasonText"></span>
+      </div>
+
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="gridCanvas"></canvas>
+        <div class="loading-overlay" id="loadingOverlay">Görsel yükleniyor...</div>
+        <div class="canvas-hud" id="canvasHud">
+          <span>Piksel: <strong id="hudPixel">-</strong></span>
+          <span>Izgara: <strong id="hudGrid">-</strong></span>
+        </div>
+        <div class="canvas-legend">
+          Tekerlek: Yakınlaş &bull; Space+Sürükle / Orta Tuş: Kaydır &bull; Mor Merkez: Tümünü Taşı
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PRECISION INSPECTOR -->
+    <aside class="inspector">
+      <div class="inspector-scroll">
+        <!-- Lock & Actions -->
+        <section class="card">
+          <div class="card-title">
+            <span>Geometri ve Hizalama</span>
+          </div>
+
+          <label class="toggle-row">
+            <div class="toggle-label">
+              <strong>Paralelkenar Kilidi</strong>
+              <span>Top/Right/Left oynayınca Bottom = R+L&minus;T</span>
+            </div>
+            <div class="switch">
+              <input type="checkbox" id="parallelogramLock" checked />
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <div class="skew-alert" id="skewAlert">
+            <span>Paralelkenar sapması: <strong id="skewVal">0.0 px</strong></span>
+            <button class="btn btn-sm" id="snapParaBtn">Kilitle</button>
+          </div>
+
+          <div class="action-grid-2">
+            <button class="btn btn-sm" id="fixIsoBtn" title="Mevcut merkez etrafında tam 4:3 (1.333) CoC elmas oranına hizala">2:1 İzometrik Oran Düzelt</button>
+            <button class="btn btn-sm" id="resetBtn" title="Son kayıtlı değerlere geri al">Geri Al</button>
+          </div>
+        </section>
+
+        <!-- Active Handle & Keyboard -->
+        <section class="card">
+          <div class="card-title">
+            <span>Aktif Tutamaç &amp; Klavye</span>
+          </div>
+
+          <div class="handle-pills" id="handlePills">
+            <button class="handle-pill active" data-handle="top" style="--handle-color: var(--c-top)">
+              <span class="dot" style="background: var(--c-top)"></span>
+              <span>TOP</span>
+            </button>
+            <button class="handle-pill" data-handle="right" style="--handle-color: var(--c-right)">
+              <span class="dot" style="background: var(--c-right)"></span>
+              <span>RIGHT</span>
+            </button>
+            <button class="handle-pill" data-handle="bottom" style="--handle-color: var(--c-bottom)">
+              <span class="dot" style="background: var(--c-bottom)"></span>
+              <span>BOT</span>
+            </button>
+            <button class="handle-pill" data-handle="left" style="--handle-color: var(--c-left)">
+              <span class="dot" style="background: var(--c-left)"></span>
+              <span>LEFT</span>
+            </button>
+            <button class="handle-pill" data-handle="all" style="--handle-color: var(--c-all)">
+              <span class="dot" style="background: var(--c-all)"></span>
+              <span>TÜMÜ</span>
+            </button>
+          </div>
+
+          <div class="shortcut-list">
+            <div class="shortcut-item"><span>Hassas</span><kbd>Alt + Ok (&plusmn;0.2)</kbd></div>
+            <div class="shortcut-item"><span>Normal</span><kbd>Ok (&plusmn;1.0)</kbd></div>
+            <div class="shortcut-item"><span>Hızlı</span><kbd>Shift + Ok (&plusmn;10)</kbd></div>
+            <div class="shortcut-item"><span>Kaydet</span><kbd>Ctrl + S</kbd></div>
+          </div>
+        </section>
+
+        <!-- Coordinates -->
+        <section class="card">
+          <div class="card-title">
+            <span>Köşe Koordinatları (px)</span>
+            <span style="font-size:10px; color: var(--text-dim);">44&times;44 Izgara</span>
+          </div>
+
+          <div class="coord-rows">
+            <div class="coord-row">
+              <div class="coord-tag" data-select-handle="top">
+                <span class="dot" style="background: var(--c-top)"></span>TOP
+              </div>
+              <label class="num-field"><span>X</span><input type="number" step="0.5" data-corner="top" data-axis="x" /></label>
+              <label class="num-field"><span>Y</span><input type="number" step="0.5" data-corner="top" data-axis="y" /></label>
+            </div>
+            <div class="coord-row">
+              <div class="coord-tag" data-select-handle="right">
+                <span class="dot" style="background: var(--c-right)"></span>RIGHT
+              </div>
+              <label class="num-field"><span>X</span><input type="number" step="0.5" data-corner="right" data-axis="x" /></label>
+              <label class="num-field"><span>Y</span><input type="number" step="0.5" data-corner="right" data-axis="y" /></label>
+            </div>
+            <div class="coord-row">
+              <div class="coord-tag" data-select-handle="bottom">
+                <span class="dot" style="background: var(--c-bottom)"></span>BOT
+              </div>
+              <label class="num-field"><span>X</span><input type="number" step="0.5" data-corner="bottom" data-axis="x" /></label>
+              <label class="num-field"><span>Y</span><input type="number" step="0.5" data-corner="bottom" data-axis="y" /></label>
+            </div>
+            <div class="coord-row">
+              <div class="coord-tag" data-select-handle="left">
+                <span class="dot" style="background: var(--c-left)"></span>LEFT
+              </div>
+              <label class="num-field"><span>X</span><input type="number" step="0.5" data-corner="left" data-axis="x" /></label>
+              <label class="num-field"><span>Y</span><input type="number" step="0.5" data-corner="left" data-axis="y" /></label>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-box">
+              <span>Genişlik (bw)</span>
+              <strong id="metricBw">-</strong>
+            </div>
+            <div class="metric-box">
+              <span>Yükseklik (bh)</span>
+              <strong id="metricBh">-</strong>
+            </div>
+            <div class="metric-box">
+              <span>Oran (1.333)</span>
+              <strong id="metricRatio">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <!-- Display Options -->
+        <section class="card">
+          <div class="card-title">
+            <span>Görünüm Ayarları</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:11.5px;">
+              <span>Izgara Opaklığı</span>
+              <strong id="opacityLabel" style="font-variant-numeric: tabular-nums;">70%</strong>
+            </div>
+            <div class="range-row">
+              <input type="range" id="gridOpacityRange" min="0" max="100" value="70" />
+            </div>
+          </div>
+
+          <label class="toggle-row">
+            <div class="toggle-label">
+              <strong>Kalın Izgara Çizgileri</strong>
+              <span>Görünürlüğü artırmak için çizgileri kalınlaştır</span>
+            </div>
+            <div class="switch">
+              <input type="checkbox" id="thickLinesToggle" />
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <label class="toggle-row">
+            <div class="toggle-label">
+              <strong>Örnek Duvar Katmanı</strong>
+              <span>Köşe ve merkez hücrelerde Wall19 hizası</span>
+            </div>
+            <div class="switch">
+              <input type="checkbox" id="wallOverlayToggle" />
+              <span class="slider"></span>
+            </div>
+          </label>
+        </section>
+      </div>
+
+      <!-- SAVE FOOTER -->
+      <div class="inspector-footer">
+        <div class="save-meta-row">
+          <label class="check-label" title="assetsConfig.ts içindeki verified alanını korur veya günceller">
+            <input type="checkbox" id="verifiedCheckbox" />
+            <span>Doğrulandı (verified)</span>
+          </label>
+          <span class="dirty-badge" id="dirtyBadge">Güncel</span>
+        </div>
+
+        <button class="btn btn-primary save-btn" id="saveBtn">
+          Kaydet (assetsConfig.ts'e İşle)
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const GRID_SIZE = 44;
+      const HANDLE_COLORS = {
+        top: "#EF4444",
+        right: "#3B82F6",
+        bottom: "#22C55E",
+        left: "#F59E0B",
+        all: "#A855F7",
+      };
+
+      const state = {
+        sceneries: [],
+        filtered: [],
+        selectedId: null,
+        buildArea: null,
+        verified: true,
+        loadedSnapshot: null,
+        isDirty: false,
+
+        search: "",
+        statusFilter: "ALL",
+
+        activeHandle: "top",
+        parallelogramLock: true,
+        toolMode: "edit", // "edit" | "pan"
+        spaceHeld: false,
+
+        gridOpacity: 0.70,
+        thickLines: false,
+        showWallOverlay: false,
+
+        zoom: 1,
+        offsetX: 0,
+        offsetY: 0,
+
+        sceneryImg: null,
+        sceneryImgSrc: null,
+        wallImg: null,
+        wallImgLoaded: false,
+
+        dragMode: null, // null | "pan" | "top" | "right" | "bottom" | "left" | "all"
+        dragStartScreen: { x: 0, y: 0 },
+        dragStartOffset: { x: 0, y: 0 },
+        dragStartArea: null,
+        hoverHandle: null,
+        cursorWorld: null,
+        saving: false,
+      };
+
+      // DOM elements
+      const el = {
+        totalCountPill: document.getElementById("totalCountPill"),
+        searchInput: document.getElementById("searchInput"),
+        searchClearBtn: document.getElementById("searchClearBtn"),
+        filterPills: document.getElementById("filterPills"),
+        cntAll: document.getElementById("cntAll"),
+        cntOk: document.getElementById("cntOk"),
+        cntManual: document.getElementById("cntManual"),
+        cntWarn: document.getElementById("cntWarn"),
+        sceneryList: document.getElementById("sceneryList"),
+        prevBtn: document.getElementById("prevBtn"),
+        nextBtn: document.getElementById("nextBtn"),
+        navIndexLabel: document.getElementById("navIndexLabel"),
+
+        activeName: document.getElementById("activeName"),
+        activeId: document.getElementById("activeId"),
+        activeDims: document.getElementById("activeDims"),
+        activeStatusBadge: document.getElementById("activeStatusBadge"),
+        activeMethodChip: document.getElementById("activeMethodChip"),
+        reasonBanner: document.getElementById("reasonBanner"),
+        reasonText: document.getElementById("reasonText"),
+
+        modeEditBtn: document.getElementById("modeEditBtn"),
+        modePanBtn: document.getElementById("modePanBtn"),
+        zoomOutBtn: document.getElementById("zoomOutBtn"),
+        zoomInBtn: document.getElementById("zoomInBtn"),
+        zoomFitBtn: document.getElementById("zoomFitBtn"),
+        zoom100Btn: document.getElementById("zoom100Btn"),
+        zoomReadout: document.getElementById("zoomReadout"),
+        wallOverlayBtn: document.getElementById("wallOverlayBtn"),
+
+        canvasWrap: document.getElementById("canvasWrap"),
+        canvas: document.getElementById("gridCanvas"),
+        loadingOverlay: document.getElementById("loadingOverlay"),
+        hudPixel: document.getElementById("hudPixel"),
+        hudGrid: document.getElementById("hudGrid"),
+
+        parallelogramLock: document.getElementById("parallelogramLock"),
+        skewAlert: document.getElementById("skewAlert"),
+        skewVal: document.getElementById("skewVal"),
+        snapParaBtn: document.getElementById("snapParaBtn"),
+        fixIsoBtn: document.getElementById("fixIsoBtn"),
+        resetBtn: document.getElementById("resetBtn"),
+
+        handlePills: document.getElementById("handlePills"),
+        coordInputs: Array.from(document.querySelectorAll("input[data-corner][data-axis]")),
+        coordTags: Array.from(document.querySelectorAll("[data-select-handle]")),
+        metricBw: document.getElementById("metricBw"),
+        metricBh: document.getElementById("metricBh"),
+        metricRatio: document.getElementById("metricRatio"),
+
+        gridOpacityRange: document.getElementById("gridOpacityRange"),
+        opacityLabel: document.getElementById("opacityLabel"),
+        thickLinesToggle: document.getElementById("thickLinesToggle"),
+        wallOverlayToggle: document.getElementById("wallOverlayToggle"),
+
+        verifiedCheckbox: document.getElementById("verifiedCheckbox"),
+        dirtyBadge: document.getElementById("dirtyBadge"),
+        saveBtn: document.getElementById("saveBtn"),
+        toastStack: document.getElementById("toastStack"),
+      };
+
+      const ctx = el.canvas.getContext("2d");
+
+      function round1(val) {
+        const r = Math.round(Number(val) * 10) / 10;
+        return r === 0 ? 0 : r;
+      }
+
+      function cloneArea(area) {
+        return {
+          top: { x: area.top.x, y: area.top.y },
+          right: { x: area.right.x, y: area.right.y },
+          bottom: { x: area.bottom.x, y: area.bottom.y },
+          left: { x: area.left.x, y: area.left.y },
+        };
+      }
+
+      function areasEqual(a, b) {
+        if (!a || !b) return false;
+        for (const k of ["top", "right", "bottom", "left"]) {
+          if (round1(a[k].x) !== round1(b[k].x) || round1(a[k].y) !== round1(b[k].y)) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function showToast(msg, kind = "info") {
+        const div = document.createElement("div");
+        div.className = `toast ${kind}`;
+        div.textContent = msg;
+        el.toastStack.appendChild(div);
+        setTimeout(() => {
+          div.remove();
+        }, 3200);
+      }
+
+      function statusBadgeClass(status) {
+        if (status === "Elle düzeltildi") return "badge-manual";
+        if (status === "Güvenilmez") return "badge-warn";
+        return "badge-ok";
+      }
+
+      // Bilinear / affine mapping matching assetsConfig.ts mapGridToScenery when parallelogram
+      function mapGridToScenery(col, row, corners) {
+        const u = col / GRID_SIZE;
+        const v = row / GRID_SIZE;
+        const w00 = (1 - u) * (1 - v);
+        const w10 = u * (1 - v);
+        const w01 = (1 - u) * v;
+        const w11 = u * v;
+        return {
+          x: w00 * corners.top.x + w10 * corners.right.x + w01 * corners.left.x + w11 * corners.bottom.x,
+          y: w00 * corners.top.y + w10 * corners.right.y + w01 * corners.left.y + w11 * corners.bottom.y,
+        };
+      }
+
+      function mapSceneryToGrid(px, py, corners) {
+        const ux = corners.right.x - corners.top.x;
+        const uy = corners.right.y - corners.top.y;
+        const vx = corners.left.x - corners.top.x;
+        const vy = corners.left.y - corners.top.y;
+        const dx = px - corners.top.x;
+        const dy = py - corners.top.y;
+        const det = ux * vy - uy * vx;
+        if (Math.abs(det) < 1e-6) return { col: 0, row: 0 };
+        const u = (dx * vy - dy * vx) / det;
+        const v = (ux * dy - uy * dx) / det;
+        return { col: u * GRID_SIZE, row: v * GRID_SIZE };
+      }
+
+      function getCenterPoint(corners) {
+        return {
+          x: (corners.top.x + corners.right.x + corners.bottom.x + corners.left.x) / 4,
+          y: (corners.top.y + corners.right.y + corners.bottom.y + corners.left.y) / 4,
+        };
+      }
+
+      function worldToScreen(wx, wy) {
+        return {
+          x: state.offsetX + wx * state.zoom,
+          y: state.offsetY + wy * state.zoom,
+        };
+      }
+
+      function screenToWorld(sx, sy) {
+        return {
+          x: (sx - state.offsetX) / state.zoom,
+          y: (sy - state.offsetY) / state.zoom,
+        };
+      }
+
+      function getSelectedScenery() {
+        return state.sceneries.find((s) => s.id === state.selectedId) || null;
+      }
+
+      function updateCountsAndFilters() {
+        const total = state.sceneries.length;
+        const okCount = state.sceneries.filter((s) => (s.status || "Doğrulandı") === "Doğrulandı").length;
+        const manualCount = state.sceneries.filter((s) => s.status === "Elle düzeltildi").length;
+        const warnCount = state.sceneries.filter((s) => s.status === "Güvenilmez").length;
+
+        el.totalCountPill.textContent = `${total} sahne`;
+        el.cntAll.textContent = total;
+        el.cntOk.textContent = okCount;
+        el.cntManual.textContent = manualCount;
+        el.cntWarn.textContent = warnCount;
+
+        const q = state.search.trim().toLowerCase();
+        state.filtered = state.sceneries.filter((s) => {
+          const st = s.status || "Doğrulandı";
+          if (state.statusFilter !== "ALL" && st !== state.statusFilter) return false;
+          if (!q) return true;
+          return s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
+        });
+      }
+
+      function renderSidebarList() {
+        updateCountsAndFilters();
+        el.sceneryList.innerHTML = "";
+
+        if (state.filtered.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "empty-state";
+          empty.textContent = "Filtreye uyan sahne bulunamadı.";
+          el.sceneryList.appendChild(empty);
+        } else {
+          const frag = document.createDocumentFragment();
+          for (const sc of state.filtered) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "scenery-item" + (sc.id === state.selectedId ? " active" : "");
+            btn.dataset.id = sc.id;
+
+            const img = document.createElement("img");
+            img.className = "scenery-thumb";
+            img.src = sc.thumb;
+            img.alt = sc.name;
+            img.loading = "lazy";
+
+            const meta = document.createElement("div");
+            meta.className = "scenery-meta";
+
+            const topRow = document.createElement("div");
+            topRow.className = "scenery-title-row";
+            const title = document.createElement("span");
+            title.className = "scenery-title";
+            title.textContent = sc.name;
+            const badge = document.createElement("span");
+            badge.className = `badge ${statusBadgeClass(sc.status)}`;
+            badge.textContent = sc.status || "Doğrulandı";
+            topRow.append(title, badge);
+
+            const subRow = document.createElement("div");
+            subRow.className = "scenery-sub";
+            const idSpan = document.createElement("span");
+            idSpan.className = "scenery-id";
+            idSpan.textContent = sc.id;
+            const dimSpan = document.createElement("span");
+            dimSpan.textContent = `${sc.naturalWidth}×${sc.naturalHeight}`;
+            subRow.append(idSpan, dimSpan);
+
+            meta.append(topRow, subRow);
+            btn.append(img, meta);
+            btn.addEventListener("click", () => selectScenery(sc.id));
+            frag.appendChild(btn);
+          }
+          el.sceneryList.appendChild(frag);
+        }
+
+        const idx = state.filtered.findIndex((s) => s.id === state.selectedId);
+        el.navIndexLabel.textContent = state.filtered.length
+          ? `${idx >= 0 ? idx + 1 : 0} / ${state.filtered.length}`
+          : "0 / 0";
+        el.prevBtn.disabled = idx <= 0;
+        el.nextBtn.disabled = idx < 0 || idx >= state.filtered.length - 1;
+      }
+
+      function scrollActiveIntoView() {
+        const activeEl = el.sceneryList.querySelector(".scenery-item.active");
+        if (activeEl) {
+          activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
+
+      function updateDirtyState() {
+        if (!state.loadedSnapshot || !state.buildArea) {
+          state.isDirty = false;
+        } else {
+          const areaChanged = !areasEqual(state.buildArea, state.loadedSnapshot.buildArea);
+          const verifiedChanged = state.verified !== state.loadedSnapshot.verified;
+          state.isDirty = areaChanged || verifiedChanged;
+        }
+
+        el.dirtyBadge.textContent = state.isDirty ? "Değişiklik var" : "Güncel";
+        el.dirtyBadge.classList.toggle("dirty", state.isDirty);
+        el.saveBtn.classList.toggle("dirty-pulse", state.isDirty);
+      }
+
+      function syncInspectorUI() {
+        if (!state.buildArea) return;
+
+        for (const inp of el.coordInputs) {
+          const corner = inp.dataset.corner;
+          const axis = inp.dataset.axis;
+          const val = round1(state.buildArea[corner][axis]);
+          if (document.activeElement !== inp) {
+            inp.value = val.toFixed(1);
+          }
+        }
+
+        const bw = state.buildArea.right.x - state.buildArea.left.x;
+        const bh = state.buildArea.bottom.y - state.buildArea.top.y;
+        const ratio = Math.abs(bh) > 1e-6 ? bw / bh : 0;
+
+        el.metricBw.textContent = `${bw.toFixed(1)}`;
+        el.metricBh.textContent = `${bh.toFixed(1)}`;
+        el.metricRatio.textContent = ratio ? ratio.toFixed(3) : "-";
+        el.metricRatio.className = Math.abs(ratio - 4 / 3) < 0.05 ? "ratio-ok" : "ratio-warn";
+
+        // Parallelogram skew check: expected bottom = right + left - top
+        const expBx = state.buildArea.right.x + state.buildArea.left.x - state.buildArea.top.x;
+        const expBy = state.buildArea.right.y + state.buildArea.left.y - state.buildArea.top.y;
+        const skew = Math.hypot(state.buildArea.bottom.x - expBx, state.buildArea.bottom.y - expBy);
+        el.skewVal.textContent = `${skew.toFixed(1)} px`;
+        el.skewAlert.classList.toggle("visible", skew > 0.5);
+
+        el.parallelogramLock.checked = state.parallelogramLock;
+        el.verifiedCheckbox.checked = state.verified;
+
+        updateDirtyState();
+      }
+
+      function setActiveHandle(handle) {
+        state.activeHandle = handle;
+        for (const pill of el.handlePills.querySelectorAll(".handle-pill")) {
+          pill.classList.toggle("active", pill.dataset.handle === handle);
+        }
+        drawCanvas();
+      }
+
+      function enforceParallelogramIfLocked() {
+        if (!state.parallelogramLock || !state.buildArea) return;
+        state.buildArea.bottom = {
+          x: round1(state.buildArea.right.x + state.buildArea.left.x - state.buildArea.top.x),
+          y: round1(state.buildArea.right.y + state.buildArea.left.y - state.buildArea.top.y),
+        };
+      }
+
+      function selectScenery(id, force = false) {
+        if (!force && id === state.selectedId) return;
+        if (!force && state.isDirty) {
+          const ok = window.confirm(
+            "Kaydedilmemiş değişiklikler var. Kaydetmeden başka sahneye geçmek istiyor musunuz?"
+          );
+          if (!ok) return;
+        }
+
+        const sc = state.sceneries.find((s) => s.id === id);
+        if (!sc) return;
+
+        state.selectedId = sc.id;
+        state.buildArea = cloneArea(sc.buildArea);
+        state.verified = sc.verified !== false;
+        state.loadedSnapshot = {
+          buildArea: cloneArea(sc.buildArea),
+          verified: state.verified,
+        };
+
+        // Top toolbar metadata
+        el.activeName.textContent = sc.name;
+        el.activeId.textContent = sc.id;
+        el.activeDims.textContent = `${sc.naturalWidth}×${sc.naturalHeight}`;
+        el.activeStatusBadge.textContent = sc.status || "Doğrulandı";
+        el.activeStatusBadge.className = `badge ${statusBadgeClass(sc.status)}`;
+        el.activeMethodChip.textContent = `method: ${sc.method || "-"}`;
+
+        if (sc.reason) {
+          el.reasonText.textContent = sc.reason;
+          el.reasonBanner.classList.add("visible");
+        } else {
+          el.reasonBanner.classList.remove("visible");
+        }
+
+        renderSidebarList();
+        scrollActiveIntoView();
+        syncInspectorUI();
+        loadSceneryImage(sc);
+      }
+
+      function loadSceneryImage(sc) {
+        el.loadingOverlay.classList.add("visible");
+        const img = new Image();
+        state.sceneryImgSrc = sc.src;
+        img.onload = () => {
+          if (state.sceneryImgSrc !== sc.src) return;
+          state.sceneryImg = img;
+          el.loadingOverlay.classList.remove("visible");
+          fitToViewport();
+        };
+        img.onerror = () => {
+          if (state.sceneryImgSrc !== sc.src) return;
+          el.loadingOverlay.classList.remove("visible");
+          showToast(`Görsel yüklenemedi: ${sc.src}`, "err");
+        };
+        img.src = sc.src;
+      }
+
+      function ensureWallImage() {
+        if (state.wallImg) return;
+        const img = new Image();
+        img.onload = () => {
+          state.wallImgLoaded = true;
+          drawCanvas();
+        };
+        img.src = "/walls/Wall19.webp";
+        state.wallImg = img;
+      }
+
+      function fitToViewport() {
+        const rect = el.canvasWrap.getBoundingClientRect();
+        const sc = getSelectedScenery();
+        const w = (state.sceneryImg && state.sceneryImg.naturalWidth) || (sc && sc.naturalWidth) || 3705;
+        const h = (state.sceneryImg && state.sceneryImg.naturalHeight) || (sc && sc.naturalHeight) || 2545;
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        const pad = 28;
+        const scale = Math.min((rect.width - pad * 2) / w, (rect.height - pad * 2) / h);
+        state.zoom = Math.max(0.05, Math.min(8, scale));
+        state.offsetX = (rect.width - w * state.zoom) / 2;
+        state.offsetY = (rect.height - h * state.zoom) / 2;
+        updateZoomUI();
+        drawCanvas();
+      }
+
+      function setZoomAroundPoint(newZoom, screenX, screenY) {
+        const clamped = Math.max(0.08, Math.min(24, newZoom));
+        const worldPt = screenToWorld(screenX, screenY);
+        state.zoom = clamped;
+        state.offsetX = screenX - worldPt.x * state.zoom;
+        state.offsetY = screenY - worldPt.y * state.zoom;
+        updateZoomUI();
+        drawCanvas();
+      }
+
+      function updateZoomUI() {
+        el.zoomReadout.textContent = `${Math.round(state.zoom * 100)}%`;
+      }
+
+      function resizeCanvas() {
+        const rect = el.canvasWrap.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        const w = Math.max(1, Math.floor(rect.width * dpr));
+        const h = Math.max(1, Math.floor(rect.height * dpr));
+        if (el.canvas.width !== w || el.canvas.height !== h) {
+          el.canvas.width = w;
+          el.canvas.height = h;
+        }
+        drawCanvas();
+      }
+
+      function drawCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        const cssW = el.canvas.width / dpr;
+        const cssH = el.canvas.height / dpr;
+
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        // 1. Scenery image
+        if (state.sceneryImg && state.sceneryImg.complete && state.sceneryImg.naturalWidth > 0) {
+          ctx.imageSmoothingEnabled = state.zoom < 2.5;
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(
+            state.sceneryImg,
+            state.offsetX,
+            state.offsetY,
+            state.sceneryImg.naturalWidth * state.zoom,
+            state.sceneryImg.naturalHeight * state.zoom
+          );
+        }
+
+        if (!state.buildArea) {
+          ctx.restore();
+          return;
+        }
+
+        const c = state.buildArea;
+        const opacity = state.gridOpacity;
+        const thickMult = state.thickLines ? 1.8 : 1.0;
+
+        // 2. 44x44 Isometric Grid Lines
+        if (opacity > 0.01) {
+          for (let i = 0; i <= GRID_SIZE; i++) {
+            const isMajor = i % 11 === 0;
+            const isCenter = i === 22;
+            const alpha = isCenter
+              ? Math.min(1, opacity * 0.95)
+              : isMajor
+                ? Math.min(1, opacity * 0.65)
+                : opacity * 0.34;
+            ctx.strokeStyle = isCenter
+              ? `rgba(56, 189, 248, ${alpha})`
+              : `rgba(255, 255, 255, ${alpha})`;
+            ctx.lineWidth = (isCenter ? 1.8 : isMajor ? 1.25 : 0.85) * thickMult;
+
+            // Column line i: (i, 0) -> (i, 44)
+            const c0 = mapGridToScenery(i, 0, c);
+            const c1 = mapGridToScenery(i, GRID_SIZE, c);
+            const sc0 = worldToScreen(c0.x, c0.y);
+            const sc1 = worldToScreen(c1.x, c1.y);
+            ctx.beginPath();
+            ctx.moveTo(sc0.x, sc0.y);
+            ctx.lineTo(sc1.x, sc1.y);
+            ctx.stroke();
+
+            // Row line i: (0, i) -> (44, i)
+            const r0 = mapGridToScenery(0, i, c);
+            const r1 = mapGridToScenery(GRID_SIZE, i, c);
+            const sr0 = worldToScreen(r0.x, r0.y);
+            const sr1 = worldToScreen(r1.x, r1.y);
+            ctx.beginPath();
+            ctx.moveTo(sr0.x, sr0.y);
+            ctx.lineTo(sr1.x, sr1.y);
+            ctx.stroke();
+          }
+
+          // Diagonal center crosshairs passing through (22,22)
+          const sTop = worldToScreen(c.top.x, c.top.y);
+          const sRight = worldToScreen(c.right.x, c.right.y);
+          const sBot = worldToScreen(c.bottom.x, c.bottom.y);
+          const sLeft = worldToScreen(c.left.x, c.left.y);
+
+          ctx.save();
+          ctx.setLineDash([6, 5]);
+          ctx.strokeStyle = `rgba(245, 158, 11, ${Math.min(1, opacity * 0.85)})`;
+          ctx.lineWidth = 1.4 * thickMult;
+          ctx.beginPath();
+          ctx.moveTo(sTop.x, sTop.y);
+          ctx.lineTo(sBot.x, sBot.y);
+          ctx.moveTo(sLeft.x, sLeft.y);
+          ctx.lineTo(sRight.x, sRight.y);
+          ctx.stroke();
+          ctx.restore();
+
+          // Bright cyan/amber outer boundary
+          ctx.save();
+          ctx.strokeStyle = `rgba(34, 211, 238, ${Math.min(1, opacity * 0.95)})`;
+          ctx.lineWidth = 2.4 * thickMult;
+          ctx.beginPath();
+          ctx.moveTo(sTop.x, sTop.y);
+          ctx.lineTo(sRight.x, sRight.y);
+          ctx.lineTo(sBot.x, sBot.y);
+          ctx.lineTo(sLeft.x, sLeft.y);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 3. Optional Sample Wall Overlay (corners + center cluster)
+        if (state.showWallOverlay) {
+          drawSampleWallOverlay(c);
+        }
+
+        // 4. Corner coordinate labels (0,0), (44,0), (44,44), (0,44)
+        const cornerDefs = [
+          { key: "top", text: "(0,0)", color: HANDLE_COLORS.top, dx: 0, dy: -22 },
+          { key: "right", text: "(44,0)", color: HANDLE_COLORS.right, dx: 24, dy: 0 },
+          { key: "bottom", text: "(44,44)", color: HANDLE_COLORS.bottom, dx: 0, dy: 22 },
+          { key: "left", text: "(0,44)", color: HANDLE_COLORS.left, dx: -24, dy: 0 },
+        ];
+
+        ctx.font = "600 11px ui-monospace, Consolas, monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (const def of cornerDefs) {
+          const sp = worldToScreen(c[def.key].x, c[def.key].y);
+          const lx = sp.x + def.dx;
+          const ly = sp.y + def.dy;
+          const tw = ctx.measureText(def.text).width + 10;
+          ctx.fillStyle = "rgba(9, 12, 18, 0.85)";
+          ctx.strokeStyle = def.color;
+          ctx.lineWidth = 1;
+          roundRect(ctx, lx - tw / 2, ly - 10, tw, 20, 4);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#f8fafc";
+          ctx.fillText(def.text, lx, ly + 0.5);
+        }
+
+        // 5. Center Diamond Move Handle (22,22)
+        const centerWorld = getCenterPoint(c);
+        const sCenter = worldToScreen(centerWorld.x, centerWorld.y);
+        drawHandle(sCenter.x, sCenter.y, HANDLE_COLORS.all, "all", true);
+
+        // 6. Four corner draggable handles
+        for (const key of ["top", "right", "bottom", "left"]) {
+          const sp = worldToScreen(c[key].x, c[key].y);
+          drawHandle(sp.x, sp.y, HANDLE_COLORS[key], key, false);
+        }
+
+        ctx.restore();
+      }
+
+      function drawSampleWallOverlay(c) {
+        const sampleCells = [
+          { col: 0, row: 0 },
+          { col: 43, row: 0 },
+          { col: 0, row: 43 },
+          { col: 43, row: 43 },
+          { col: 21, row: 21 },
+          { col: 22, row: 21 },
+          { col: 21, row: 22 },
+          { col: 22, row: 22 },
+        ];
+
+        // Sort back-to-front by isometric depth
+        sampleCells.sort((a, b) => (a.col + a.row) - (b.col + b.row) || a.row - b.row);
+
+        // Highlight occupied tile diamonds
+        for (const cell of sampleCells) {
+          const w0 = mapGridToScenery(cell.col, cell.row, c);
+          const w1 = mapGridToScenery(cell.col + 1, cell.row, c);
+          const w2 = mapGridToScenery(cell.col + 1, cell.row + 1, c);
+          const w3 = mapGridToScenery(cell.col, cell.row + 1, c);
+          const p0 = worldToScreen(w0.x, w0.y);
+          const p1 = worldToScreen(w1.x, w1.y);
+          const p2 = worldToScreen(w2.x, w2.y);
+          const p3 = worldToScreen(w3.x, w3.y);
+
+          ctx.fillStyle = "rgba(245, 158, 11, 0.30)";
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.90)";
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.lineTo(p3.x, p3.y);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        if (!state.wallImgLoaded || !state.wallImg) return;
+
+        // Match WallArtView.tsx scaling on screen space
+        const pL = mapGridToScenery(0, 1, c);
+        const pR = mapGridToScenery(1, 0, c);
+        const worldCellW = Math.hypot(pR.x - pL.x, pR.y - pL.y);
+        const screenCellW = worldCellW * state.zoom;
+        const pillarW = screenCellW * 0.92;
+        const pillarH = Math.min(
+          screenCellW * 1.38,
+          pillarW * (state.wallImg.naturalHeight / state.wallImg.naturalWidth)
+        );
+
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        for (const cell of sampleCells) {
+          const centerW = mapGridToScenery(cell.col + 0.5, cell.row + 0.5, c);
+          const centerS = worldToScreen(centerW.x, centerW.y);
+          ctx.drawImage(
+            state.wallImg,
+            centerS.x - pillarW / 2,
+            centerS.y - pillarH * 0.80,
+            pillarW,
+            pillarH
+          );
+        }
+        ctx.restore();
+      }
+
+      function drawHandle(sx, sy, color, key, isDiamond) {
+        const isActive = state.activeHandle === key;
+        const isHover = state.hoverHandle === key || state.dragMode === key;
+        const radius = isHover ? 11 : 9.5;
+
+        ctx.save();
+        if (isActive || isHover) {
+          ctx.beginPath();
+          ctx.arc(sx, sy, radius + 5, 0, Math.PI * 2);
+          ctx.strokeStyle = isActive ? "#ffffff" : "rgba(255,255,255,0.55)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        ctx.shadowColor = "rgba(0, 0, 0, 0.65)";
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = color;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        if (isDiamond) {
+          ctx.moveTo(sx, sy - radius);
+          ctx.lineTo(sx + radius, sy);
+          ctx.lineTo(sx, sy + radius);
+          ctx.lineTo(sx - radius, sy);
+          ctx.closePath();
+        } else {
+          ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        ctx.stroke();
+
+        // Center precision dot
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#090c12";
+        ctx.beginPath();
+        ctx.arc(sx, sy, 2.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function roundRect(c2d, x, y, w, h, r) {
+        c2d.beginPath();
+        c2d.moveTo(x + r, y);
+        c2d.lineTo(x + w - r, y);
+        c2d.quadraticCurveTo(x + w, y, x + w, y + r);
+        c2d.lineTo(x + w, y + h - r);
+        c2d.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        c2d.lineTo(x + r, y + h);
+        c2d.quadraticCurveTo(x, y + h, x, y + h - r);
+        c2d.lineTo(x, y + r);
+        c2d.quadraticCurveTo(x, y, x + r, y);
+        c2d.closePath();
+      }
+
+      function hitTestHandle(sx, sy) {
+        if (!state.buildArea) return null;
+        const threshold = 15;
+        for (const key of ["top", "right", "bottom", "left"]) {
+          const sp = worldToScreen(state.buildArea[key].x, state.buildArea[key].y);
+          if (Math.hypot(sx - sp.x, sy - sp.y) <= threshold) {
+            return key;
+          }
+        }
+        const cw = getCenterPoint(state.buildArea);
+        const sc = worldToScreen(cw.x, cw.y);
+        if (Math.hypot(sx - sc.x, sy - sc.y) <= threshold) {
+          return "all";
+        }
+        return null;
+      }
+
+      function updateCursorUI() {
+        if (state.dragMode === "pan" || state.toolMode === "pan" || state.spaceHeld) {
+          el.canvas.style.cursor = state.dragMode === "pan" ? "grabbing" : "grab";
+          return;
+        }
+        if (state.dragMode) {
+          el.canvas.style.cursor = "move";
+          return;
+        }
+        el.canvas.style.cursor = state.hoverHandle ? "move" : "crosshair";
+      }
+
+      function updateHud(sx, sy) {
+        if (!state.buildArea) return;
+        const w = screenToWorld(sx, sy);
+        const g = mapSceneryToGrid(w.x, w.y, state.buildArea);
+        el.hudPixel.textContent = `${w.x.toFixed(1)}, ${w.y.toFixed(1)}`;
+        el.hudGrid.textContent = `(${g.col.toFixed(1)}, ${g.row.toFixed(1)})`;
+      }
+
+      function nudgeActiveHandle(dx, dy) {
+        if (!state.buildArea) return;
+        const h = state.activeHandle;
+        if (h === "all") {
+          for (const k of ["top", "right", "bottom", "left"]) {
+            state.buildArea[k].x = round1(state.buildArea[k].x + dx);
+            state.buildArea[k].y = round1(state.buildArea[k].y + dy);
+          }
+        } else if (h === "bottom") {
+          state.buildArea.bottom.x = round1(state.buildArea.bottom.x + dx);
+          state.buildArea.bottom.y = round1(state.buildArea.bottom.y + dy);
+          if (state.parallelogramLock) {
+            state.parallelogramLock = false;
+            showToast("Alt köşe hareketi ile Paralelkenar Kilidi açıldı.", "warn");
+          }
+        } else {
+          state.buildArea[h].x = round1(state.buildArea[h].x + dx);
+          state.buildArea[h].y = round1(state.buildArea[h].y + dy);
+          enforceParallelogramIfLocked();
+        }
+        syncInspectorUI();
+        drawCanvas();
+      }
+
+      function fixIsometricRatio() {
+        if (!state.buildArea) return;
+        const c = state.buildArea;
+        const center = getCenterPoint(c);
+        let bw = Math.abs(c.right.x - c.left.x);
+        if (bw < 20) bw = Math.max(44, Math.abs(c.bottom.y - c.top.y) * (4 / 3));
+        const bh = bw * 0.75; // Exact 4:3 diamond aspect ratio
+
+        state.buildArea = {
+          top: { x: round1(center.x), y: round1(center.y - bh / 2) },
+          right: { x: round1(center.x + bw / 2), y: round1(center.y) },
+          bottom: { x: round1(center.x), y: round1(center.y + bh / 2) },
+          left: { x: round1(center.x - bw / 2), y: round1(center.y) },
+        };
+        enforceParallelogramIfLocked();
+        syncInspectorUI();
+        drawCanvas();
+        showToast("Merkez korunarak tam 4:3 (1.333) izometrik orana hizalandı.", "info");
+      }
+
+      function resetToLoaded() {
+        if (!state.loadedSnapshot) return;
+        state.buildArea = cloneArea(state.loadedSnapshot.buildArea);
+        state.verified = state.loadedSnapshot.verified;
+        const c = state.buildArea;
+        const skew = Math.hypot(
+          c.bottom.x - (c.right.x + c.left.x - c.top.x),
+          c.bottom.y - (c.right.y + c.left.y - c.top.y)
+        );
+        if (skew <= 0.5) state.parallelogramLock = true;
+        syncInspectorUI();
+        drawCanvas();
+        showToast("Değişiklikler son kayıtlı değerlere sıfırlandı.", "info");
+      }
+
+      async function saveCurrentScenery() {
+        if (state.saving) return;
+        const sc = getSelectedScenery();
+        if (!sc || !state.buildArea) return;
+
+        state.saving = true;
+        el.saveBtn.disabled = true;
+        const prevText = el.saveBtn.textContent;
+        el.saveBtn.textContent = "Kaydediliyor...";
+
+        try {
+          const payload = {
+            buildArea: {
+              top: { x: round1(state.buildArea.top.x), y: round1(state.buildArea.top.y) },
+              right: { x: round1(state.buildArea.right.x), y: round1(state.buildArea.right.y) },
+              bottom: { x: round1(state.buildArea.bottom.x), y: round1(state.buildArea.bottom.y) },
+              left: { x: round1(state.buildArea.left.x), y: round1(state.buildArea.left.y) },
+            },
+            status: "Elle düzeltildi",
+            verified: Boolean(state.verified),
+          };
+
+          const resp = await fetch(`/api/sceneries/${encodeURIComponent(sc.id)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+          if (!resp.ok || !data.ok) {
+            throw new Error(data.error || `HTTP ${resp.status}`);
+          }
+
+          // Update in-memory catalog entry
+          sc.buildArea = cloneArea(data.buildArea);
+          sc.status = data.status;
+          sc.method = data.method;
+          sc.verified = data.verified;
+
+          state.buildArea = cloneArea(data.buildArea);
+          state.verified = data.verified !== false;
+          state.loadedSnapshot = {
+            buildArea: cloneArea(data.buildArea),
+            verified: state.verified,
+          };
+
+          el.activeStatusBadge.textContent = sc.status;
+          el.activeStatusBadge.className = `badge ${statusBadgeClass(sc.status)}`;
+          el.activeMethodChip.textContent = `method: ${sc.method}`;
+
+          renderSidebarList();
+          syncInspectorUI();
+          drawCanvas();
+          showToast(`"${sc.name}" başarıyla assetsConfig.ts dosyasına kaydedildi.`, "ok");
+        } catch (err) {
+          showToast(`Kayıt hatası: ${err.message}`, "err");
+        } finally {
+          state.saving = false;
+          el.saveBtn.disabled = false;
+          el.saveBtn.textContent = prevText;
+        }
+      }
+
+      function bindEvents() {
+        // Search & filter
+        el.searchInput.addEventListener("input", () => {
+          state.search = el.searchInput.value;
+          el.searchClearBtn.classList.toggle("visible", Boolean(state.search));
+          renderSidebarList();
+        });
+        el.searchClearBtn.addEventListener("click", () => {
+          state.search = "";
+          el.searchInput.value = "";
+          el.searchClearBtn.classList.remove("visible");
+          renderSidebarList();
+          el.searchInput.focus();
+        });
+
+        for (const btn of el.filterPills.querySelectorAll(".pill-btn")) {
+          btn.addEventListener("click", () => {
+            state.statusFilter = btn.dataset.status;
+            for (const b of el.filterPills.querySelectorAll(".pill-btn")) {
+              b.classList.toggle("active", b === btn);
+            }
+            renderSidebarList();
+          });
+        }
+
+        el.prevBtn.addEventListener("click", () => {
+          const idx = state.filtered.findIndex((s) => s.id === state.selectedId);
+          if (idx > 0) selectScenery(state.filtered[idx - 1].id);
+        });
+        el.nextBtn.addEventListener("click", () => {
+          const idx = state.filtered.findIndex((s) => s.id === state.selectedId);
+          if (idx >= 0 && idx < state.filtered.length - 1) {
+            selectScenery(state.filtered[idx + 1].id);
+          }
+        });
+
+        // Mode & Zoom buttons
+        el.modeEditBtn.addEventListener("click", () => {
+          state.toolMode = "edit";
+          el.modeEditBtn.classList.add("active");
+          el.modePanBtn.classList.remove("active");
+          updateCursorUI();
+        });
+        el.modePanBtn.addEventListener("click", () => {
+          state.toolMode = "pan";
+          el.modePanBtn.classList.add("active");
+          el.modeEditBtn.classList.remove("active");
+          updateCursorUI();
+        });
+
+        el.zoomInBtn.addEventListener("click", () => {
+          const rect = el.canvasWrap.getBoundingClientRect();
+          setZoomAroundPoint(state.zoom * 1.25, rect.width / 2, rect.height / 2);
+        });
+        el.zoomOutBtn.addEventListener("click", () => {
+          const rect = el.canvasWrap.getBoundingClientRect();
+          setZoomAroundPoint(state.zoom / 1.25, rect.width / 2, rect.height / 2);
+        });
+        el.zoomFitBtn.addEventListener("click", fitToViewport);
+        el.zoom100Btn.addEventListener("click", () => {
+          const rect = el.canvasWrap.getBoundingClientRect();
+          setZoomAroundPoint(1.0, rect.width / 2, rect.height / 2);
+        });
+
+        function toggleWallOverlay() {
+          state.showWallOverlay = !state.showWallOverlay;
+          el.wallOverlayBtn.classList.toggle("active", state.showWallOverlay);
+          el.wallOverlayToggle.checked = state.showWallOverlay;
+          if (state.showWallOverlay) ensureWallImage();
+          drawCanvas();
+        }
+        el.wallOverlayBtn.addEventListener("click", toggleWallOverlay);
+        el.wallOverlayToggle.addEventListener("change", () => {
+          state.showWallOverlay = el.wallOverlayToggle.checked;
+          el.wallOverlayBtn.classList.toggle("active", state.showWallOverlay);
+          if (state.showWallOverlay) ensureWallImage();
+          drawCanvas();
+        });
+
+        // Canvas pointer interactions
+        el.canvas.addEventListener("wheel", (e) => {
+          e.preventDefault();
+          const rect = el.canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+          const factor = e.deltaY < 0 ? 1.15 : 1 / 1.15;
+          setZoomAroundPoint(state.zoom * factor, sx, sy);
+        }, { passive: false });
+
+        el.canvas.addEventListener("mousedown", (e) => {
+          if (!state.buildArea) return;
+          const rect = el.canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+
+          if (e.button === 1 || (e.button === 0 && (state.toolMode === "pan" || state.spaceHeld))) {
+            e.preventDefault();
+            state.dragMode = "pan";
+            state.dragStartScreen = { x: sx, y: sy };
+            state.dragStartOffset = { x: state.offsetX, y: state.offsetY };
+            updateCursorUI();
+            return;
+          }
+
+          if (e.button === 0) {
+            const hit = hitTestHandle(sx, sy);
+            if (hit) {
+              state.dragMode = hit;
+              state.dragStartScreen = { x: sx, y: sy };
+              state.dragStartArea = cloneArea(state.buildArea);
+              setActiveHandle(hit);
+              updateCursorUI();
+            }
+          }
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          const rect = el.canvas.getBoundingClientRect();
+          const sx = e.clientX - rect.left;
+          const sy = e.clientY - rect.top;
+
+          if (state.dragMode === "pan") {
+            state.offsetX = state.dragStartOffset.x + (sx - state.dragStartScreen.x);
+            state.offsetY = state.dragStartOffset.y + (sy - state.dragStartScreen.y);
+            drawCanvas();
+            return;
+          }
+
+          if (state.dragMode && state.dragStartArea) {
+            const dxWorld = (sx - state.dragStartScreen.x) / state.zoom;
+            const dyWorld = (sy - state.dragStartScreen.y) / state.zoom;
+            const base = state.dragStartArea;
+
+            if (state.dragMode === "all") {
+              for (const k of ["top", "right", "bottom", "left"]) {
+                state.buildArea[k].x = round1(base[k].x + dxWorld);
+                state.buildArea[k].y = round1(base[k].y + dyWorld);
+              }
+            } else if (state.dragMode === "bottom") {
+              state.buildArea.bottom.x = round1(base.bottom.x + dxWorld);
+              state.buildArea.bottom.y = round1(base.bottom.y + dyWorld);
+              if (state.parallelogramLock) {
+                state.parallelogramLock = false;
+                showToast("Alt köşe serbest bırakıldı (Paralelkenar Kilidi kapatıldı).", "warn");
+              }
+            } else {
+              const h = state.dragMode;
+              state.buildArea[h].x = round1(base[h].x + dxWorld);
+              state.buildArea[h].y = round1(base[h].y + dyWorld);
+              enforceParallelogramIfLocked();
+            }
+
+            syncInspectorUI();
+            drawCanvas();
+            updateHud(sx, sy);
+            return;
+          }
+
+          if (sx >= 0 && sy >= 0 && sx <= rect.width && sy <= rect.height) {
+            const hit = hitTestHandle(sx, sy);
+            if (hit !== state.hoverHandle) {
+              state.hoverHandle = hit;
+              updateCursorUI();
+              drawCanvas();
+            }
+            updateHud(sx, sy);
+          }
+        });
+
+        window.addEventListener("mouseup", () => {
+          if (state.dragMode) {
+            state.dragMode = null;
+            state.dragStartArea = null;
+            updateCursorUI();
+          }
+        });
+
+        // Inspector controls
+        el.parallelogramLock.addEventListener("change", () => {
+          state.parallelogramLock = el.parallelogramLock.checked;
+          if (state.parallelogramLock) {
+            enforceParallelogramIfLocked();
+            syncInspectorUI();
+            drawCanvas();
+          }
+        });
+
+        el.snapParaBtn.addEventListener("click", () => {
+          state.parallelogramLock = true;
+          enforceParallelogramIfLocked();
+          syncInspectorUI();
+          drawCanvas();
+        });
+
+        el.fixIsoBtn.addEventListener("click", fixIsometricRatio);
+        el.resetBtn.addEventListener("click", resetToLoaded);
+
+        for (const pill of el.handlePills.querySelectorAll(".handle-pill")) {
+          pill.addEventListener("click", () => setActiveHandle(pill.dataset.handle));
+        }
+
+        for (const tag of el.coordTags) {
+          tag.addEventListener("click", () => setActiveHandle(tag.dataset.selectHandle));
+        }
+
+        for (const inp of el.coordInputs) {
+          inp.addEventListener("focus", () => {
+            setActiveHandle(inp.dataset.corner);
+          });
+          inp.addEventListener("input", () => {
+            if (!state.buildArea) return;
+            const val = parseFloat(inp.value);
+            if (!Number.isFinite(val)) return;
+            const corner = inp.dataset.corner;
+            const axis = inp.dataset.axis;
+            state.buildArea[corner][axis] = round1(val);
+            if (corner === "bottom") {
+              if (state.parallelogramLock) {
+                state.parallelogramLock = false;
+                showToast("Alt köşe düzenlendi (Paralelkenar Kilidi kapatıldı).", "warn");
+              }
+            } else {
+              enforceParallelogramIfLocked();
+            }
+            syncInspectorUI();
+            drawCanvas();
+          });
+          inp.addEventListener("blur", () => {
+            syncInspectorUI();
+          });
+        }
+
+        el.gridOpacityRange.addEventListener("input", () => {
+          const pct = Number(el.gridOpacityRange.value);
+          state.gridOpacity = pct / 100;
+          el.opacityLabel.textContent = `${pct}%`;
+          drawCanvas();
+        });
+
+        el.thickLinesToggle.addEventListener("change", () => {
+          state.thickLines = el.thickLinesToggle.checked;
+          drawCanvas();
+        });
+
+        el.verifiedCheckbox.addEventListener("change", () => {
+          state.verified = el.verifiedCheckbox.checked;
+          updateDirtyState();
+        });
+
+        el.saveBtn.addEventListener("click", saveCurrentScenery);
+
+        // Keyboard shortcuts
+        window.addEventListener("keydown", (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+            e.preventDefault();
+            saveCurrentScenery();
+            return;
+          }
+
+          const tag = document.activeElement ? document.activeElement.tagName : "";
+          const isEditingInput = tag === "INPUT" || tag === "TEXTAREA";
+
+          if (e.code === "Space" && !isEditingInput) {
+            e.preventDefault();
+            if (!state.spaceHeld) {
+              state.spaceHeld = true;
+              updateCursorUI();
+            }
+            return;
+          }
+
+          if (isEditingInput) return;
+
+          if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            e.preventDefault();
+            const step = e.shiftKey ? 10.0 : e.altKey ? 0.2 : 1.0;
+            let dx = 0;
+            let dy = 0;
+            if (e.key === "ArrowLeft") dx = -step;
+            if (e.key === "ArrowRight") dx = step;
+            if (e.key === "ArrowUp") dy = -step;
+            if (e.key === "ArrowDown") dy = step;
+            nudgeActiveHandle(dx, dy);
+          }
+        });
+
+        window.addEventListener("keyup", (e) => {
+          if (e.code === "Space" && state.spaceHeld) {
+            state.spaceHeld = false;
+            updateCursorUI();
+          }
+        });
+
+        window.addEventListener("beforeunload", (e) => {
+          if (state.isDirty) {
+            e.preventDefault();
+            e.returnValue = "";
+          }
+        });
+
+        const ro = new ResizeObserver(resizeCanvas);
+        ro.observe(el.canvasWrap);
+      }
+
+      async function bootstrap() {
+        bindEvents();
+        resizeCanvas();
+        try {
+          const resp = await fetch("/api/sceneries");
+          const data = await resp.json();
+          if (!resp.ok || !data.ok || !Array.isArray(data.sceneries)) {
+            throw new Error(data.error || "API geçersiz yanıt döndürdü");
+          }
+          state.sceneries = data.sceneries;
+          const initialId = data.defaultSceneryId || (state.sceneries[0] && state.sceneries[0].id);
+          renderSidebarList();
+          if (initialId) {
+            selectScenery(initialId, true);
+          }
+        } catch (err) {
+          showToast(`Sahneler yüklenemedi: ${err.message}`, "err");
+          el.activeName.textContent = "Yükleme Hatası";
+        }
+      }
+
+      bootstrap();
+    })();
+  </script>
+</body>
+</html>

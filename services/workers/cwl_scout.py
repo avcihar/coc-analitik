@@ -395,17 +395,14 @@ def _build_opponent_scout_entry(
     """
     player_tag = _format_tag(str(raw_player.get("tag") or war_member.get("tag", "")))
     player_name = str(raw_player.get("name") or war_member.get("name", "Unknown"))
-    th_level = min(
-        max(
-            1,
-            int(
-                raw_player.get(
-                    "townHallLevel",
-                    war_member.get("townhallLevel", war_member.get("townHallLevel", 18)),
-                )
-            ),
+    th_level = max(
+        1,
+        int(
+            raw_player.get(
+                "townHallLevel",
+                war_member.get("townhallLevel", war_member.get("townHallLevel", 19)),
+            )
         ),
-        MAX_TOWN_HALL_LEVEL,
     )
     map_position = int(war_member.get("mapPosition", 0))
     trophies = int(raw_player.get("trophies", 0))

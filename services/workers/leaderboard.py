@@ -274,9 +274,9 @@ def _extract_valid_battlelog_records(
     for raw_player in profiles:
         if not isinstance(raw_player, dict):
             continue
-        player_th = min(
-            max(1, int(raw_player.get("townHallLevel", raw_player.get("townhallLevel", 18)))),
-            MAX_TOWN_HALL_LEVEL,
+        player_th = max(
+            1,
+            int(raw_player.get("townHallLevel", raw_player.get("townhallLevel", 19))),
         )
 
         if town_hall is not None and player_th != town_hall:
@@ -296,9 +296,9 @@ def _extract_valid_battlelog_records(
             if entry.get("attack") is not True:
                 continue
 
-            # STRICT RULE: Ranked / Legend / Home Village multiplayer battles only
-            battle_type = str(entry.get("battleType") or "ranked").lower()
-            if battle_type not in ("ranked", "legend", "homevillage"):
+            # STRICT RULE: Ranked / Legend attacks only (never include unranked homeVillage farming or missing type)
+            battle_type = str(entry.get("battleType") or "").strip().lower()
+            if battle_type not in ("ranked", "legend"):
                 continue
 
             code = str(entry.get("armyShareCode") or "").strip()
@@ -362,19 +362,16 @@ def analyze_meta_statistics(
     filtered_profiles = (
         [
             p for p in profiles
-            if min(max(1, int(p.get("townHallLevel", p.get("townhallLevel", 18)))), MAX_TOWN_HALL_LEVEL) == town_hall
+            if max(1, int(p.get("townHallLevel", p.get("townhallLevel", 19)))) == town_hall
         ]
-        if town_hall in (16, 17, 18)
+        if town_hall in (16, 17, 18, 19)
         else list(profiles)
     )
     filtered_players_count = len(filtered_profiles)
 
     th_counter: Counter[int] = Counter()
     for raw_player in profiles:
-        th = min(
-            max(1, int(raw_player.get("townHallLevel", raw_player.get("townhallLevel", 18)))),
-            MAX_TOWN_HALL_LEVEL,
-        )
+        th = max(1, int(raw_player.get("townHallLevel", raw_player.get("townhallLevel", 19))))
         th_counter[th] += 1
 
     OFFICIAL_SUPER_TROOP_NAMES: set[str] = {
@@ -730,6 +727,19 @@ def analyze_meta_statistics(
     canonical_troops = {
         meta.name for meta in TROOP_REGISTRY.values()
         if meta.category != UnitCategory.SUPER_TROOP and meta.category != UnitCategory.BUILDER_TROOP
+    } | {
+        "Barch Squad",
+        "Giant Wizard Squad",
+        "Wall Breaker Squad",
+        "Minion Squad",
+        "Balloon Squad",
+        "Golem Witch Squad",
+        "Hog Rider Squad",
+        "Miner Squad",
+        "Healer Squad",
+        "P.E.K.K.A Titan Squad",
+        "Dragons Squad",
+        "Baby Dragon Squad",
     }
     troop_usage = []
     seen_troops: set[str] = set()
@@ -780,7 +790,10 @@ def analyze_meta_statistics(
             if spell_level_sums.get(s_name)
             else 1.0,
         })
-    canonical_spells = {meta.name for meta in SPELL_REGISTRY.values()}
+    canonical_spells = {meta.name for meta in SPELL_REGISTRY.values()} | {
+        "Angry Spell",
+        "Heroic Spell",
+    }
     for s_name in sorted(canonical_spells):
         if s_name not in seen_spells:
             spell_usage.append({
@@ -991,7 +1004,8 @@ def recommend_meta_armies(
     strictly from those real records.
     """
     battle_records = _extract_valid_battlelog_records(profiles or [], town_hall=None)
-    target_ths = [town_hall] if town_hall in (16, 17, 18) else [16, 17, 18]
+    supported_ths = (16, 17, 18, 19)
+    target_ths = [town_hall] if town_hall in supported_ths else list(supported_ths)
 
     if not battle_records:
         empty_by_th = {f"TH{th}": [] for th in target_ths}
@@ -999,7 +1013,7 @@ def recommend_meta_armies(
             "hasSufficientData": False,
             "message": "Yeterli veri yok",
             "totalBattlesAnalyzed": 0,
-            "supportedTownHalls": [16, 17, 18],
+            "supportedTownHalls": list(supported_ths),
             "recommendationsByTownHall": empty_by_th,
             "topRecommendations": [],
         }
@@ -1010,6 +1024,7 @@ def recommend_meta_armies(
         16: defaultdict(list),
         17: defaultdict(list),
         18: defaultdict(list),
+        19: defaultdict(list),
     }
     by_th_totals: Counter[int] = Counter()
 
@@ -1081,7 +1096,7 @@ def recommend_meta_armies(
 
     top_recs = (
         recommendations_by_th.get(f"TH{town_hall}", []) or global_recommendations
-        if town_hall in (16, 17, 18)
+        if town_hall in supported_ths
         else global_recommendations
     )
 
@@ -1089,7 +1104,7 @@ def recommend_meta_armies(
         "hasSufficientData": len(top_recs) > 0,
         "message": None if len(top_recs) > 0 else "Yeterli veri yok",
         "totalBattlesAnalyzed": total_global_battles,
-        "supportedTownHalls": [16, 17, 18],
+        "supportedTownHalls": list(supported_ths),
         "recommendationsByTownHall": recommendations_by_th,
         "topRecommendations": top_recs,
     }
@@ -1182,7 +1197,7 @@ class MetaBackgroundJob:
 
             if redis_client is not None:
                 cache_key = CacheKey.leaderboard_global(
-                    f"meta_v3_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
+                    f"meta_v4_ranked_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
                 )
                 try:
                     await redis_client.set(
@@ -1211,13 +1226,16 @@ class MetaBackgroundJob:
             if redis_client is not None:
                 keys_to_update = [
                     CacheKey.leaderboard_global(
-                        f"meta_v3_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
+                        f"meta_v4_ranked_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
                     ),
                     CacheKey.leaderboard_global(
-                        f"meta_top_analysis_{self.location_id}_top_{self.target_n}_th_{self.town_hall or 'all'}"
+                        f"meta_v4_ranked_top_{self.location_id}_n_{self.target_n}_th_{self.town_hall or 'all'}"
                     ),
                     CacheKey.leaderboard_global(
-                        f"meta_dashboard_top_{self.target_n}_th_{self.town_hall or 'all'}"
+                        f"meta_v4_ranked_global_n_{self.target_n}_th_{self.town_hall or 'all'}"
+                    ),
+                    CacheKey.leaderboard_global(
+                        f"meta_v4_ranked_dash_top_{self.target_n}_th_{self.town_hall or 'all'}"
                     ),
                 ]
                 payload_str = json.dumps(self.current_dashboard)
@@ -1282,7 +1300,7 @@ async def generate_meta_dashboard(
     *,
     top_n: int = 200,
     sample_size: Optional[int] = None,
-    town_hall: Optional[int] = 18,
+    town_hall: Optional[int] = None,
     location_id: str = "global",
     force_refresh: bool = False,
     rate_limit_per_sec: int = MAX_REQUESTS_PER_SECOND,
@@ -1290,12 +1308,12 @@ async def generate_meta_dashboard(
     """
     Fetch global leaderboard players (top 200), scan profiles &
     battlelogs with rate limiting and exponential backoff, compute real usage
-    percentages strictly for TH18, and cluster battlelog `armyShareCode` records
-    to produce Meta Army Recommendations.
+    percentages strictly from ranked/legend attack logs, and cluster `armyShareCode`
+    records to produce Meta Army Recommendations.
     """
     effective_n = sample_size if sample_size is not None else top_n
     cache_key = CacheKey.leaderboard_global(
-        f"meta_v3_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
+        f"meta_v4_ranked_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
     )
 
     if redis_client is not None and not force_refresh:
@@ -1374,10 +1392,13 @@ async def generate_meta_dashboard(
             keys_to_update = [
                 cache_key,
                 CacheKey.leaderboard_global(
-                    f"meta_top_analysis_{location_id}_top_{effective_n}_th_{town_hall or 'all'}"
+                    f"meta_v4_ranked_top_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
                 ),
                 CacheKey.leaderboard_global(
-                    f"meta_dashboard_top_{effective_n}_th_{town_hall or 'all'}"
+                    f"meta_v4_ranked_global_n_{effective_n}_th_{town_hall or 'all'}"
+                ),
+                CacheKey.leaderboard_global(
+                    f"meta_v4_ranked_dash_top_{effective_n}_th_{town_hall or 'all'}"
                 ),
             ]
             payload_str = json.dumps(dashboard)

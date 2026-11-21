@@ -76,16 +76,64 @@ def _infer_equipment_rarity(item: Dict[str, Any]) -> str:
     return Rarity.EPIC.value if max_lvl > 18 else Rarity.COMMON.value
 
 
+def _is_valid_group(group_tag: Any, season_id: Any) -> bool:
+    """Validate that a league group tag and season ID represent an assigned group."""
+    return bool(
+        group_tag
+        and str(group_tag).strip() not in ("", "#0", "0")
+        and season_id not in (None, "", 0)
+        and str(season_id).strip() not in ("", "0")
+    )
+
+
+def _enrich_league_group_members(
+    raw_members: List[Dict[str, Any]],
+    cleaned_player_tag: str,
+) -> List[Dict[str, Any]]:
+    """Sort league group members by leagueTrophies descending and add rank and combat rate fields."""
+    sorted_raw = sorted(
+        raw_members,
+        key=lambda m: int(m.get("leagueTrophies") or 0),
+        reverse=True,
+    )
+    enriched: List[Dict[str, Any]] = []
+    for idx, m in enumerate(sorted_raw, start=1):
+        league_trophies = int(m.get("leagueTrophies") or 0)
+        attack_wins = int(m.get("attackWinCount") or 0)
+        attack_losses = int(m.get("attackLoseCount") or 0)
+        defense_wins = int(m.get("defenseWinCount") or 0)
+        defense_losses = int(m.get("defenseLoseCount") or 0)
+        attack_total = attack_wins + attack_losses
+        defense_total = defense_wins + defense_losses
+
+        enriched.append({
+            **m,
+            "leagueTrophies": league_trophies,
+            "attackWinCount": attack_wins,
+            "attackLoseCount": attack_losses,
+            "defenseWinCount": defense_wins,
+            "defenseLoseCount": defense_losses,
+            "rank": idx,
+            "attackTotal": attack_total,
+            "attackWinRate": round(attack_wins / attack_total * 100, 1) if attack_total > 0 else 0.0,
+            "defenseTotal": defense_total,
+            "defenseWinRate": round(defense_wins / defense_total * 100, 1) if defense_total > 0 else 0.0,
+            "isCurrentPlayer": sanitize_tag(m.get("playerTag", "")) == cleaned_player_tag,
+        })
+    return enriched
+
+
 def enrich_player_payload(raw_player: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Enrich raw CoC API `/players/{playerTag}` payload with structured TH18-aware
+    Enrich raw CoC API `/players/{playerTag}` payload with structured TH19-aware
     sections for heroes, active equipment, unlocked equipment, pets, troops, and spells.
     """
-    th_level = min(int(raw_player.get("townHallLevel", 1)), MAX_TOWN_HALL_LEVEL)
-    th_hero_caps = HERO_MAX_LEVEL_BY_TH.get(th_level, {})
-    th_pet_cap = PET_MAX_LEVEL_BY_TH.get(th_level, 0)
+    th_level = max(1, int(raw_player.get("townHallLevel", 1)))
+    cap_lookup_th = min(th_level, MAX_TOWN_HALL_LEVEL)
+    th_hero_caps = HERO_MAX_LEVEL_BY_TH.get(cap_lookup_th, {})
+    th_pet_cap = PET_MAX_LEVEL_BY_TH.get(cap_lookup_th, 0)
     th_eq_caps = BLACKSMITH_MAX_LEVEL_BY_TH.get(
-        th_level, {Rarity.COMMON: 18, Rarity.EPIC: 27}
+        cap_lookup_th, {Rarity.COMMON: 18, Rarity.EPIC: 27}
     )
 
     # 1. All Unlocked Hero Equipment (also indexed by hero for fallback matching)
@@ -226,7 +274,7 @@ def enrich_player_payload(raw_player: Dict[str, Any]) -> Dict[str, Any]:
         "spells": spells,
         "thMetaLimits": {
             "townHall": th_level,
-            "maxTownHallSupported": MAX_TOWN_HALL_LEVEL,
+            "maxTownHallSupported": max(19, MAX_TOWN_HALL_LEVEL),
             "commonEquipmentMax": th_eq_caps.get(Rarity.COMMON, 18),
             "epicEquipmentMax": th_eq_caps.get(Rarity.EPIC, 27),
             "petMax": th_pet_cap,
@@ -286,18 +334,18 @@ async def lifespan(app: FastAPI):
     app.state.api_client = api_client
     app.state.redis_cache = redis_cache
 
-    # Background warmup for top TH18 meta on startup so initial user visit has pre-computed data
+    # Background warmup for top 200 ranked meta on startup so initial user visit has pre-computed data
     async def _warmup_meta():
         try:
-            logger.info("[Warmup] Starting initial background TH18 meta analysis...")
+            logger.info("[Warmup] Starting initial background ranked meta analysis...")
             await generate_meta_dashboard(
                 api_client=api_client,
                 redis_client=redis_client,
                 top_n=200,
                 sample_size=200,
-                town_hall=18,
+                town_hall=None,
             )
-            logger.info("[Warmup] Initial TH18 meta analysis ready.")
+            logger.info("[Warmup] Initial ranked meta analysis ready.")
         except Exception as err:
             logger.debug("[Warmup] Meta warmup error: %s", err)
 
@@ -472,6 +520,140 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
             lambda: api_client.get_player_leaguehistory(cleaned_tag),
             ttl=int(TTL.PLAYER_PROFILE),
         )
+
+    @application.get("/api/v1/players/{player_tag}/leaguegroup", tags=["Players"])
+    async def get_player_leaguegroup_route(
+        player_tag: str,
+        season: str = Query("current", pattern="^(current|previous)$"),
+        api_client: CoCAPIClient = Depends(get_api_client),
+        cache: CoCRedisCache = Depends(get_redis_cache),
+    ) -> Dict[str, Any]:
+        """
+        Fetch a player's 100-player ranked league group leaderboard
+        (`GET /leaguegroup/%23{groupTag}/{seasonId}?playerTag=%23{playerTag}`).
+        """
+        cleaned_tag = sanitize_tag(player_tag)
+        if not cleaned_tag:
+            raise HTTPException(status_code=400, detail="Player tag cannot be empty.")
+
+        player_cache_key = CacheKey.player_profile(cleaned_tag)
+
+        async def _fetch_player() -> Dict[str, Any]:
+            raw_data = await api_client.get_player(cleaned_tag)
+            return enrich_player_payload(raw_data)
+
+        raw_or_enriched = (
+            await cache.get_or_fetch(
+                player_cache_key,
+                _fetch_player,
+                ttl=int(TTL.PLAYER_PROFILE),
+            )
+            or {}
+        )
+
+        cur_group = raw_or_enriched.get("currentLeagueGroupTag")
+        cur_season = raw_or_enriched.get("currentLeagueSeasonId")
+        prev_group = raw_or_enriched.get("previousLeagueGroupTag")
+        prev_season = raw_or_enriched.get("previousLeagueSeasonId")
+
+        has_current = _is_valid_group(cur_group, cur_season)
+        has_previous = _is_valid_group(prev_group, prev_season)
+
+        if season == "previous" and has_previous:
+            target_group, target_season, is_previous = (
+                str(prev_group).strip(),
+                prev_season,
+                True,
+            )
+        elif has_current:
+            target_group, target_season, is_previous = (
+                str(cur_group).strip(),
+                cur_season,
+                False,
+            )
+        elif has_previous:
+            target_group, target_season, is_previous = (
+                str(prev_group).strip(),
+                prev_season,
+                True,
+            )
+        else:
+            return {
+                "available": False,
+                "reason": "no_league_group",
+                "playerTag": f"#{cleaned_tag}",
+                "hasCurrent": False,
+                "hasPrevious": False,
+                "leagueTier": raw_or_enriched.get("leagueTier"),
+                "members": [],
+                "attackLogs": [],
+                "defenseLogs": [],
+            }
+
+        async def _load_group(g_tag: str, g_season: Any, is_prev: bool) -> Dict[str, Any]:
+            cache_key = f"coc:player:leaguegroup:{cleaned_tag}:{g_tag}:{g_season}"
+            cached = await cache.get(cache_key)
+            if cached is not None:
+                return cached
+
+            raw_group = await api_client.get_league_group(g_tag, g_season, cleaned_tag)
+            raw_members = raw_group.get("members") or [] if isinstance(raw_group, dict) else []
+            enriched_members = _enrich_league_group_members(raw_members, cleaned_tag)
+            payload: Dict[str, Any] = {
+                "available": True,
+                "playerTag": f"#{cleaned_tag}",
+                "groupTag": g_tag,
+                "seasonId": g_season,
+                "isPreviousSeason": is_prev,
+                "hasCurrent": has_current,
+                "hasPrevious": has_previous,
+                "leagueTier": raw_or_enriched.get("leagueTier"),
+                "totalMembers": len(enriched_members),
+                "members": enriched_members,
+                "attackLogs": (raw_group.get("attackLogs") or []) if isinstance(raw_group, dict) else [],
+                "defenseLogs": (raw_group.get("defenseLogs") or []) if isinstance(raw_group, dict) else [],
+            }
+            await cache.set(cache_key, payload, ttl=120)
+            return payload
+
+        try:
+            return await _load_group(target_group, target_season, is_previous)
+        except (NotFoundError, CoCAPIException) as exc:
+            logger.warning(
+                "League group fetch failed for player #%s (group=%s, season=%s): %s",
+                cleaned_tag,
+                target_group,
+                target_season,
+                exc,
+            )
+            if not is_previous and season != "previous" and has_previous:
+                fallback_group = str(prev_group).strip()
+                try:
+                    return await _load_group(fallback_group, prev_season, True)
+                except (NotFoundError, CoCAPIException) as prev_exc:
+                    logger.warning(
+                        "Previous league group fallback failed for player #%s (group=%s, season=%s): %s",
+                        cleaned_tag,
+                        fallback_group,
+                        prev_season,
+                        prev_exc,
+                    )
+
+            reason = "league_group_not_found" if isinstance(exc, NotFoundError) else "league_group_unavailable"
+            return {
+                "available": False,
+                "reason": reason,
+                "playerTag": f"#{cleaned_tag}",
+                "groupTag": target_group,
+                "seasonId": target_season,
+                "isPreviousSeason": is_previous,
+                "hasCurrent": has_current,
+                "hasPrevious": has_previous,
+                "leagueTier": raw_or_enriched.get("leagueTier"),
+                "members": [],
+                "attackLogs": [],
+                "defenseLogs": [],
+            }
 
     @application.get("/api/v1/clans/search", tags=["Clans"])
     async def search_clans_by_name(
@@ -693,10 +875,10 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
             description="Optional alias for sample_size",
         ),
         town_hall: Optional[int] = Query(
-            18,
+            None,
             ge=16,
-            le=18,
-            description="Town Hall filter (defaults to 18) for recommended meta armies",
+            le=19,
+            description="Optional Town Hall filter (e.g. 18 or 19); defaults to all top players",
         ),
         location_id: str = Query(
             "global",
@@ -711,17 +893,15 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     ) -> Dict[str, Any]:
         """
         Fetch top 200 leaderboard players, scan `/players/%23{tag}` and `/players/%23{tag}/battlelog`
-        with concurrency limit 10 & rate-limit protection, compute `pick_rate %` for
-        Troops, Super Troops, Spells, Siege Machines, 6-Hero Equipment pairs (including
-        Dragon Duke and Minion Prince), and Pets strictly for TH18, and cluster/recommend
-        the top 5 Meta Armies with one-click CopyArmy links (`https://link.clashofclans.com/...`).
+        with concurrency limit 10 & rate-limit protection, strictly filtering to ranked/legend
+        attack logs, and return pick rates + top 5 Meta Army Recommendations.
         """
         effective_n = top_n if top_n is not None else sample_size
         cache_key = CacheKey.leaderboard_global(
-            f"meta_top_analysis_{location_id}_top_{effective_n}_th_{town_hall or 'all'}"
+            f"meta_v4_ranked_top_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
         )
         v3_key = CacheKey.leaderboard_global(
-            f"meta_v3_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
+            f"meta_v4_ranked_{location_id}_n_{effective_n}_th_{town_hall or 'all'}"
         )
         if not force_refresh:
             cached = await cache.get(cache_key)
@@ -779,7 +959,7 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         town_hall: Optional[int] = Query(
             18,
             ge=16,
-            le=18,
+            le=19,
             description="Town Hall filter (defaults to 18) for recommended meta armies",
         ),
         force_refresh: bool = Query(
@@ -790,17 +970,15 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
         cache: CoCRedisCache = Depends(get_redis_cache),
     ) -> Dict[str, Any]:
         """
-        Analyze the top 200 global leaderboard players strictly for TH18,
-        compute usage percentages for Hero Equipment pairs, Pets, Active Super Troops,
-        Siege Machines, and Troops/Spells, and return the top 5 Meta Army Recommendations
-        with valid in-game CopyArmy links.
+        Analyze the top 200 global leaderboard players using strictly ranked/legend
+        attack logs, compute usage percentages and top Meta Army Recommendations.
         """
         effective_n = sample_size if sample_size is not None else top_n
         cache_key = CacheKey.leaderboard_global(
-            f"meta_dashboard_top_{effective_n}_th_{town_hall or 'all'}"
+            f"meta_v4_ranked_dash_top_{effective_n}_th_{town_hall or 'all'}"
         )
         v3_key = CacheKey.leaderboard_global(
-            f"meta_v3_global_n_{effective_n}_th_{town_hall or 'all'}"
+            f"meta_v4_ranked_global_n_{effective_n}_th_{town_hall or 'all'}"
         )
         if not force_refresh:
             cached = await cache.get(cache_key)

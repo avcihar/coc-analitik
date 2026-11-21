@@ -145,6 +145,7 @@ const EQUIPMENT_BY_ID: Record<number, { name: string; rarity: "Common" | "Epic" 
   57: { name: "Flame Blower", rarity: "Common" },
   59: { name: "Electro Fangs", rarity: "Epic" },
   60: { name: "Revenge Deck", rarity: "Epic" },
+  61: { name: "Portal Pendant", rarity: "Epic" },
 };
 
 const TROOP_BY_ID: Record<
@@ -239,6 +240,19 @@ const TROOP_BY_ID: Record<
   185: { name: "Elephant Rider", housingSpace: 24 },
   188: { name: "Sky Wagon", housingSpace: 1, isSiege: true },
   190: { name: "Yeti Undertaker", housingSpace: 80 },
+  194: { name: "Totem Thrower", housingSpace: 28 },
+  195: { name: "Barch Squad", housingSpace: 15 },
+  196: { name: "Giant Wizard Squad", housingSpace: 25 },
+  197: { name: "Wall Breaker Squad", housingSpace: 8 },
+  198: { name: "Minion Squad", housingSpace: 12 },
+  199: { name: "Balloon Squad", housingSpace: 16 },
+  200: { name: "Golem Witch Squad", housingSpace: 55 },
+  201: { name: "Hog Rider Squad", housingSpace: 48 },
+  202: { name: "Miner Squad", housingSpace: 48 },
+  203: { name: "Healer Squad", housingSpace: 70 },
+  204: { name: "P.E.K.K.A Titan Squad", housingSpace: 57 },
+  205: { name: "Dragons Squad", housingSpace: 85 },
+  206: { name: "Baby Dragon Squad", housingSpace: 30 },
 };
 
 const SPELL_BY_ID: Record<number, { name: string; housingSpace: number }> = {
@@ -251,16 +265,20 @@ const SPELL_BY_ID: Record<number, { name: string; housingSpace: number }> = {
   9: { name: "Poison Spell", housingSpace: 1 },
   10: { name: "Earthquake Spell", housingSpace: 1 },
   11: { name: "Haste Spell", housingSpace: 1 },
+  16: { name: "Clone Spell", housingSpace: 3 },
   17: { name: "Skeleton Spell", housingSpace: 1 },
   28: { name: "Bat Spell", housingSpace: 1 },
   35: { name: "Invisibility Spell", housingSpace: 1 },
   53: { name: "Recall Spell", housingSpace: 2 },
   70: { name: "Overgrowth Spell", housingSpace: 2 },
+  73: { name: "Bag of Frostmites", housingSpace: 1 },
   88: { name: "Bag of Frostmites", housingSpace: 1 },
   94: { name: "Santa's Surprise", housingSpace: 1 },
   98: { name: "Revive Spell", housingSpace: 2 },
   109: { name: "Ice Block Spell", housingSpace: 1 },
   120: { name: "Totem Spell", housingSpace: 1 },
+  123: { name: "Angry Spell", housingSpace: 1 },
+  153: { name: "Heroic Spell", housingSpace: 2 },
 };
 
 export function deriveArmyName(

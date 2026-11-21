@@ -225,6 +225,20 @@ class CoCAPIClient:
         clean_tag = _encode_tag(player_tag)
         return await self.get(f"/players/{clean_tag}/leaguehistory")
 
+    async def get_league_group(
+        self,
+        league_group_tag: str,
+        league_season_id: str | int,
+        player_tag: str,
+    ) -> Any:
+        """GET /leaguegroup/%23{league_group_tag}/{league_season_id}?playerTag=%23{player_tag} — Fetch ranked league group leaderboard."""
+        clean_group_tag = _encode_tag(league_group_tag)
+        cleaned_player_tag = sanitize_tag(player_tag)
+        return await self.get(
+            f"/leaguegroup/{clean_group_tag}/{league_season_id}",
+            params={"playerTag": f"#{cleaned_player_tag}"},
+        )
+
     async def get_clan(self, clan_tag: str) -> Any:
         """GET /clans/%23{tag} — Fetch full clan details and member list by clan tag."""
         clean_tag = _encode_tag(clan_tag)

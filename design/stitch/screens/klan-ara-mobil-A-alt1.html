@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>CoC Analitik - Klan Ara</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-error": "#690005",
+            "surface-container-high": "#3e2313",
+            "secondary-container": "#d97707",
+            "outline": "#8b9480",
+            "primary": "#8ddb50",
+            "on-surface-variant": "#c1cab4",
+            "inverse-primary": "#356b00",
+            "on-primary": "#183800",
+            "tertiary-fixed-dim": "#f5bf29",
+            "surface-tint": "#8ddb50",
+            "tertiary": "#f5bf29",
+            "surface-container-low": "#2d1507",
+            "on-secondary-fixed-variant": "#6e3900",
+            "surface-container": "#32190a",
+            "surface": "#230d02",
+            "secondary-fixed-dim": "#ffb77d",
+            "secondary": "#ffb77d",
+            "surface-container-lowest": "#1d0800",
+            "primary-container": "#72bd36",
+            "on-primary-fixed": "#0c2000",
+            "on-tertiary-fixed": "#251a00",
+            "error": "#ffb4ab",
+            "surface-bright": "#4f3221",
+            "secondary-fixed": "#ffdcc3",
+            "inverse-on-surface": "#452a19",
+            "tertiary-fixed": "#ffdf9a",
+            "on-secondary-fixed": "#2f1500",
+            "on-primary-fixed-variant": "#265100",
+            "on-surface": "#ffdbc9",
+            "surface-dim": "#230d02",
+            "on-primary-container": "#214800",
+            "inverse-surface": "#ffdbc9",
+            "outline-variant": "#414939",
+            "on-tertiary-container": "#513c00",
+            "background": "#230d02",
+            "on-secondary": "#4d2600",
+            "on-secondary-container": "#432100",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "tertiary-container": "#d6a300",
+            "on-tertiary": "#3f2e00",
+            "on-background": "#ffdbc9",
+            "error-container": "#93000a",
+            "surface-variant": "#4a2e1d",
+            "primary-fixed-dim": "#8ddb50",
+            "on-error-container": "#ffdad6",
+            "primary-fixed": "#a8f86a",
+            "surface-container-highest": "#4a2e1d"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "sans-serif"],
+            "body": ["Plus Jakarta Sans", "sans-serif"],
+            "label": ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      min-height: max(884px, 100dvh);
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .game-wood-window {
+      background: linear-gradient(180deg, #5A3A28 0%, #4A2E1E 50%, #3B2214 100%);
+      border: 3.5px solid #28160C;
+      border-radius: 22px;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.16), 0 5px 0 #1E0F08;
+    }
+    .game-green-btn {
+      background: linear-gradient(180deg, #9CE04A 0%, #72BD36 50%, #519E23 100%);
+      border: 2px solid #142E06;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45), 0 2px 0 #122805;
+      color: #FFFFFF;
+      text-shadow: 0 1px 2px rgba(20, 46, 6, 0.85);
+    }
+    .game-green-btn:active {
+      transform: translateY(1px);
+    }
+    .game-brown-btn {
+      background: linear-gradient(180deg, #5E4634 0%, #4E3828 50%, #3E2B1E 100%);
+      border: 2.5px solid #261810;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.15);
+      color: #FFDBC9;
+    }
+    .game-card-split {
+      background: linear-gradient(180deg, #74513C 0%, #634330 60%, #523423 100%);
+      border: 2px solid #28160C;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 3px 0 #1A0D07;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-surface-container-high border-b-2 border-outline-variant shadow-md max-w-[390px] left-1/2 -translate-x-1/2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="shield">shield</span>
+<span class="font-headline text-lg font-extrabold tracking-tight text-on-surface drop-shadow-sm">CoC Analitik</span>
+</div>
+<button aria-label="Arama" class="flex items-center justify-center w-10 h-10 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="search">search</span>
+</button>
+</header>
+<!-- Mobil Görünüm Çerçevesi (390px Max) -->
+<main class="w-full max-w-[390px] mx-auto pt-16 pb-24 px-3 flex flex-col gap-4 overflow-x-hidden">
+<!-- Ana Oyun Penceresi -->
+<div class="game-wood-window p-3 flex flex-col gap-3">
+<!-- Hiyerarşik Komuta Başlığı: Üst Sekme Başlığı -->
+<div class="flex items-center justify-between border-b-2 border-[#24140C] pb-2">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-[#2E1A0F] border border-[#523321] flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-secondary text-lg" data-icon="groups">groups</span>
+</div>
+<div>
+<h1 class="font-headline text-sm font-extrabold text-white tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] leading-tight">Oyuncu &amp; Klan Merkezi</h1>
+<p class="text-[10px] text-[#C1CAB4] font-medium leading-none">Canlı veri ve klan istatistikleri</p>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-[#2A160D] border border-[#4E2D1A] text-[10px] font-bold text-tertiary uppercase tracking-wider">v16.0</span>
+</div>
+<!-- Segment Kontrolü: Oyuncu Ara / Klan Ara (Klan Ara Vurgulu) -->
+<div class="grid grid-cols-2 p-1 bg-[#26140A] rounded-xl border-2 border-[#1A0D06] gap-1 shadow-inner">
+<button class="min-h-[44px] flex items-center justify-center gap-1.5 font-bold text-sm text-[#8C7565] rounded-lg transition-colors hover:text-[#C1CAB4] active:scale-95" type="button">
+<span class="material-symbols-outlined text-base" data-icon="person_search">person_search</span>
+<span>Oyuncu Ara</span>
+</button>
+<button class="min-h-[44px] flex items-center justify-center gap-1.5 font-extrabold text-sm text-white bg-gradient-to-b from-[#6E4733] to-[#553523] rounded-lg border border-[#8B624A] shadow-[0_2px_4px_rgba(0,0,0,0.4)]" type="button">
+<span class="material-symbols-outlined text-secondary text-base" data-icon="shield">shield</span>
+<span>Klan Ara</span>
+</button>
+</div>
+<!-- Entegre Hero Arama Çubuğu (Tek Satır: Input + Ara Butonu + Filtre Tetikleyici) -->
+<div class="relative flex items-center bg-white rounded-xl border-[2.5px] border-[#5A5552] p-1 shadow-inner gap-1">
+<span class="material-symbols-outlined text-[#7B7163] text-xl ml-2 shrink-0" data-icon="search">search</span>
+<input class="w-full min-h-[38px] bg-transparent text-[#2A2018] font-bold text-sm px-1 focus:outline-none placeholder-[#8C7D6F]" placeholder="Klan Adı veya #Etiket..." type="text"/>
+<!-- Filtre Hızlı Tetikleyici İkon Buton -->
+<button aria-label="Filtreler" class="min-h-[38px] min-w-[38px] flex items-center justify-center bg-[#EFE9DF] hover:bg-[#E2D8C9] text-[#4A2E1E] rounded-lg border border-[#CEC3B2] shrink-0 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="tune">tune</span>
+</button>
+<!-- Entegre Yeşil Ara Butonu -->
+<button class="game-green-btn min-h-[38px] px-3.5 rounded-lg font-extrabold text-sm flex items-center justify-center shrink-0 active:scale-95 transition-transform" type="button">
+<span>Ara</span>
+</button>
+</div>
+<!-- Yatay Hızlı Filtre Hapları (Scrollable Pills) -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
+<!-- Konum Hapı -->
+<button class="min-h-[44px] inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#2E180D] hover:bg-[#3A1F11] border border-[#54301B] text-xs font-bold text-[#FFDBC9] shrink-0 shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="flag">flag</span>
+<span>Türkiye</span>
+<span class="material-symbols-outlined text-[14px] text-[#A68875]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+<!-- Savaş Sıklığı Hapı -->
+<button class="min-h-[44px] inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#2E180D] hover:bg-[#3A1F11] border border-[#54301B] text-xs font-bold text-[#FFDBC9] shrink-0 shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="swords">swords</span>
+<span>Savaş: Sürekli</span>
+<span class="material-symbols-outlined text-[14px] text-[#A68875]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+<!-- Seviye Hapı -->
+<button class="min-h-[44px] inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#2E180D] hover:bg-[#3A1F11] border border-[#54301B] text-xs font-bold text-[#FFDBC9] shrink-0 shadow-sm active:scale-95" type="button">
+<span class="material-symbols-outlined text-tertiary text-sm" data-icon="military_tech">military_tech</span>
+<span>Seviye 10+</span>
+<span class="material-symbols-outlined text-[14px] text-[#A68875]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+<!-- Kupa Hapı -->
+<button class="min-h-[44px] inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-[#2E180D] hover:bg-[#3A1F11] border border-[#54301B] text-xs font-bold text-[#FFDBC9] shrink-0 shadow-sm active:scale-95" type="button">
+<span class="text-xs">🏆</span>
+<span>20.000+ Kupa</span>
+<span class="material-symbols-outlined text-[14px] text-[#A68875]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+</div>
+<!-- Hafifletilmiş Klan Etiketleri Chipleri (Yatay Akış) -->
+<div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">
+<button class="min-h-[44px] inline-flex items-center px-3 py-1 bg-[#3A2317] hover:bg-[#462B1D] border border-[#583929] rounded-lg text-xs font-bold text-[#FFDBC9] shrink-0 active:scale-95" type="button">
+          Klan Savaşları
+        </button>
+<button class="min-h-[44px] inline-flex items-center px-3 py-1 bg-[#3A2317] hover:bg-[#462B1D] border border-[#583929] rounded-lg text-xs font-bold text-[#FFDBC9] shrink-0 active:scale-95" type="button">
+          CWL
+        </button>
+<button class="min-h-[44px] inline-flex items-center px-3 py-1 bg-[#3A2317] hover:bg-[#462B1D] border border-[#583929] rounded-lg text-xs font-bold text-[#FFDBC9] shrink-0 active:scale-95" type="button">
+          Klan Oyunları
+        </button>
+<button class="min-h-[44px] inline-flex items-center px-3 py-1 bg-[#3A2317] hover:bg-[#462B1D] border border-[#583929] rounded-lg text-xs font-bold text-[#FFDBC9] shrink-0 active:scale-95" type="button">
+          Bağışçı
+        </button>
+<button class="min-h-[44px] inline-flex items-center px-3 py-1 bg-[#3A2317] hover:bg-[#462B1D] border border-[#583929] rounded-lg text-xs font-bold text-[#FFDBC9] shrink-0 active:scale-95" type="button">
+          Aktif
+        </button>
+</div>
+<!-- Liste Başlığı: Bulunan Klanlar & Sıralama -->
+<div class="flex items-center justify-between pt-2 px-1 border-t border-[#3B2214]">
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-extrabold text-white">Bulunan Klanlar</span>
+<span class="px-1.5 py-0.2 rounded-md bg-[#25150C] border border-[#442615] text-[10px] font-bold text-tertiary tabular-nums">(4 Klan)</span>
+</div>
+<button class="min-h-[44px] flex items-center gap-1 text-[11px] font-bold text-secondary hover:text-white transition-colors" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="swap_vert">swap_vert</span>
+<span>Kupaya Göre Sırala</span>
+</button>
+</div>
+<!-- Bölünmüş Özet Klan Kartları (Dikey Ritimli) -->
+<div class="flex flex-col gap-2.5">
+<!-- 1. Kart -->
+<div class="game-card-split rounded-xl p-3 flex flex-col gap-2 relative group hover:border-[#6C4229] transition-colors">
+<!-- Üst Satır: Rozet + Klan Adı + Seviye Kalkanı + Etiket -->
+<div class="flex items-center gap-2.5">
+<div class="w-11 h-11 min-w-[44px] min-h-[44px] bg-[#342219] border-2 border-[#22140D] rounded-lg flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="shield">shield</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<h2 class="font-extrabold text-sm text-white truncate drop-shadow-sm leading-tight">(- YAW HE HE -)</h2>
+<!-- Seviye Kalkanı / Altın Rozet -->
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-gradient-to-b from-[#654A0D] to-[#3B2903] border border-[#A57813] text-[11px] font-extrabold text-tertiary tabular-nums shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="military_tech">military_tech</span>
+<span>Seviye 25</span>
+</span>
+</div>
+<div class="text-[11px] font-semibold text-[#FFDBC9] tabular-nums tracking-wide">#UUJL8CYP</div>
+</div>
+</div>
+<!-- Orta Satır: Görsel Üye Doluluk Çubuğu -->
+<div class="bg-[#24150D] p-2 rounded-lg border border-[#3C2214] flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="text-[#C1CAB4] font-medium text-[11px]">Üye Kapasitesi</span>
+<span class="font-bold text-white tabular-nums text-xs">48 / 50 üye</span>
+</div>
+<div class="w-full h-2 bg-[#170C06] rounded-full overflow-hidden border border-[#2D170A]">
+<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full transition-all duration-300" style="width: 96%;"></div>
+</div>
+</div>
+<!-- Alt Satır: Kupa, Savaş Sıklığı ve Detay Oku -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-xs font-extrabold text-white bg-[#2E180D] px-2 py-1 rounded border border-[#482816] tabular-nums">
+<span class="text-xs">🏆</span> 54.200 Kupa
+</span>
+<span class="text-[11px] font-medium text-[#C1CAB4] bg-[#2E180D] px-2 py-1 rounded border border-[#482816]">
+Savaş: Sürekli
+</span>
+</div>
+<button aria-label="Klan Detayı" class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#3C2214] hover:bg-[#4C2D1C] text-[#FFDBC9] border border-[#523321] active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 2. Kart -->
+<div class="game-card-split rounded-xl p-3 flex flex-col gap-2 relative group hover:border-[#6C4229] transition-colors">
+<!-- Üst Satır -->
+<div class="flex items-center gap-2.5">
+<div class="w-11 h-11 min-w-[44px] min-h-[44px] bg-[#342219] border-2 border-[#22140D] rounded-lg flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="shield">shield</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<h2 class="font-extrabold text-sm text-white truncate drop-shadow-sm leading-tight">Anadolu Kaplanları</h2>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-gradient-to-b from-[#654A0D] to-[#3B2903] border border-[#A57813] text-[11px] font-extrabold text-tertiary tabular-nums shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="military_tech">military_tech</span>
+<span>Seviye 18</span>
+</span>
+</div>
+<div class="text-[11px] font-semibold text-[#FFDBC9] tabular-nums tracking-wide">#2PP0VLU9</div>
+</div>
+</div>
+<!-- Orta Satır: Görsel Üye Doluluk Çubuğu -->
+<div class="bg-[#24150D] p-2 rounded-lg border border-[#3C2214] flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="text-[#C1CAB4] font-medium text-[11px]">Üye Kapasitesi</span>
+<span class="font-bold text-white tabular-nums text-xs">45 / 50 üye</span>
+</div>
+<div class="w-full h-2 bg-[#170C06] rounded-full overflow-hidden border border-[#2D170A]">
+<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+<!-- Alt Satır -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-xs font-extrabold text-white bg-[#2E180D] px-2 py-1 rounded border border-[#482816] tabular-nums">
+<span class="text-xs">🏆</span> 42.100 Kupa
+</span>
+<span class="text-[11px] font-medium text-[#C1CAB4] bg-[#2E180D] px-2 py-1 rounded border border-[#482816]">
+Savaş: Sürekli
+</span>
+</div>
+<button aria-label="Klan Detayı" class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#3C2214] hover:bg-[#4C2D1C] text-[#FFDBC9] border border-[#523321] active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 3. Kart -->
+<div class="game-card-split rounded-xl p-3 flex flex-col gap-2 relative group hover:border-[#6C4229] transition-colors">
+<!-- Üst Satır -->
+<div class="flex items-center gap-2.5">
+<div class="w-11 h-11 min-w-[44px] min-h-[44px] bg-[#342219] border-2 border-[#22140D] rounded-lg flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="shield">shield</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<h2 class="font-extrabold text-sm text-white truncate drop-shadow-sm leading-tight">Hilal Sancağı</h2>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-gradient-to-b from-[#654A0D] to-[#3B2903] border border-[#A57813] text-[11px] font-extrabold text-tertiary tabular-nums shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="military_tech">military_tech</span>
+<span>Seviye 15</span>
+</span>
+</div>
+<div class="text-[11px] font-semibold text-[#FFDBC9] tabular-nums tracking-wide">#8YQCR98P</div>
+</div>
+</div>
+<!-- Orta Satır: Görsel Üye Doluluk Çubuğu -->
+<div class="bg-[#24150D] p-2 rounded-lg border border-[#3C2214] flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="text-[#C1CAB4] font-medium text-[11px]">Üye Kapasitesi</span>
+<span class="font-bold text-white tabular-nums text-xs">40 / 50 üye</span>
+</div>
+<div class="w-full h-2 bg-[#170C06] rounded-full overflow-hidden border border-[#2D170A]">
+<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full" style="width: 80%;"></div>
+</div>
+</div>
+<!-- Alt Satır -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-xs font-extrabold text-white bg-[#2E180D] px-2 py-1 rounded border border-[#482816] tabular-nums">
+<span class="text-xs">🏆</span> 38.500 Kupa
+</span>
+<span class="text-[11px] font-medium text-[#C1CAB4] bg-[#2E180D] px-2 py-1 rounded border border-[#482816]">
+Savaş: Haftada bir
+</span>
+</div>
+<button aria-label="Klan Detayı" class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#3C2214] hover:bg-[#4C2D1C] text-[#FFDBC9] border border-[#523321] active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- 4. Kart -->
+<div class="game-card-split rounded-xl p-3 flex flex-col gap-2 relative group hover:border-[#6C4229] transition-colors">
+<!-- Üst Satır -->
+<div class="flex items-center gap-2.5">
+<div class="w-11 h-11 min-w-[44px] min-h-[44px] bg-[#342219] border-2 border-[#22140D] rounded-lg flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="shield">shield</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<h2 class="font-extrabold text-sm text-white truncate drop-shadow-sm leading-tight">Yıldız Muhafızları</h2>
+<span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded bg-gradient-to-b from-[#654A0D] to-[#3B2903] border border-[#A57813] text-[11px] font-extrabold text-tertiary tabular-nums shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="military_tech">military_tech</span>
+<span>Seviye 12</span>
+</span>
+</div>
+<div class="text-[11px] font-semibold text-[#FFDBC9] tabular-nums tracking-wide">#9L0QYV88</div>
+</div>
+</div>
+<!-- Orta Satır: Görsel Üye Doluluk Çubuğu -->
+<div class="bg-[#24150D] p-2 rounded-lg border border-[#3C2214] flex flex-col gap-1">
+<div class="flex items-center justify-between text-xs">
+<span class="text-[#C1CAB4] font-medium text-[11px]">Üye Kapasitesi</span>
+<span class="font-bold text-white tabular-nums text-xs">36 / 50 üye</span>
+</div>
+<div class="w-full h-2 bg-[#170C06] rounded-full overflow-hidden border border-[#2D170A]">
+<div class="h-full bg-gradient-to-r from-primary-container to-primary rounded-full" style="width: 72%;"></div>
+</div>
+</div>
+<!-- Alt Satır -->
+<div class="flex items-center justify-between pt-0.5">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center gap-1 text-xs font-extrabold text-white bg-[#2E180D] px-2 py-1 rounded border border-[#482816] tabular-nums">
+<span class="text-xs">🏆</span> 31.800 Kupa
+</span>
+<span class="text-[11px] font-medium text-[#C1CAB4] bg-[#2E180D] px-2 py-1 rounded border border-[#482816]">
+Savaş: Sürekli
+</span>
+</div>
+<button aria-label="Klan Detayı" class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#3C2214] hover:bg-[#4C2D1C] text-[#FFDBC9] border border-[#523321] active:scale-90 transition-transform" type="button">
+<span class="material-symbols-outlined text-lg" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Daha Fazla Göster Butonu -->
+<button class="game-brown-btn min-h-[44px] w-full rounded-xl font-extrabold text-sm flex items-center justify-center active:scale-95 transition-transform mt-1" type="button">
+        Daha fazla göster
+</button>
+</div>
+<!-- Alt Bilgi Notu -->
+<footer class="text-center px-4 py-2">
+<p class="text-[11px] leading-relaxed text-[#8C7565]">
+        Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+      </p>
+</footer>
+</main>
+<!-- BottomNavBar (Sabit 5 Öğeli Alt Gezinme Çubuğu) -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 py-1.5 min-h-[56px] max-w-md mx-auto bg-surface-container-highest border-t-2 border-outline-variant rounded-t-lg shadow-[0_-4px_12px_rgba(0,0,0,0.5)]">
+<!-- Ana Sayfa -->
+<button class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="cottage">cottage</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Ana Sayfa</span>
+</button>
+<!-- Oyuncu & Klan (AKTİF) -->
+<button class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-lg bg-surface-container text-primary border border-primary-container active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="groups">groups</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Oyuncu &amp; Klan</span>
+</button>
+<!-- Meta -->
+<button class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="military_tech">military_tech</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Meta</span>
+</button>
+<!-- CWL -->
+<button class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="swords">swords</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">CWL</span>
+</button>
+<!-- Daha Fazla -->
+<button class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant hover:bg-surface-bright transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="more_horiz">more_horiz</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Daha Fazla</span>
+</button>
+</nav>
+</body></html>

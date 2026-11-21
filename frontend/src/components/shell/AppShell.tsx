@@ -17,14 +17,14 @@ function cn(...inputs: ClassValue[]) {
 export interface AppShellProps {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
-  variant?: "cream" | "bare";
+  variant?: "cream" | "bare" | "wood";
   children: React.ReactNode;
 }
 
 /**
  * AppShell: Master In-Game Layout Shell
  * - Full-bleed background.webp with warm dark espresso evening scrim or sunlit parchment scrim
- * - Desktop: flush top tab strip with cream window (variant="cream") or bare container (variant="bare")
+ * - Desktop: flush top tab strip with canonical wood window (variant="wood") or bare container (variant="bare")
  * - Mobile: accessible top header (brand + TR|EN toggle + theme toggle) and fixed bottom MobileNav
  */
 export default function AppShell({
@@ -37,14 +37,14 @@ export default function AppShell({
   const { locale, toggleLocale, t } = useLanguage();
   const isDark = theme === "dark";
 
-  const resolvedVariant =
-    variant ?? (activeTab === "home" || activeTab === "search" ? "cream" : "bare");
+  const resolvedVariant = variant ?? "wood";
+  const isGoldRef = resolvedVariant === "bare";
 
   return (
     <div
       className={cn(
         "game-theme min-h-screen relative flex flex-col selection:bg-amber-500 selection:text-[#14100C] font-sans transition-colors duration-200",
-        isDark ? "text-[#F5EFE6]" : "text-[#2A2018]"
+        isGoldRef ? (isDark ? "text-[#F5EFE6]" : "text-[#2A2018]") : "text-[var(--ui-text-main)]"
       )}
     >
       {/* 1. Global In-Game Background with Light/Dark Scrim */}
@@ -72,10 +72,12 @@ export default function AppShell({
       {/* 2. Mobile Compact Top Header (Brand + TR|EN + Theme toggle, lg:hidden) */}
       <header
         className={cn(
-          "sticky top-0 z-40 backdrop-blur-md border-b px-3 sm:px-4 py-2 flex items-center justify-between gap-2 lg:hidden select-none transition-colors duration-200",
-          isDark
-            ? "bg-[#1B120C]/[0.92] border-[#3D2B1E]"
-            : "bg-[#F6F1E7]/[0.94] border-[#CBBBA3] shadow-sm"
+          "sticky top-0 z-40 border-b px-3 sm:px-4 py-2 flex items-center justify-between gap-2 lg:hidden select-none transition-colors duration-200",
+          !isGoldRef
+            ? "ui-nav"
+            : isDark
+              ? "backdrop-blur-md bg-[#1B120C]/[0.92] border-[#3D2B1E]"
+              : "backdrop-blur-md bg-[#F6F1E7]/[0.94] border-[#CBBBA3] shadow-sm"
         )}
       >
         <button
@@ -178,7 +180,7 @@ export default function AppShell({
           <GameWindow
             variant={resolvedVariant}
             className={cn(
-              resolvedVariant === "cream"
+              resolvedVariant === "cream" || resolvedVariant === "wood"
                 ? "mt-0 sm:mt-0 rounded-2xl"
                 : "mt-0 sm:mt-0 game-bare-flush"
             )}
@@ -191,17 +193,19 @@ export default function AppShell({
       {/* 4. Footer (Supercell Fan Content Policy disclaimer, clears MobileNav + safe-area) */}
       <footer
         className={cn(
-          "relative z-10 border-t backdrop-blur-md mt-auto pt-6 text-center text-xs transition-colors duration-200 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:pb-6",
-          isDark
-            ? "border-[#3D2B1E] bg-[#14100C]/90 text-[#B8A99A]"
-            : "border-[#CBBBA3] bg-[#EFE7D8]/[0.92] text-[#5D4B3B]"
+          "relative z-10 border-t mt-auto pt-6 text-center text-xs transition-colors duration-200 pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:pb-6",
+          !isGoldRef
+            ? "ui-nav text-[var(--ui-text-muted)]"
+            : isDark
+              ? "backdrop-blur-md border-[#3D2B1E] bg-[#14100C]/90 text-[#B8A99A]"
+              : "backdrop-blur-md border-[#CBBBA3] bg-[#EFE7D8]/[0.92] text-[#5D4B3B]"
         )}
       >
         <div className="max-w-4xl mx-auto px-4 space-y-1.5">
-          <p className={cn("font-semibold", isDark ? "text-[#F5EFE6]" : "text-[#2A2018]")}>
+          <p className={cn("font-semibold", !isGoldRef ? "text-[var(--ui-text-main)]" : isDark ? "text-[#F5EFE6]" : "text-[#2A2018]")}>
             {t.footer.title}
           </p>
-          <p className={cn("text-[11px] leading-relaxed", isDark ? "text-[#B8A99A]" : "text-[#5D4B3B]")}>
+          <p className={cn("text-[11px] leading-relaxed", !isGoldRef ? "text-[var(--ui-text-muted)]" : isDark ? "text-[#B8A99A]" : "text-[#5D4B3B]")}>
             {t.footer.disclaimer}{" "}
             <a
               href="https://supercell.com/fan-content-policy"
@@ -209,9 +213,11 @@ export default function AppShell({
               rel="noopener noreferrer"
               className={cn(
                 "underline font-medium transition-colors",
-                isDark
-                  ? "text-[#D9B88C] hover:text-[#FFEB75]"
-                  : "text-[#7A4B12] hover:text-[#2A2018]"
+                !isGoldRef
+                  ? "text-[var(--ui-text-gold)] hover:text-[var(--ui-text-main)]"
+                  : isDark
+                    ? "text-[#D9B88C] hover:text-[#FFEB75]"
+                    : "text-[#7A4B12] hover:text-[#2A2018]"
               )}
             >
               supercell.com/fan-content-policy

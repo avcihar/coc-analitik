@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { User, Shield } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import GraySegmented, { type GraySegmentedItem } from "@/components/game/GraySegmented";
 import { useLanguage } from "@/lib/i18n";
 import PlayerSearchView from "./PlayerSearchView";
 import ClanSearchView, { type ClanSearchItemData } from "./ClanSearchView";
@@ -85,13 +84,10 @@ export default function SearchHubView({
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
-  const tabItems = useMemo<GraySegmentedItem<SearchTabType>[]>(
-    () => [
-      { id: "player", label: t.search.playerTab, icon: <User className="w-4 h-4 shrink-0" /> },
-      { id: "clan", label: t.search.clanTab, icon: <Shield className="w-4 h-4 shrink-0" /> },
-    ],
-    [t]
-  );
+  const tabItems = [
+    { id: "player" as const, label: t.search.playerTab, icon: <User className="w-4 h-4 shrink-0" /> },
+    { id: "clan" as const, label: t.search.clanTab, icon: <Shield className="w-4 h-4 shrink-0" /> },
+  ];
 
   const handleTabChange = (tabId: SearchTabType) => {
     setActiveTab(tabId);
@@ -104,15 +100,36 @@ export default function SearchHubView({
   };
 
   return (
-    <div className={cn("w-full -mt-3 sm:-mt-6 flex flex-col", className)}>
-      {/* Top GraySegmented Sub-Tabs - Flush at top */}
-      <div className="w-full flex items-end pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
-        <GraySegmented<SearchTabType>
-          items={tabItems}
-          activeId={activeTab}
-          onChange={handleTabChange}
-          className="w-full sm:w-auto"
-        />
+    <div className={cn("w-full flex flex-col min-w-0", className)}>
+      {/* Top Wood Segmented Sub-Tabs matching canonical wood panels */}
+      <div className="w-full flex items-center pb-3 border-b border-[var(--ui-panel-border)]">
+        <div
+          role="tablist"
+          aria-label={t.nav.search}
+          className="ui-info p-1.5 rounded-xl grid grid-cols-2 sm:inline-flex items-center gap-1.5 w-full sm:w-auto shadow-inner"
+        >
+          {tabItems.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => handleTabChange(tab.id)}
+                className={cn(
+                  "min-h-[44px] px-4 sm:px-5 py-2 rounded-lg text-sm font-game font-extrabold inline-flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap",
+                  isActive
+                    ? "bg-[var(--ui-tab-active-bg)] text-[var(--ui-text-main)] border-2 border-[var(--ui-tab-active-border)] shadow-sm"
+                    : "bg-transparent text-[var(--ui-text-muted)] hover:text-[var(--ui-text-main)] hover:bg-[var(--game-dark-box-mid)]/60 border-2 border-transparent"
+                )}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tab Panels */}

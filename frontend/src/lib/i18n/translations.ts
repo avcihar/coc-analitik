@@ -4,10 +4,10 @@ export const TRANSLATIONS = {
   tr: {
     metaTitle: "CoC Analitik • Clash of Clans İstatistik ve Strateji Platformu",
     metaDescription:
-      "Clash of Clans oyuncu ve klan analitiği, TH18 meta orduları, CWL keşfi, cevher simülatörü ve duvar yazısı planlayıcı.",
+      "Clash of Clans oyuncu ve klan analitiği, TH19 meta orduları, CWL keşfi, cevher simülatörü ve duvar yazısı planlayıcı.",
     nav: {
       brand: "CoC Analitik",
-      thBadge: "TH18",
+      thBadge: "TH19",
       home: "Ana Sayfa",
       search: "Oyuncu & Klan",
       searchMobile: "Oyuncu",
@@ -27,7 +27,7 @@ export const TRANSLATIONS = {
       langShort: "TR",
     },
     footer: {
-      title: "CoC Analitik • Clash of Clans İstatistik ve Strateji Platformu (TH18 Meta)",
+      title: "CoC Analitik • Clash of Clans İstatistik ve Strateji Platformu (TH19 Meta)",
       disclaimer:
         "Bu içerik Supercell ile bağlantılı değildir; Supercell tarafından onaylanmamış, desteklenmemiş veya özel olarak yetkilendirilmemiştir ve Supercell bundan sorumlu değildir. Ayrıntılar için Supercell Hayran İçeriği Politikası'na bakın:",
     },
@@ -72,7 +72,7 @@ export const TRANSLATIONS = {
       generic: "İstek tamamlanamadı. Lütfen daha sonra tekrar deneyin.",
     },
     home: {
-      heroTitle: "En Güncel TH18 Metası ve Resmi Oyun Analitikleri",
+      heroTitle: "En Güncel TH19 Metası ve Resmi Oyun Analitikleri",
       heroSubtitle: "Resmi Clash of Clans API verileriyle sade, hızlı ve güvenilir strateji araçları.",
       liveSample: "Canlı",
       quickSearch: "Hızlı Ara",
@@ -94,9 +94,9 @@ export const TRANSLATIONS = {
         },
         meta: {
           title: "Meta & Ordu",
-          subtitle: "TH18 Efsane Ligi Orduları",
+          subtitle: "TH19 Efsane Ligi Orduları",
           desc: "Üst 200 Efsane Ligi saldırılarından en çok kullanılan ordular ve kahraman ekipmanı ikilileri.",
-          badge: "TH18 META",
+          badge: "TH19 META",
           sampleCount: "Örneklem: {count} Oyuncu",
           attackCount: "Analiz: {count} Saldırı",
         },
@@ -293,7 +293,7 @@ export const TRANSLATIONS = {
       sectionCC: "Klan Kalesi",
       noDataTitle: "Henüz yeterli saldırı kaydı bulunamadı",
       errorLoad: "Meta verileri yüklenemedi. Lütfen Yenile düğmesini deneyin.",
-      statsHeroEquipTitle: "Kahraman Ekipmanları ve En Çok Kullanılan İkililer",
+      statsHeroEquipTitle: "Kahraman Ekipmanları (Tekli)",
       statsNote: "Saldırı kayıtlarının yüzde kaçında kullanıldığını gösterir.",
       statsPairsTitle: "En Çok Kullanılan Ekipman İkilileri",
       statsTogetherRate: "Birlikte kullanım oranı",
@@ -337,7 +337,12 @@ export const TRANSLATIONS = {
       hideMoreArmies: "Ek orduları gizle",
       hitsTaken: "{count}× 3★ Yedi",
       noHitsTaken: "3★ Yok ({count} Savunma)",
-      selectPrompt: "Oyuncu detayı için yukarıdan bir satıra dokunun.",
+      selectPrompt: "Ordu ve savunma detayı için bir oyuncunun satırına dokunun.",
+      attackTab: "Saldırı",
+      defenseTab: "Savunma",
+      inspectHint: "Detay için oyuncuya dokunun",
+      closeDetail: "Kapat",
+      heroesProfileTitle: "Profil Kahramanları & Ekipmanları",
       detailHeroTitle: "Kahraman & Ekipman Seviyeleri",
       detailHeroSource: "Resmi Oyuncu Profili",
       noHeroData: "Kahraman verisi bulunamadı.",
@@ -464,10 +469,10 @@ export const TRANSLATIONS = {
   en: {
     metaTitle: "CoC Analytics • Clash of Clans Stats & Strategy Platform",
     metaDescription:
-      "Clash of Clans player and clan analytics, TH18 meta armies, CWL scouting, ore calculator, and wall art planner.",
+      "Clash of Clans player and clan analytics, TH19 meta armies, CWL scouting, ore calculator, and wall art planner.",
     nav: {
       brand: "CoC Analytics",
-      thBadge: "TH18",
+      thBadge: "TH19",
       home: "Home",
       search: "Players & Clans",
       searchMobile: "Search",
@@ -487,7 +492,7 @@ export const TRANSLATIONS = {
       langShort: "EN",
     },
     footer: {
-      title: "CoC Analytics • Clash of Clans Statistics & Strategy Platform (TH18 Meta)",
+      title: "CoC Analytics • Clash of Clans Statistics & Strategy Platform (TH19 Meta)",
       disclaimer:
         "This content is not affiliated with, endorsed, sponsored, or specifically approved by Supercell and Supercell is not responsible for it. For more information see Supercell's Fan Content Policy:",
     },
@@ -532,7 +537,7 @@ export const TRANSLATIONS = {
       generic: "Request failed. Please try again later.",
     },
     home: {
-      heroTitle: "Live TH18 Meta & Official Clash Analytics",
+      heroTitle: "Live TH19 Meta & Official Clash Analytics",
       heroSubtitle: "Clean, fast strategy tools powered by official Clash of Clans API data.",
       liveSample: "Live",
       quickSearch: "Quick Search",
@@ -554,9 +559,9 @@ export const TRANSLATIONS = {
         },
         meta: {
           title: "Meta & Armies",
-          subtitle: "TH18 Legend League Meta",
+          subtitle: "TH19 Legend League Meta",
           desc: "Most popular army compositions and hero equipment pairings from the top 200 Legend players.",
-          badge: "TH18 META",
+          badge: "TH19 META",
           sampleCount: "Sample: {count} Players",
           attackCount: "Analyzed: {count} Attacks",
         },
@@ -753,7 +758,7 @@ export const TRANSLATIONS = {
       sectionCC: "Clan Castle",
       noDataTitle: "Not enough battle log data yet",
       errorLoad: "Failed to load meta statistics. Please try Refresh.",
-      statsHeroEquipTitle: "Hero Equipment & Top Pairings",
+      statsHeroEquipTitle: "Hero Equipment (Single)",
       statsNote: "Shows percentage of analyzed attacks featuring each item.",
       statsPairsTitle: "Top Equipment Pairs",
       statsTogetherRate: "Co-usage rate",
@@ -797,7 +802,12 @@ export const TRANSLATIONS = {
       hideMoreArmies: "Hide extras",
       hitsTaken: "{count}× 3★ Taken",
       noHitsTaken: "0× 3★ ({count} Def)",
-      selectPrompt: "Tap any player row to inspect their detailed loadout below.",
+      selectPrompt: "Tap any player row to expand their attack & defense details inline.",
+      attackTab: "Attack",
+      defenseTab: "Defense",
+      inspectHint: "Tap a player to inspect inline",
+      closeDetail: "Close",
+      heroesProfileTitle: "Profile Heroes & Equipment",
       detailHeroTitle: "Hero & Equipment Levels",
       detailHeroSource: "Official Player Profile",
       noHeroData: "Hero data unavailable.",

@@ -9,13 +9,14 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export interface GameWindowProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "cream" | "bare";
+  variant?: "cream" | "bare" | "wood";
   children: React.ReactNode;
 }
 
 /**
  * Shared GameWindow component
  * - variant="cream": In-game dialog window with cream background, outer stone rim, and beveled edges.
+ * - variant="wood": Canonical opaque dark wood window matching Meta & Ordu.
  * - variant="bare": Clean transparent wrapper for Meta & Duvar pages that maintain their own internal window frame.
  */
 export default function GameWindow({
@@ -35,7 +36,8 @@ export default function GameWindow({
   return (
     <div
       className={cn(
-        "game-window-cream w-full max-w-7xl mx-auto p-3 sm:p-6 mt-0 sm:mt-0 mb-2 sm:mb-4 transition-all",
+        variant === "wood" ? "ui-window" : "game-window-cream",
+        "w-full max-w-7xl mx-auto p-3 sm:p-6 mt-0 sm:mt-0 mb-2 sm:mb-4 transition-all",
         className
       )}
       {...rest}

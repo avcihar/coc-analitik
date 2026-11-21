@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>M4 Oyuncu Ara — CoC Analitik</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-surface": "#ffdbc9",
+            "primary-container": "#72bd36",
+            "on-secondary-fixed-variant": "#6e3900",
+            "surface-tint": "#8ddb50",
+            "surface-container-high": "#3e2313",
+            "inverse-on-surface": "#452a19",
+            "secondary-fixed-dim": "#ffb77d",
+            "on-surface-variant": "#c1cab4",
+            "surface-container-highest": "#4a2e1d",
+            "on-tertiary-fixed": "#251a00",
+            "on-primary-fixed-variant": "#265100",
+            "inverse-surface": "#ffdbc9",
+            "primary-fixed": "#a8f86a",
+            "tertiary": "#f5bf29",
+            "on-secondary": "#4d2600",
+            "error": "#ffb4ab",
+            "on-primary": "#183800",
+            "outline-variant": "#414939",
+            "surface-dim": "#230d02",
+            "on-background": "#ffdbc9",
+            "surface-variant": "#4a2e1d",
+            "on-primary-fixed": "#0c2000",
+            "secondary": "#ffb77d",
+            "inverse-primary": "#356b00",
+            "on-tertiary": "#3f2e00",
+            "on-secondary-container": "#432100",
+            "primary": "#8ddb50",
+            "primary-fixed-dim": "#8ddb50",
+            "on-tertiary-container": "#513c00",
+            "on-error-container": "#ffdad6",
+            "tertiary-fixed": "#ffdf9a",
+            "on-secondary-fixed": "#2f1500",
+            "error-container": "#93000a",
+            "surface-container": "#32190a",
+            "tertiary-fixed-dim": "#f5bf29",
+            "surface-container-lowest": "#1d0800",
+            "tertiary-container": "#d6a300",
+            "secondary-container": "#d97707",
+            "outline": "#8b9480",
+            "background": "#230d02",
+            "surface-container-low": "#2d1507",
+            "surface-bright": "#4f3221",
+            "surface": "#230d02",
+            "on-error": "#690005",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "on-primary-container": "#214800",
+            "secondary-fixed": "#ffdcc3"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans", "sans-serif"],
+            "display": ["Plus Jakarta Sans", "sans-serif"],
+            "body": ["Plus Jakarta Sans", "sans-serif"],
+            "label": ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      color: #ffdbc9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-900 selection:text-white">
+<!-- TOP APP BAR -->
+<header class="w-full bg-surface-container-high border-b border-surface-container-highest shadow-[0_4px_12px_rgba(29,8,0,0.5)] z-30 sticky top-0">
+<div class="w-full max-w-[1200px] mx-auto px-4 flex items-center justify-between h-14">
+<!-- Brand Logo & Shield -->
+<a class="font-headline font-extrabold text-base text-on-surface tracking-wide flex items-center gap-2.5 transition-transform active:scale-95 duration-150" href="#">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest border border-amber-900/60 flex items-center justify-center text-tertiary shadow-inner">
+<span class="material-symbols-outlined text-[20px]" data-icon="shield">shield</span>
+</div>
+<span class="font-headline font-extrabold text-base text-on-surface tracking-wide">CoC Analitik</span>
+</a>
+<!-- Desktop Navigation Center Cluster -->
+<nav class="hidden md:flex items-center gap-6 font-headline font-bold text-sm tracking-tight h-full pt-1">
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Ana Sayfa</a>
+<!-- Active Link: Oyuncu & Klan -->
+<a class="text-tertiary-fixed-dim border-b-2 border-tertiary-fixed-dim font-extrabold pb-1 flex items-center h-full" href="#">Oyuncu &amp; Klan</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Meta &amp; Ordu</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">CWL Keşif</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Cevher Analizi</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Duvar Yazısı</a>
+</nav>
+<div class="hidden md:block w-8"></div>
+</div>
+</header>
+<!-- MAIN VIEWPORT CONTAINER -->
+<main class="flex-1 w-full max-w-[1200px] mx-auto px-4 py-8 flex flex-col justify-center">
+<!-- Tab Strip Container -->
+<div class="flex items-end pl-4">
+<div class="bg-surface-container-high border-t-2 border-x-2 border-surface-container-highest rounded-t-xl px-7 py-3 -mb-[2px] z-20 flex items-center gap-2 shadow-[0_-2px_6px_rgba(0,0,0,0.35)]">
+<span class="material-symbols-outlined text-tertiary text-lg" data-icon="person_search">person_search</span>
+<span class="font-headline font-extrabold text-sm md:text-base text-on-surface tracking-wide">Oyuncu &amp; Klan</span>
+</div>
+</div>
+<!-- MAIN DARK WOOD WINDOW BODY -->
+<div class="w-full bg-surface-container-high border-2 border-surface-container-highest rounded-xl rounded-tl-none shadow-[0_12px_28px_rgba(0,0,0,0.7)] p-6 md:p-8 relative z-10 flex flex-col gap-6">
+<!-- 1. SEGMENT SWITCH: Oyuncu Ara (Active) | Klan Ara (Inactive) -->
+<div class="flex items-center justify-center">
+<div class="bg-surface-container-lowest p-1.5 rounded-xl border border-surface-container-highest/60 flex items-center gap-1.5 w-full max-w-[420px] shadow-inner">
+<!-- Active Segment -->
+<button class="flex-1 min-h-[44px] rounded-lg bg-surface-container-highest text-on-surface font-headline font-bold text-sm tracking-wide flex items-center justify-center gap-2 border border-surface-bright/40 shadow-sm transition-all duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary" data-icon="person">person</span>
+<span>Oyuncu Ara</span>
+</button>
+<!-- Inactive Segment -->
+<button class="flex-1 min-h-[44px] rounded-lg bg-transparent text-on-surface-variant hover:text-on-surface font-headline font-semibold text-sm tracking-wide flex items-center justify-center gap-2 transition-colors duration-150 active:scale-95" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="shield">shield</span>
+<span>Klan Ara</span>
+</button>
+</div>
+</div>
+<!-- 2. TWO-COLUMN ASYMMETRIC LAYOUT (Sol: ~42%, Sağ: ~58%) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+<!-- SOL SÜTUN (~42%): Odaklı Arama & İpucu Paneli -->
+<div class="lg:col-span-5 flex flex-col justify-between bg-surface-container-low border border-surface-container-highest rounded-xl p-5 md:p-6 shadow-inner gap-6">
+<div class="flex flex-col gap-4">
+<label class="font-headline font-bold text-sm text-on-surface flex items-center gap-2" for="player-tag-input">
+<span class="material-symbols-outlined text-tertiary text-lg" data-icon="tag">tag</span>
+<span>Oyuncu Ara:</span>
+</label>
+<form class="flex flex-col gap-3" onsubmit="event.preventDefault();">
+<!-- Integrated Hash Input Container -->
+<div class="relative w-full flex items-center">
+<span class="absolute left-4 font-headline font-bold text-xl text-stone-500 pointer-events-none select-none">#</span>
+<input autocomplete="off" class="w-full bg-white text-stone-900 font-headline font-bold text-base pl-9 pr-4 py-3 rounded-lg border-2 border-amber-900/40 focus:outline-none focus:border-tertiary focus:ring-2 focus:ring-tertiary/30 min-h-[44px] shadow-inner tabular-nums" id="player-tag-input" placeholder="P89PCUPUQ" spellcheck="false" type="text" value="P89PCUPUQ"/>
+</div>
+<!-- Yeşil 'Ara' Butonu (Varyant isteğine uygun yeşil primary-container / primary renk) -->
+<button class="min-h-[44px] w-full px-6 py-3 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-headline font-extrabold text-sm md:text-base tracking-wide border border-primary-fixed/50 flex items-center justify-center gap-2 shadow-[0_4px_12px_rgba(114,189,54,0.3)] transition-all duration-150 active:scale-95 shrink-0" type="submit">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+<span>Ara</span>
+</button>
+</form>
+<!-- Arama İpucu & Örnek -->
+<p class="font-body text-xs text-on-surface-variant flex items-center gap-1.5 pl-1">
+<span class="material-symbols-outlined text-sm text-tertiary" data-icon="info">info</span>
+<span>Örn. #P89PCUPUQ</span>
+</p>
+</div>
+<!-- Arama İpuçları / Etiket Rehberi Kartı -->
+<div class="bg-surface-container-highest/60 border border-surface-bright/30 rounded-lg p-3.5 flex flex-col gap-2">
+<span class="font-headline font-bold text-xs text-on-surface flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs text-tertiary" data-icon="lightbulb">lightbulb</span>
+<span>Etiket Rehberi</span>
+</span>
+<p class="font-body text-[11px] text-on-surface-variant leading-relaxed">
+Oyuncu etiketini oyun içi profil ekranınızda profil fotoğrafınızın hemen altında bulabilirsiniz. Başındaki '#' işaretini yazmanız gerekmez.
+</p>
+</div>
+</div>
+<!-- SAĞ SÜTUN (~58%): Son Aramalar Geçmişi (2x2 Kart Düzeni) -->
+<div class="lg:col-span-7 flex flex-col gap-4 bg-surface-container-low/60 border border-surface-container-highest rounded-xl p-5 md:p-6 shadow-inner">
+<!-- Başlık & Geçmiş Butonu -->
+<div class="flex items-center justify-between pb-2 border-b border-surface-container-highest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg" data-icon="history">history</span>
+<h2 class="font-headline font-extrabold text-base text-on-surface tracking-wide">Son Aramalar</h2>
+</div>
+<button class="text-xs font-headline font-semibold text-on-surface-variant hover:text-tertiary transition-colors flex items-center gap-1 min-h-[44px] px-2 active:scale-95" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span>
+<span>Geçmiş</span>
+</button>
+</div>
+<!-- 2 Sütunlu (2x2) Kartlar Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 h-full content-start">
+<!-- Card 1 -->
+<a class="min-h-[44px] p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-surface-container-highest hover:border-tertiary/40 flex items-center justify-between gap-3 transition-all duration-150 shadow-sm active:scale-[0.98] group" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-amber-900/50 flex items-center justify-center text-tertiary group-hover:text-primary transition-colors shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-xl" data-icon="shield">shield</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline font-bold text-sm text-on-surface truncate">Oyuncu Adı</span>
+<span class="font-headline font-semibold text-xs text-on-surface-variant tabular-nums">#P89PCUPUQ</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transition-colors text-lg shrink-0" data-icon="chevron_right">chevron_right</span>
+</a>
+<!-- Card 2 -->
+<a class="min-h-[44px] p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-surface-container-highest hover:border-tertiary/40 flex items-center justify-between gap-3 transition-all duration-150 shadow-sm active:scale-[0.98] group" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-amber-900/50 flex items-center justify-center text-tertiary group-hover:text-primary transition-colors shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-xl" data-icon="swords">swords</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline font-bold text-sm text-on-surface truncate">Oyuncu Adı</span>
+<span class="font-headline font-semibold text-xs text-on-surface-variant tabular-nums">#G0JJYVYP</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transition-colors text-lg shrink-0" data-icon="chevron_right">chevron_right</span>
+</a>
+<!-- Card 3 -->
+<a class="min-h-[44px] p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-surface-container-highest hover:border-tertiary/40 flex items-center justify-between gap-3 transition-all duration-150 shadow-sm active:scale-[0.98] group" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-amber-900/50 flex items-center justify-center text-tertiary group-hover:text-primary transition-colors shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-xl" data-icon="military_tech">military_tech</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline font-bold text-sm text-on-surface truncate">Oyuncu Adı</span>
+<span class="font-headline font-semibold text-xs text-on-surface-variant tabular-nums">#9JG8UVL0</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transition-colors text-lg shrink-0" data-icon="chevron_right">chevron_right</span>
+</a>
+<!-- Card 4 -->
+<a class="min-h-[44px] p-3 rounded-xl bg-surface-container-high hover:bg-surface-container-highest border border-surface-container-highest hover:border-tertiary/40 flex items-center justify-between gap-3 transition-all duration-150 shadow-sm active:scale-[0.98] group" href="#">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest border border-amber-900/50 flex items-center justify-center text-tertiary group-hover:text-primary transition-colors shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-xl" data-icon="trophy">trophy</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline font-bold text-sm text-on-surface truncate">Oyuncu Adı</span>
+<span class="font-headline font-semibold text-xs text-on-surface-variant tabular-nums">#2PGCRVGUQ</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-tertiary transition-colors text-lg shrink-0" data-icon="chevron_right">chevron_right</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container mt-auto">
+<div class="w-full max-w-[1200px] mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-xs text-on-surface">CoC Analitik</span>
+<p class="font-body text-xs text-on-surface-variant max-w-2xl leading-relaxed">
+          © 2025 CoC Analitik. Bu uygulama Supercell ile bağlantılı değildir, Supercell tarafından desteklenmemekte veya onaylanmamaktadır.
+        </p>
+<p class="font-body text-[11px] text-stone-500">
+          Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+        </p>
+</div>
+<div class="flex items-center gap-6 font-body text-xs text-on-surface-variant shrink-0">
+<a class="hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">Kullanım Şartları</a>
+<a class="hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">Gizlilik Politikası</a>
+<a class="hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">İletişim</a>
+</div>
+</div>
+</footer>
+</body></html>

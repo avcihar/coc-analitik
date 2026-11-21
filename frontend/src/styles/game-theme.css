@@ -177,6 +177,49 @@
   --game-radius-md: 10px;
   --game-radius-lg: 16px;
   --game-radius-xl: 22px;
+
+  /* Outer Window Frame tokens (from Meta & Duvar .game-window-frame) */
+  --game-window-top: #5A3A28;
+  --game-window-mid: #4A2E1E;
+  --game-window-bot: #3B2214;
+  --game-window-border: #28160C;
+
+  /* ------------------------------------------------------------------------
+     6. CANONICAL UI ALIAS TOKENS (Pointing strictly to --game-* via var())
+     ------------------------------------------------------------------------ */
+  --ui-window-bg: linear-gradient(180deg, var(--game-window-top) 0%, var(--game-window-mid) 50%, var(--game-window-bot) 100%);
+  --ui-window-border: var(--game-window-border);
+  --ui-tab-strip: var(--game-slot-bg-dark);
+  --ui-tab-strip-border: var(--game-wood-header-border);
+  --ui-tab-active-bg: var(--game-wood-mid);
+  --ui-tab-active-border: var(--game-wood-header-border);
+  --ui-tab-inactive-bg: var(--game-dark-box-dark);
+  --ui-tab-inactive-border: var(--game-dark-box-border);
+  --ui-panel-bg: linear-gradient(180deg, var(--game-wood-light) 0%, var(--game-wood-mid) 40%, var(--game-wood-dark) 100%);
+  --ui-panel-border: var(--game-wood-border);
+  --ui-panel-shadow: var(--game-wood-shadow);
+  --ui-panel-header-bg: linear-gradient(180deg, var(--game-wood-header-light) 0%, var(--game-wood-header-dark) 100%);
+  --ui-panel-header-border: var(--game-wood-header-border);
+  --ui-section-bg: var(--ui-panel-bg);
+  --ui-section-border: var(--ui-panel-border);
+  --ui-well-bg: linear-gradient(180deg, var(--game-slot-bg-dark) 0%, var(--game-slot-bg-light) 100%);
+  --ui-well-border: var(--game-slot-border);
+  --ui-info-bg: linear-gradient(180deg, var(--game-dark-box-light) 0%, var(--game-dark-box-mid) 50%, var(--game-dark-box-dark) 100%);
+  --ui-info-border: var(--game-dark-box-border);
+  --ui-pill-bg: var(--game-dark-box-dark);
+  --ui-pill-border: var(--game-pill-border);
+  --ui-pill-text: var(--game-pill-text);
+  --ui-input-bg: var(--game-dark-box-dark);
+  --ui-input-border: var(--game-wood-border);
+  --ui-input-text: var(--game-pill-text);
+  --ui-nav-bg: var(--game-dark-box-dark);
+  --ui-nav-border: var(--game-wood-header-border);
+  --ui-text-main: var(--game-pill-text);
+  --ui-text-muted: var(--game-cream-light);
+  --ui-text-gold: var(--game-btn-gold-top);
+  --ui-text-green: var(--game-btn-green-top);
+  --ui-text-red: var(--game-btn-red-top);
+  --ui-text-blue: var(--game-btn-blue-top);
 }
 
 /* ==========================================================================
@@ -366,6 +409,46 @@
   cursor: not-allowed;
   filter: grayscale(0.85);
   transform: none !important;
+}
+
+/* Wall Editor In-Game HUD Buttons (Theme-green actionable / Gray disabled matching CoC village editor) */
+.game-theme .game-btn-wall-green,
+.game-btn-wall-green {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--game-btn-green-top) 0%, var(--game-btn-green-mid) 48%, var(--game-btn-green-bot) 100%);
+  border: 2.5px solid var(--game-btn-green-border);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45) !important;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, filter 0.15s ease;
+  color: #FFFFFF;
+}
+
+.game-theme .game-btn-wall-green:hover:not(:disabled),
+.game-btn-wall-green:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.game-theme .game-btn-wall-green:active:not(:disabled),
+.game-btn-wall-green:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.game-theme .game-btn-wall-gray,
+.game-btn-wall-gray {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--game-btn-gray-top) 0%, var(--game-btn-gray-mid) 48%, var(--game-btn-gray-bot) 100%);
+  border: 2.5px solid var(--game-btn-gray-border);
+  box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.4) !important;
+  opacity: 1;
+  cursor: not-allowed;
+  user-select: none;
+  color: #FFFFFF;
 }
 
 /* Button Sizes */
@@ -1240,4 +1323,78 @@
     font-size: 0.95rem;
     gap: 0.42rem;
   }
+}
+
+/* ==========================================================================
+   CANONICAL OPAQUE UI SURFACE CLASSES (Meta & Ordu Wood Harmony)
+   Additive classes using --ui-* aliases only; Meta & Wall remain untouched.
+   ========================================================================== */
+.game-theme .ui-window {
+  background: var(--ui-window-bg);
+  border: 3.5px solid var(--ui-window-border);
+  border-radius: var(--game-radius-xl);
+  color: var(--ui-text-main);
+  box-shadow: inset 0 2px 0 var(--game-wood-highlight), 0 6px 0 var(--game-wood-shadow), 0 12px 24px rgba(0, 0, 0, 0.55);
+}
+
+.game-theme .ui-panel {
+  background: var(--ui-panel-bg);
+  border: 3px solid var(--ui-panel-border);
+  border-radius: var(--game-radius-lg);
+  color: var(--ui-text-main);
+  box-shadow: inset 0 2px 0 var(--game-wood-highlight), 0 4px 0 var(--ui-panel-shadow);
+}
+
+.game-theme .ui-panel-header {
+  background: var(--ui-panel-header-bg);
+  border-bottom: 2.5px solid var(--ui-panel-header-border);
+  color: var(--ui-text-main);
+}
+
+.game-theme .ui-well {
+  background: var(--ui-well-bg);
+  border: 2px solid var(--ui-well-border);
+  border-radius: var(--game-radius-md);
+  color: var(--ui-text-main);
+  box-shadow: inset 0 3px 6px var(--game-slot-inner-shadow);
+}
+
+.game-theme .ui-info {
+  background: var(--ui-info-bg);
+  border: 2px solid var(--ui-info-border);
+  border-radius: var(--game-radius-md);
+  color: var(--ui-text-main);
+}
+
+.game-theme .ui-pill {
+  background: var(--ui-pill-bg);
+  border: 1.5px solid var(--ui-pill-border);
+  color: var(--ui-pill-text);
+  border-radius: 9999px;
+}
+
+.game-theme .ui-input {
+  background: var(--ui-input-bg);
+  border: 2px solid var(--ui-input-border);
+  color: var(--ui-input-text);
+  border-radius: var(--game-radius-md);
+}
+
+.game-theme .ui-nav {
+  background: var(--ui-nav-bg);
+  border-color: var(--ui-nav-border);
+  color: var(--ui-text-main);
+}
+
+.game-theme .ui-tab-active {
+  background: var(--ui-tab-active-bg);
+  border: 3px solid var(--ui-tab-active-border);
+  border-bottom-color: var(--ui-tab-active-bg) !important;
+  color: var(--ui-text-main);
+}
+
+.game-theme .ui-tab-inactive {
+  background: var(--ui-tab-inactive-bg);
+  border: 2.5px solid var(--ui-tab-inactive-border);
+  color: var(--ui-text-muted);
 }

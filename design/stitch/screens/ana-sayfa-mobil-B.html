@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>CoC Analitik — Ana Sayfa</title>
+<!-- Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-fixed-variant": "#6e3900",
+            "tertiary-fixed": "#ffdf9a",
+            "surface-tint": "#8ddb50",
+            "on-tertiary-fixed": "#251a00",
+            "on-primary": "#183800",
+            "outline": "#8b9480",
+            "on-error": "#690005",
+            "on-surface-variant": "#c1cab4",
+            "on-primary-fixed": "#0c2000",
+            "surface-container-lowest": "#1d0800",
+            "on-primary-fixed-variant": "#265100",
+            "on-secondary": "#4d2600",
+            "on-secondary-fixed": "#2f1500",
+            "primary-fixed": "#a8f86a",
+            "primary-fixed-dim": "#8ddb50",
+            "primary-container": "#72bd36",
+            "inverse-surface": "#ffdbc9",
+            "on-tertiary-container": "#513c00",
+            "secondary": "#ffb77d",
+            "secondary-fixed-dim": "#ffb77d",
+            "surface-variant": "#4a2e1d",
+            "on-primary-container": "#214800",
+            "surface-container-highest": "#4a2e1d",
+            "error": "#ffb4ab",
+            "inverse-primary": "#356b00",
+            "on-error-container": "#ffdad6",
+            "error-container": "#93000a",
+            "inverse-on-surface": "#452a19",
+            "background": "#230d02",
+            "surface-container": "#32190a",
+            "tertiary-fixed-dim": "#f5bf29",
+            "secondary-fixed": "#ffdcc3",
+            "surface-container-low": "#2d1507",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "tertiary-container": "#d6a300",
+            "on-secondary-container": "#432100",
+            "surface-container-high": "#3e2313",
+            "primary": "#8ddb50",
+            "on-surface": "#ffdbc9",
+            "on-background": "#ffdbc9",
+            "surface": "#230d02",
+            "surface-bright": "#4f3221",
+            "secondary-container": "#d97707",
+            "surface-dim": "#230d02",
+            "outline-variant": "#414939",
+            "on-tertiary": "#3f2e00",
+            "tertiary": "#f5bf29"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Krem Taş Pencere Özel Gölgeleri */
+    .cream-stone-window {
+      background-color: #E7E7DE;
+      border: 4px solid #5A5552;
+      box-shadow: inset 0 -4px 0 #B8B6AF, inset 0 2px 0 rgba(255,255,255,0.8), 0 8px 24px rgba(0,0,0,0.6);
+    }
+    /* 3D Ahşap/Yeşil Düğme Parlaklığı (Dış gölgesiz, iç parlaklıklı) */
+    .btn-coc-green {
+      background: linear-gradient(180deg, #9CE04A 0%, #72BD36 50%, #519E23 100%);
+      border: 2.5px solid #142E06;
+      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.55), inset 0 -2px 0 #2E6B11;
+    }
+    .btn-coc-green:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 #2E6B11;
+    }
+    /* Ahşap-Bronz Kart Stili */
+    .card-coc-wood {
+      background: linear-gradient(180deg, #6E4D3A 0%, #5A3A28 40%, #462C22 100%);
+      border: 2px solid #28160C;
+      box-shadow: inset 0 1.5px 0 rgba(255,255,255,0.18), 0 3px 0 #1E0F08;
+    }
+    .card-coc-wood:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 1px 0 #1E0F08;
+    }
+    /* Koyu İç Oyuk (Well) */
+    .well-inset {
+      background: linear-gradient(180deg, #2D1D14 0%, #1F130D 100%);
+      border: 1.5px solid #140C07;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.7);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#1B130E] text-on-surface antialiased min-h-screen pb-24 overflow-x-hidden selection:bg-primary selection:text-surface-container-lowest">
+<!-- ================= TOP APP BAR (Shared Component JSON) ================= -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 h-14 bg-surface-container-high dark:bg-surface-container-high max-w-md mx-auto shadow-md border-b-2 border-outline-variant dark:border-outline-variant">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary text-xl">shield</span>
+</div>
+<h1 class="font-headline text-lg font-extrabold text-on-surface dark:text-on-surface tracking-wide drop-shadow-sm">CoC Analitik</h1>
+</div>
+<button aria-label="Arama" class="w-10 h-10 rounded-lg flex items-center justify-center text-on-surface hover:bg-surface-container dark:hover:bg-surface-container transition-colors duration-150 active:scale-95">
+<span class="material-symbols-outlined text-xl">search</span>
+</button>
+</header>
+<!-- ================= MAIN CONTAINER (Mobil 390px Odaklı) ================= -->
+<main class="w-full max-w-[390px] mx-auto pt-16 px-4 flex flex-col items-center">
+<!-- Pencere Sekme Şeridi (GameTabBar) -->
+<div class="w-full max-w-[358px] flex items-end justify-start gap-1 px-3 z-10 -mb-[4px]">
+<!-- Aktif Sekme: Ana Sayfa (Krem gövdeyle dikişsiz birleşen) -->
+<button class="relative flex items-center gap-1.5 px-4 h-10 rounded-t-[12px] bg-[#E7E7DE] border-t-[3.5px] border-x-[3.5px] border-[#5A5552] text-[#2D251E] font-headline font-extrabold text-sm tracking-wide z-20">
+<span class="material-symbols-outlined text-[18px] text-[#4A2E1E]">cottage</span>
+<span>Ana Sayfa</span>
+</button>
+<!-- Pasif Sekme: Sıralama (Taş-gri gradyan) -->
+<button class="flex items-center gap-1.5 px-4 h-9 rounded-t-[10px] bg-gradient-to-b from-[#7B7163] to-[#685E52] border-t-2 border-x-2 border-[#382014] text-[#D3CDC4] font-headline font-bold text-xs tracking-wider opacity-85 active:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#D3CDC4]">leaderboard</span>
+<span>Sıralama</span>
+</button>
+</div>
+<!-- ================= ANA GÖVDE: KREM TAŞ DİYALOG PENCERESİ ================= -->
+<section class="w-full max-w-[358px] cream-stone-window rounded-[20px] p-3.5 flex flex-col gap-3 relative z-0">
+<!-- 1. Üst Durum Şeridi (Ahşap Banner) -->
+<div class="w-full rounded-[14px] bg-gradient-to-b from-[#5E3F32] via-[#4F3327] to-[#462C22] border-2 border-[#24140C] p-2.5 flex items-center justify-between shadow-[inset_0_1.5px_0_rgba(255,255,255,0.2),0_2px_4px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-2 pr-1">
+<div class="w-8 h-8 rounded-lg bg-[#2D1A10] border border-[#1E0F08] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-lg">campaign</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white text-xs font-headline font-bold leading-tight drop-shadow">Oyuncu ve klan araçlarını</span>
+<span class="text-tertiary-fixed text-[11px] font-medium leading-tight">keşfetmeye hazır mısın?</span>
+</div>
+</div>
+<button aria-label="Hızlı Ara" class="btn-coc-green shrink-0 px-3 min-h-[44px] rounded-xl flex items-center gap-1.5 active:scale-95 transition-transform cursor-pointer">
+<span class="text-white text-xs font-headline font-extrabold tracking-wide uppercase drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">Hızlı Ara</span>
+<span class="material-symbols-outlined text-white text-sm">search</span>
+</button>
+</div>
+<!-- 2. Tek Sütun 6 Ahşap-Bronz Araç Kartı -->
+<div class="flex flex-col gap-2.5 w-full">
+<!-- KART 1: Oyuncu Ara -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<!-- Sade İkon Yuvası (Kare 44x44, No AI/Photo) -->
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">person_search</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Oyuncu Ara</h2>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">Etiketle oyuncu profilini gör</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">history</span>
+<span>Son aranan: <strong class="text-tertiary tabular-nums tracking-wide">#P89PCUPUQ</strong></span>
+</div>
+<span class="text-[10px] text-[#A8988B]">Görüntüle</span>
+</div>
+</article>
+<!-- KART 2: Klan Ara -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">groups</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Klan Ara</h2>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">Ad veya filtreyle klan bul</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">tune</span>
+<span class="truncate max-w-[210px]">Konum, üye sayısı, seviye filtreleri</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-[#A8988B]">filter_alt</span>
+</div>
+</article>
+<!-- KART 3: Meta & Ordu -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">swords</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Meta &amp; Ordu</h2>
+<span class="px-1.5 py-0.5 rounded-[4px] bg-[#2E6B11] border border-[#519E23] text-white text-[9px] font-black uppercase tracking-wider tabular-nums">CANLI</span>
+</div>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">En çok kazanan meta ordular</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-primary">update</span>
+<span class="tabular-nums">200 oyuncu • Son güncelleme 21:33</span>
+</div>
+<span class="text-tertiary-fixed text-[10px] font-extrabold">TH16 / TH17</span>
+</div>
+</article>
+<!-- KART 4: Duvar Yazısı -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">grid_view</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Duvar Yazısı</h2>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">Köyünde duvarlarla yazı yaz</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">border_all</span>
+<span>44x44 ana köy ızgarası</span>
+</div>
+<span class="text-[10px] text-tertiary font-bold">Jeneratör</span>
+</div>
+</article>
+<!-- KART 5: CWL Rakip Analizi -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">military_tech</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">CWL Rakip Analizi</h2>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">Rakip kadroyu ve ordularını incele</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">shield</span>
+<span>Klan etiketiyle hızlı tarama</span>
+</div>
+<span class="text-[10px] text-secondary font-bold">Lig Savaşları</span>
+</div>
+</article>
+<!-- KART 6: Cevher Analizi -->
+<article class="card-coc-wood rounded-[14px] p-2.5 flex flex-col gap-2 transition-transform active:scale-[0.99] cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-[44px] h-[44px] rounded-[10px] well-inset flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary text-2xl">diamond</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline font-extrabold text-[15px] text-[#FFF4E8] tracking-tight drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Cevher Analizi</h2>
+<p class="text-[12px] font-medium text-[#E5D2C1] leading-tight">Ekipman cevher planı ve süre tahmini</p>
+</div>
+</div>
+<div class="w-8 h-8 rounded-full bg-[#342219] border border-[#22140D] flex items-center justify-center text-[#D9A373] shadow-inner">
+<span class="material-symbols-outlined text-base">chevron_right</span>
+</div>
+</div>
+<!-- Alt Oyuk Şerit -->
+<div class="well-inset rounded-[8px] px-2.5 py-1.5 flex items-center justify-between text-[11px] font-semibold text-[#D3CDC4]">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary-fixed-dim">build</span>
+<span>TH18 ve kahraman ekipmanları</span>
+</div>
+<span class="text-[10px] text-tertiary-fixed font-bold">Hesaplayıcı</span>
+</div>
+</article>
+</div>
+</section>
+<!-- Küçük Bilgilendirme Notu -->
+<div class="py-4 text-center">
+<p class="text-[11px] font-medium text-[#8C7565]">CoC Analitik • Tüm Clash of Clans verileri güvenle işlenir</p>
+</div>
+</main>
+<!-- ================= BOTTOM NAVIGATION BAR (Shared Component JSON) ================= -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around px-2 py-1.5 min-h-[56px] max-w-md mx-auto bg-surface-container-highest dark:bg-surface-container-highest rounded-t-lg shadow-[0_-4px_12px_rgba(0,0,0,0.5)] border-t-2 border-outline-variant dark:border-outline-variant">
+<!-- Hedef 1: Ana Sayfa (Aktif Navigasyon) -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 rounded-lg bg-surface-container dark:bg-surface-container text-primary dark:text-primary border border-primary-container dark:border-primary-container active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-xl">cottage</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Ana Sayfa</span>
+</a>
+<!-- Hedef 2: Oyuncu & Klan -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-bright dark:hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-xl">groups</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Oyuncu &amp; Klan</span>
+</a>
+<!-- Hedef 3: Meta -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-bright dark:hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-xl">military_tech</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Meta</span>
+</a>
+<!-- Hedef 4: CWL -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-bright dark:hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-xl">swords</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">CWL</span>
+</a>
+<!-- Hedef 5: Daha Fazla -->
+<a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] px-2 py-1 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-bright dark:hover:bg-surface-bright transition-colors duration-150 active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined text-xl">more_horiz</span>
+<span class="font-label text-xs font-bold leading-tight mt-0.5">Daha Fazla</span>
+</a>
+</nav>
+<!-- Basit mikro-etkileşimler için inline script -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Kart tıklama efekti
+      const cards = document.querySelectorAll('article');
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          card.classList.add('opacity-90');
+          setTimeout(() => card.classList.remove('opacity-90'), 150);
+        });
+      });
+    });
+  </script>
+</body></html>

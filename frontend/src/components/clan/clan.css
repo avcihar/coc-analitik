@@ -4,61 +4,61 @@
 
 :root {
   /* Member Highlight token */
-  --clan-highlight-bg: #E2F0D9;
-  --clan-highlight-border: #72BD36;
+  --clan-highlight-bg: var(--game-slot-bg-light);
+  --clan-highlight-border: var(--game-btn-green-mid);
   --clan-highlight-shadow: rgba(114, 189, 54, 0.35);
 
-  /* Member row surfaces */
-  --clan-row-bg: rgba(255, 255, 255, 0.72);
-  --clan-row-hover-bg: rgba(255, 255, 255, 0.94);
-  --clan-row-border: #C8C1B4;
-  --clan-row-shadow: rgba(42, 30, 18, 0.1);
+  /* Member row surfaces (Opaque canonical wood well) */
+  --clan-row-bg: var(--game-slot-bg-dark);
+  --clan-row-hover-bg: var(--game-slot-bg-light);
+  --clan-row-border: var(--game-slot-border);
+  --clan-row-shadow: var(--game-wood-shadow);
 
   /* Rank ribbon / shield badge (green) */
-  --clan-rank-green-top: #9CE04A;
-  --clan-rank-green-mid: #72BD36;
-  --clan-rank-green-bot: #519E23;
-  --clan-rank-green-border: #2D6B10;
+  --clan-rank-green-top: var(--game-btn-green-top);
+  --clan-rank-green-mid: var(--game-btn-green-mid);
+  --clan-rank-green-bot: var(--game-btn-green-bot);
+  --clan-rank-green-border: var(--game-btn-green-bevel);
 
   /* Trophy pill well */
-  --clan-trophy-well-bg: #EAE4D7;
-  --clan-trophy-well-border: #9E9484;
-  --clan-trophy-well-shadow: rgba(42, 30, 18, 0.16);
-  --clan-trophy-text: #2D251E;
+  --clan-trophy-well-bg: var(--game-dark-box-dark);
+  --clan-trophy-well-border: var(--game-pill-border);
+  --clan-trophy-well-shadow: rgba(0, 0, 0, 0.35);
+  --clan-trophy-text: var(--ui-text-main);
 
   /* Donation inset box */
-  --clan-donation-box-bg: rgba(255, 253, 248, 0.92);
-  --clan-donation-box-border: #C4BBA9;
-  --clan-donation-label: #5D5245;
-  --clan-donation-value: #221C16;
+  --clan-donation-box-bg: var(--game-dark-box-mid);
+  --clan-donation-box-border: var(--game-dark-box-border);
+  --clan-donation-label: var(--ui-text-muted);
+  --clan-donation-value: var(--ui-text-main);
 
-  /* Key:Value grid in warm wood-bronze header card */
-  --clan-header-key: #E7D9C8;
-  --clan-header-val: #FFFBF5;
-  --clan-header-border: rgba(255, 236, 209, 0.14);
-  --clan-header-ribbon: #D98A2B;
+  /* Key:Value grid in warm wood header card */
+  --clan-header-key: var(--ui-text-muted);
+  --clan-header-val: var(--ui-text-main);
+  --clan-header-border: var(--game-wood-header-border);
+  --clan-header-ribbon: var(--game-btn-gold-bot);
 
-  /* Clan label pills (warm dark wood, zero navy) */
-  --clan-label-bg: rgba(28, 18, 12, 0.72);
-  --clan-label-border: rgba(255, 224, 178, 0.22);
-  --clan-label-text: #FFFBF5;
+  /* Clan label pills (opaque dark wood) */
+  --clan-label-bg: var(--ui-pill-bg);
+  --clan-label-border: var(--ui-pill-border);
+  --clan-label-text: var(--ui-pill-text);
 
   /* Text hierarchy */
-  --clan-name-text: #FFFBF5;
-  --clan-tag-text: #FCD34D;
-  --clan-desc-text: #F5EFE6;
-  --clan-member-name: #221C16;
-  --clan-member-role: #655B4E;
+  --clan-name-text: var(--ui-text-main);
+  --clan-tag-text: var(--ui-text-gold);
+  --clan-desc-text: var(--ui-text-main);
+  --clan-member-name: var(--ui-text-main);
+  --clan-member-role: var(--ui-text-muted);
 }
 
-/* 1. Header Card (Warm Stone-Wood Bronze Panel — replaces cold steel-navy) */
+/* 1. Header Card (Canonical Wood Panel matching Meta & Ordu) */
 .clan-header-panel {
-  background: linear-gradient(180deg, var(--game-section-blue-top, #5A4332) 0%, var(--game-section-blue-mid, #4A3527) 48%, var(--game-section-blue-bot, #3B291D) 100%);
-  border: 3.5px solid var(--game-section-blue-border, #261810);
+  background: var(--ui-panel-bg);
+  border: 3px solid var(--ui-panel-border);
   border-radius: 18px;
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.42),
-    inset 0 1.5px 0 rgba(255, 240, 215, 0.22),
+    inset 0 1.5px 0 var(--game-wood-highlight),
     inset 0 -2px 0 rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
@@ -84,7 +84,7 @@
   right: 18px;
   width: 28px;
   height: 46px;
-  background: linear-gradient(180deg, #FBBF24 0%, var(--clan-header-ribbon) 70%, #9A5512 100%);
+  background: linear-gradient(180deg, var(--game-btn-gold-top) 0%, var(--clan-header-ribbon) 70%, var(--game-btn-gold-bevel) 100%);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
   border-left: 1px solid rgba(255, 255, 255, 0.4);
@@ -152,7 +152,7 @@
 .clan-member-count {
   font-family: var(--game-font);
   font-weight: 800;
-  color: #382A1D;
+  color: var(--ui-text-main);
   font-size: 1.125rem;
   letter-spacing: -0.01em;
 }
@@ -162,32 +162,32 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 6px 12px;
-  background: linear-gradient(180deg, var(--game-btn-silver-top, #EFECE5) 0%, var(--game-btn-silver-bot, #B2AFA7) 100%);
-  border: 2px solid var(--game-btn-silver-border, #3C3A38);
+  background: var(--ui-info-bg);
+  border: 2px solid var(--ui-info-border);
   border-radius: 12px;
   box-shadow:
-    0 2px 0 var(--game-btn-silver-bevel, #7A7872),
+    0 2px 0 var(--game-wood-shadow),
     0 3px 4px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    inset 0 1px 0 var(--game-wood-highlight);
   font-family: var(--game-font-ui, sans-serif);
   font-weight: 700;
   font-size: 0.85rem;
-  color: #2D251E;
+  color: var(--ui-text-main);
   cursor: pointer;
   user-select: none;
   transition: transform 0.08s ease, filter 0.15s ease;
 }
 
 .clan-sort-button:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
 }
 
 .clan-sort-button:active {
   transform: translateY(1.5px);
   box-shadow:
-    0 1px 0 var(--game-btn-silver-bevel, #7A7872),
+    0 1px 0 var(--game-wood-shadow),
     0 1.5px 2px rgba(0, 0, 0, 0.25);
 }
 
@@ -198,7 +198,7 @@
   border-radius: 14px;
   box-shadow:
     0 2px 4px var(--clan-row-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    inset 0 1px 0 var(--game-wood-highlight);
   transition: all 0.15s ease;
   user-select: none;
   cursor: pointer;
@@ -206,11 +206,11 @@
 
 .clan-member-row:hover {
   background: var(--clan-row-hover-bg);
-  border-color: #9C978D;
+  border-color: var(--game-cream-dark);
   transform: translateY(-1px);
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    0 4px 8px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 var(--game-wood-highlight);
 }
 
 /* 6. Active Highlight Row */
@@ -219,9 +219,9 @@
   background-color: var(--clan-highlight-bg) !important;
   border-color: var(--clan-highlight-border) !important;
   box-shadow:
-    0 0 0 2px rgba(114, 189, 54, 0.35),
-    0 4px 10px rgba(0, 0, 0, 0.18),
-    inset 0 1.5px 0 rgba(255, 255, 255, 0.9) !important;
+    0 0 0 2px var(--clan-highlight-shadow),
+    0 4px 10px rgba(0, 0, 0, 0.24),
+    inset 0 1.5px 0 var(--game-wood-highlight) !important;
 }
 
 /* 7. Green Rank Ribbon Badge */
@@ -237,7 +237,7 @@
   box-shadow:
     0 2px 0 rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
-  color: #FFFFFF;
+  color: var(--ui-text-main);
   font-family: var(--game-font);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -260,7 +260,7 @@
   border-radius: 9999px;
   box-shadow:
     inset 0 2px 3px var(--clan-trophy-well-shadow),
-    0 1px 0 rgba(255, 255, 255, 0.7);
+    0 1px 0 var(--game-wood-highlight);
   font-family: var(--game-font-ui, sans-serif);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
@@ -300,12 +300,12 @@
 }
 
 .clan-modal-card {
-  background: #EFECE5;
-  border: 4px solid #4A3A2C;
+  background: var(--game-slot-bg-dark);
+  border: 4px solid var(--ui-panel-border);
   border-radius: 20px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
   width: 100%;
   max-width: 520px;
   overflow: hidden;
-  color: #2D251E;
+  color: var(--ui-text-main);
 }

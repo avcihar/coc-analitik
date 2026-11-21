@@ -1124,6 +1124,17 @@ export function computeMaxFittingChars(
   if (!text || text.length === 0) return 0;
 
   const is45 = is45DegreeAngle(rotationDeg);
+  const normRot = ((rotationDeg % 360) + 360) % 360;
+  const rotThreshold =
+    normRot % 90 === 0
+      ? 0.4
+      : is45
+      ? preserveThinLines
+        ? 0.34
+        : 0.35
+      : preserveThinLines
+      ? 0.34
+      : 0.38;
   let left = 1;
   let right = text.length;
   let best = 0;
@@ -1133,7 +1144,7 @@ export function computeMaxFittingChars(
     const sub = text.slice(0, mid);
     const { lines } = layoutLines(sub, font, scale, letterSpacing, convertTurkishToAscii, is45);
     const { localMat } = renderLinesToLocalMatrix(lines, font, scale, letterSpacing, preserveThinLines);
-    const placed = placeBitmapInGrid(localMat, rotationDeg);
+    const placed = placeBitmapInGrid(localMat, rotationDeg, rotThreshold);
 
     if (placed.fitsInGrid && placed.placedWalls <= maxWalls) {
       best = mid;
@@ -1181,25 +1192,25 @@ export function computeWallArt(
     let hadIntermediateBreak = false;
 
     if (normRot % 90 !== 0) {
-      const testedChars = new Set<string>();
-      for (const ch of text) {
-        if (ch === " " || testedChars.has(ch)) continue;
-        testedChars.add(ch);
-        const resolved = resolveChar(ch, font, convertTurkishToAscii);
-        if (resolved.glyph) {
-          const resGlyph = boxResample(
-            resolved.glyph,
-            sc,
-            sc < 1 && preserveThinLines ? 0.25 : 0.5
-          );
-          const conn = testGlyphConnectivity(resGlyph, normRot, 0.4);
-          if (conn.needsDilation) {
-            thickenedChars.push(ch);
-          } else if (conn.effectiveT < lowestT) {
-            lowestT = conn.effectiveT;
-          }
-          if (!isLattice45 && conn.rotComp4 > conn.srcComp8) {
-            hadIntermediateBreak = true;
+      if (isLattice45) {
+        lowestT = preserveThinLines ? 0.34 : 0.35;
+      } else {
+        lowestT = preserveThinLines ? 0.34 : 0.38;
+        const testedChars = new Set<string>();
+        for (const ch of text) {
+          if (ch === " " || testedChars.has(ch)) continue;
+          testedChars.add(ch);
+          const resolved = resolveChar(ch, font, convertTurkishToAscii);
+          if (resolved.glyph) {
+            const resGlyph = boxResample(
+              resolved.glyph,
+              sc,
+              sc < 1 && preserveThinLines ? 0.25 : 0.5
+            );
+            const conn = testGlyphConnectivity(resGlyph, normRot, 0.4);
+            if (conn.rotComp4 > conn.srcComp8) {
+              hadIntermediateBreak = true;
+            }
           }
         }
       }

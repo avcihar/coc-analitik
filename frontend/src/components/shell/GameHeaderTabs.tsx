@@ -44,7 +44,7 @@ export const SHELL_TABS: TabItem[] = [
 export interface GameHeaderTabsProps {
   activeTab: TabKey;
   onTabChange: (tab: TabKey) => void;
-  variant?: "cream" | "bare";
+  variant?: "cream" | "bare" | "wood";
   className?: string;
 }
 
@@ -115,9 +115,11 @@ export default function GameHeaderTabs({
             const label = tabLabels[tab.key];
 
             const activeClass =
-              variant === "cream"
-                ? "game-tab-cream-active"
-                : "game-tab-wood-attached";
+              variant === "wood"
+                ? "ui-tab-active"
+                : variant === "cream"
+                  ? "game-tab-cream-active"
+                  : "game-tab-wood-attached";
 
             return (
               <button
@@ -132,20 +134,26 @@ export default function GameHeaderTabs({
                   "xl:!px-3 xl:!py-[9px] xl:!text-[13.5px] xl:!gap-1.5",
                   isActive
                     ? activeClass
-                    : "game-tab-stone-inactive hover:brightness-110"
+                    : variant === "wood"
+                      ? "ui-tab-inactive hover:brightness-110"
+                      : "game-tab-stone-inactive hover:brightness-110"
                 )}
               >
                 <Icon
                   size={14}
                   className={cn(
                     "shrink-0",
-                    isActive ? "text-[#2D2016]" : "text-[#EFE7D8]"
+                    variant === "wood"
+                      ? isActive ? "text-[var(--ui-text-main)]" : "text-[var(--ui-text-muted)]"
+                      : isActive ? "text-[#2D2016]" : "text-[#EFE7D8]"
                   )}
                 />
                 <span
                   className={cn(
                     "whitespace-nowrap",
-                    isActive ? "text-[#2D2016] font-extrabold" : "text-[#F5EFE6]"
+                    variant === "wood"
+                      ? isActive ? "text-[var(--ui-text-main)] font-extrabold" : "text-[var(--ui-text-muted)]"
+                      : isActive ? "text-[#2D2016] font-extrabold" : "text-[#F5EFE6]"
                   )}
                 >
                   {label}

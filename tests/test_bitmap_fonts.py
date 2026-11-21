@@ -120,3 +120,35 @@ def test_real_fonts_pass_validation():
             assert font["height"] == 16
             assert font["baseline"] == 15
 
+
+def test_all_six_fonts_have_complete_turkish_digits_symbols():
+    expected_fonts = [
+        "clash_bold.json",
+        "clash_slim.json",
+        "clash_block.json",
+        "cross_stitch.json",
+        "plastic_canvas.json",
+        "tango_stitch.json",
+    ]
+    for f in expected_fonts:
+        path = os.path.join("Fonts", f)
+        with open(path, "r", encoding="utf-8") as fp:
+            data = json.load(fp)
+        file_id = os.path.splitext(f)[0]
+        font, errors = validate_and_normalize(data, file_id, f)
+        assert errors == []
+        assert font is not None
+        ms = font["missingSummary"]
+        assert ms["hasLowercase"] is True
+        assert ms["hasDigits"] is True
+        assert ms["missingTurkishUpper"] == []
+        assert ms["missingTurkishLower"] == []
+        assert ms["missingAsciiUpper"] == []
+        assert ms["missingAsciiLower"] == []
+        assert ms["missingDigits"] == []
+        assert ms["missingPunctuation"] == []
+        assert ms["totalSupported"] == 91
+        for sym in ["#", "&", "@", "*"]:
+            assert sym in font["glyphs"]
+
+

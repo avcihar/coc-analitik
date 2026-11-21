@@ -1,4 +1,5 @@
 import type { ClanMember, ClanVillageTab } from "./types";
+import { resolveBuilderBaseLeague } from "@/lib/builderBaseManifest";
 
 export interface LeagueTierData {
   id: number;
@@ -112,27 +113,27 @@ export function getBuilderBaseLeagueInfo(
   locale: "tr" | "en" = "tr"
 ): { iconUrl?: string; name: string } {
   const isTr = locale === "tr";
-  if (member.builderBaseLeague?.iconUrls?.small || member.builderBaseLeague?.iconUrls?.medium) {
+  const explicitIcon =
+    member.builderBaseLeague?.iconUrls?.small ||
+    member.builderBaseLeague?.iconUrls?.medium;
+
+  if (explicitIcon) {
+    const resolvedName = member.builderBaseLeague?.name
+      ? resolveBuilderBaseLeague(member.builderBaseLeague.name, undefined, locale).name
+      : isTr
+      ? "İnşaatçı Ligi"
+      : "Builder League";
     return {
-      iconUrl: member.builderBaseLeague.iconUrls.small || member.builderBaseLeague.iconUrls.medium,
-      name: member.builderBaseLeague.name || (isTr ? "İnşaatçı Ligi" : "Builder League"),
+      iconUrl: explicitIcon,
+      name: resolvedName,
     };
   }
-  if (member.builderBaseLeague?.name) {
-    return {
-      name: member.builderBaseLeague.name,
-    };
-  }
-  const bbTrophies = member.builderBaseTrophies ?? member.trophies ?? 0;
-  if (bbTrophies >= 5000) return { name: isTr ? "Elmas Ligi" : "Diamond League" };
-  if (bbTrophies >= 4000) return { name: isTr ? "Zümrüt Ligi" : "Emerald League" };
-  if (bbTrophies >= 3000) return { name: isTr ? "Platin Ligi" : "Platinum League" };
-  if (bbTrophies >= 2200) return { name: isTr ? "Çelik Ligi" : "Steel League" };
-  if (bbTrophies >= 1600) return { name: isTr ? "Demir Ligi" : "Iron League" };
-  if (bbTrophies >= 1000) return { name: isTr ? "Bakır Ligi" : "Copper League" };
-  if (bbTrophies >= 500) return { name: isTr ? "Taş Ligi" : "Stone League" };
-  if (bbTrophies > 0) return { name: isTr ? "Ahşap Ligi" : "Wood League" };
-  return { name: isTr ? "Ligsiz" : "Unranked" };
+
+  return resolveBuilderBaseLeague(
+    member.builderBaseLeague?.name,
+    member.builderBaseTrophies ?? member.trophies,
+    locale
+  );
 }
 
 /**

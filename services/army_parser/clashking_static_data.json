@@ -1041,6 +1041,124 @@
       "housing_space": 80,
       "is_flying": false,
       "super_troop": null
+    },
+    {
+      "_id": 4000194,
+      "id": 194,
+      "name": "Totem Thrower",
+      "village": "home",
+      "production_building": "Barracks",
+      "housing_space": 28,
+      "is_seasonal": true,
+      "super_troop": null
+    },
+    {
+      "_id": 4000195,
+      "id": 195,
+      "name": "Barch Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 15,
+      "super_troop": null
+    },
+    {
+      "_id": 4000196,
+      "id": 196,
+      "name": "Giant Wizard Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 25,
+      "super_troop": null
+    },
+    {
+      "_id": 4000197,
+      "id": 197,
+      "name": "Wall Breaker Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 8,
+      "super_troop": null
+    },
+    {
+      "_id": 4000198,
+      "id": 198,
+      "name": "Minion Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 12,
+      "super_troop": null
+    },
+    {
+      "_id": 4000199,
+      "id": 199,
+      "name": "Balloon Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 16,
+      "super_troop": null
+    },
+    {
+      "_id": 4000200,
+      "id": 200,
+      "name": "Golem Witch Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 55,
+      "super_troop": null
+    },
+    {
+      "_id": 4000201,
+      "id": 201,
+      "name": "Hog Rider Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 48,
+      "super_troop": null
+    },
+    {
+      "_id": 4000202,
+      "id": 202,
+      "name": "Miner Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 48,
+      "super_troop": null
+    },
+    {
+      "_id": 4000203,
+      "id": 203,
+      "name": "Healer Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 70,
+      "super_troop": null
+    },
+    {
+      "_id": 4000204,
+      "id": 204,
+      "name": "P.E.K.K.A Titan Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 57,
+      "super_troop": null
+    },
+    {
+      "_id": 4000205,
+      "id": 205,
+      "name": "Dragons Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 85,
+      "super_troop": null
+    },
+    {
+      "_id": 4000206,
+      "id": 206,
+      "name": "Baby Dragon Squad",
+      "village": "home",
+      "production_building": "Squad Barracks",
+      "housing_space": 30,
+      "super_troop": null
     }
   ],
   "spells": [
@@ -1183,6 +1301,13 @@
       "name": "Angry Spell",
       "production_building": "Dark Spell Factory",
       "housing_space": 1
+    },
+    {
+      "_id": 26000153,
+      "id": 153,
+      "name": "Heroic Spell",
+      "production_building": "Spell Factory",
+      "housing_space": 2
     }
   ],
   "heroes": [
@@ -1591,6 +1716,13 @@
       "name": "Revenge Deck",
       "rarity": "Epic",
       "hero": "Dragon Duke"
+    },
+    {
+      "_id": 90000061,
+      "id": 61,
+      "name": "Portal Pendant",
+      "rarity": "Epic",
+      "hero": "Minion Prince"
     }
   ]
 }

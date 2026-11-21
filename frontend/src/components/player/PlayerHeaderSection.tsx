@@ -3,13 +3,8 @@
 import React from "react";
 import {
   Star,
-  Trophy,
   Users,
   ExternalLink,
-  Swords,
-  Shield,
-  HandHeart,
-  Gift,
 } from "lucide-react";
 import { SectionPanel, ClanBadge, GameButton } from "@/components/game";
 import { getLocalizedLeagueName } from "@/components/clan/leagueHelper";
@@ -63,18 +58,15 @@ function localizeRole(role: string | undefined, roles: PlayerRolesMap): string {
 
 /**
  * PlayerHeaderSection
- * Upper header block of Player Profile:
- * - Left: XP level crest, player identity, Town Hall / weapon level badge, role, labels, Open in Game link
- * - Center: Clan badge & View Clan button (min 44px touch target)
- * - Right: Localized League crest & current trophies
- * - Bottom: Flattened 2-layer stats grid (`grid-cols-2 sm:grid-cols-3`, >=12px non-truncated labels, tabular-nums)
+ * Desktop (1440px): Horizontal 3-area profile header (Identity + Labels + Open in Game | Clan + War Stars + View Clan | League + Trophies & Best Trophies).
+ * Mobile (390px): Stacked Identity -> Clan row -> 3-stat mini row (War Stars | Current League | Best Trophies).
  */
 export default function PlayerHeaderSection({
   player,
   onViewClan,
   className,
 }: PlayerHeaderSectionProps) {
-  const { t, locale, fmtNum, fmtTemplate } = useLanguage();
+  const { t, locale, isTr, fmtNum } = useLanguage();
   const extendedPlayer = player as PlayerWithOptionalTier;
 
   const localizedRole = localizeRole(player.role, t.player.roles);
@@ -116,107 +108,60 @@ export default function PlayerHeaderSection({
     }
   };
 
-  const statTiles = [
-    {
-      key: "warStars",
-      label: t.player.warStars,
-      value: fmtNum(player.warStars ?? 0),
-      icon: <Star size={14} className="fill-amber-400 text-amber-400 shrink-0" aria-hidden="true" />,
-      valueColor: "text-amber-300",
-    },
-    {
-      key: "bestTrophies",
-      label: t.player.bestTrophies,
-      value: fmtNum(player.bestTrophies ?? player.trophies ?? 0),
-      icon: <Trophy size={14} className="fill-amber-400 text-amber-400 shrink-0" aria-hidden="true" />,
-      valueColor: "text-amber-200",
-    },
-    {
-      key: "donations",
-      label: t.player.donations,
-      value: fmtNum(player.donations ?? 0),
-      icon: <HandHeart size={14} className="text-emerald-300 shrink-0" aria-hidden="true" />,
-      valueColor: "text-white",
-    },
-    {
-      key: "donationsReceived",
-      label: t.player.donationsReceived,
-      value: fmtNum(player.donationsReceived ?? 0),
-      icon: <Gift size={14} className="text-amber-300 shrink-0" aria-hidden="true" />,
-      valueColor: "text-white",
-    },
-    {
-      key: "attackWins",
-      label: t.player.attackWins,
-      value: fmtNum(player.attackWins ?? 0),
-      icon: <Swords size={14} className="text-emerald-300 shrink-0" aria-hidden="true" />,
-      valueColor: "text-emerald-200",
-    },
-    {
-      key: "defenseWins",
-      label: t.player.defenseWins,
-      value: fmtNum(player.defenseWins ?? 0),
-      icon: <Shield size={14} className="text-amber-300 shrink-0" aria-hidden="true" />,
-      valueColor: "text-amber-200",
-    },
-  ];
+  const warStarsValue = fmtNum(player.warStars ?? 0);
+  const currentTrophiesValue = fmtNum(player.trophies ?? 0);
+  const bestTrophiesValue = fmtNum(player.bestTrophies ?? player.trophies ?? 0);
 
   return (
-    <SectionPanel className={cn("space-y-4", className)}>
-      {/* Upper 3-Column Layout (Desktop 3 columns, Mobile 1 column) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-        {/* 1. Left: Exp Crest, Identity, Role, Labels, Open-in-Game */}
-        <div className="flex flex-col justify-between gap-3">
-          <div className="flex items-start gap-3.5">
+    <SectionPanel className={cn("space-y-3 lg:space-y-0", className)}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 lg:gap-4 items-center">
+        {/* 1. Left: Exp Crest, Name, Tag, Role, Labels, Open in Game */}
+        <div className="lg:col-span-5 flex flex-col gap-2.5 min-w-0">
+          <div className="flex items-start gap-3 min-w-0">
             <ExpLevelBadge level={player.expLevel ?? 1} size="md" />
 
-            <div className="flex-1 min-w-0 space-y-1.5">
-              <h2 className="game-text-stroke text-lg sm:text-xl md:text-2xl font-black text-white break-words leading-tight">
-                {player.name}
-              </h2>
-              <div className="text-xs sm:text-sm font-semibold text-amber-100/85 tracking-wide tabular-nums">
-                {player.tag}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <div className="flex-1 min-w-0 space-y-1">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h2 className="font-game game-text-stroke text-lg sm:text-xl font-black text-[var(--ui-text-main)] break-words leading-tight min-w-0">
+                  {player.name}
+                </h2>
                 {localizedRole && (
-                  <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#2B1F16] text-amber-200 text-xs font-bold border border-amber-400/25 shadow-sm">
+                  <span className="ui-pill px-2.5 py-0.5 text-xs font-bold text-[var(--ui-text-muted)] shrink-0">
                     {localizedRole}
                   </span>
                 )}
+              </div>
 
-                <span className="inline-block px-2.5 py-0.5 rounded-md bg-[#2B1F16] text-amber-100 text-xs font-bold border border-amber-400/20 tabular-nums">
-                  {t.common.thShort}
-                  {fmtNum(player.townHallLevel)}
-                  {player.townHallWeaponLevel && player.townHallWeaponLevel > 1
-                    ? ` · ${fmtTemplate(t.player.weaponLevel, {
-                        level: fmtNum(player.townHallWeaponLevel),
-                      })}`
-                    : ""}
-                </span>
+              <div className="text-xs sm:text-sm font-semibold text-[var(--ui-text-gold)] tracking-wide tabular-nums">
+                {player.tag}
               </div>
 
               {/* Player Labels */}
               {player.labels && player.labels.length > 0 && (
-                <div className="flex items-center gap-1.5 pt-1 flex-wrap">
+                <div className="flex items-center gap-1.5 pt-0.5 flex-wrap">
                   {player.labels.map((lbl, idx) => {
                     const iconUrl = lbl.iconUrls?.small || lbl.iconUrls?.medium;
                     return (
                       <div
                         key={lbl.id || idx}
-                        className="w-8 h-8 rounded-lg bg-[#2B1F16] border border-amber-400/25 p-1 flex items-center justify-center shadow-sm"
+                        className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg bg-[var(--game-dark-box-mid)] border border-[var(--ui-info-border)] text-[var(--ui-text-main)] shadow-sm min-w-0"
                         title={lbl.name}
                       >
                         {iconUrl ? (
                           <img
                             src={iconUrl}
                             alt={lbl.name || player.tag}
-                            className="w-full h-full object-contain filter drop-shadow-sm"
+                            className="w-4 h-4 object-contain shrink-0"
                             referrerPolicy="no-referrer"
                             loading="lazy"
                           />
                         ) : (
-                          <span className="text-xs text-amber-200 font-bold">#</span>
+                          <span className="text-xs text-[var(--ui-text-gold)] font-bold shrink-0">#</span>
+                        )}
+                        {lbl.name && (
+                          <span className="text-[11px] font-semibold text-[var(--ui-text-main)] truncate max-w-[110px]">
+                            {lbl.name}
+                          </span>
                         )}
                       </div>
                     );
@@ -227,7 +172,7 @@ export default function PlayerHeaderSection({
           </div>
 
           {openInGameUrl && (
-            <div>
+            <div className="pt-0.5">
               <GameButton
                 variant="gold"
                 size="sm"
@@ -242,47 +187,68 @@ export default function PlayerHeaderSection({
           )}
         </div>
 
-        {/* 2. Center: Clan Badge & View Clan Action */}
-        <div className="flex flex-col items-center justify-center text-center gap-2.5 border-t md:border-t-0 md:border-l md:border-r border-amber-300/15 pt-4 md:pt-0 md:px-4">
+        {/* 2. Center: Clan Badge, Clan Name, War Stars (Desktop), View Clan */}
+        <div className="lg:col-span-4 min-w-0">
           {player.clan ? (
-            <>
-              <div className="game-text-stroke-sm text-sm sm:text-base font-bold text-white tracking-wide break-words max-w-full">
-                {player.clan.name}
+            <div className="ui-info p-2.5 sm:p-3 flex items-center justify-between gap-2.5 shadow-inner">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="relative shrink-0">
+                  <ClanBadge
+                    url={
+                      player.clan.badgeUrls?.large ||
+                      player.clan.badgeUrls?.medium ||
+                      player.clan.badgeUrls?.small
+                    }
+                    name={player.clan.name}
+                    size={46}
+                  />
+                  {player.clan.clanLevel !== undefined && (
+                    <span className="absolute -bottom-1 -right-1 px-1 py-0.5 rounded bg-[var(--game-badge-bg)] border border-[var(--game-badge-border)] text-[10px] font-black text-[var(--ui-text-gold)] tabular-nums leading-none">
+                      {fmtNum(player.clan.clanLevel)}
+                    </span>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="lg:hidden text-[11px] font-semibold text-[var(--ui-text-muted)]">
+                    {isTr ? "Mevcut Klan" : "Current Clan"}
+                  </div>
+                  <div className="game-text-stroke-sm text-sm font-bold text-[var(--ui-text-main)] truncate">
+                    {player.clan.name}
+                  </div>
+                  <div className="hidden lg:flex items-center gap-1 text-xs font-semibold text-[var(--ui-text-muted)] tabular-nums">
+                    <Star
+                      size={12}
+                      className="fill-[var(--ui-text-gold)] text-[var(--ui-text-gold)] shrink-0"
+                      aria-hidden="true"
+                    />
+                    <span className="truncate">{t.player.warStars}:</span>
+                    <span className="font-black text-[var(--ui-text-gold)]">{warStarsValue}</span>
+                  </div>
+                </div>
               </div>
 
-              <ClanBadge
-                url={
-                  player.clan.badgeUrls?.large ||
-                  player.clan.badgeUrls?.medium ||
-                  player.clan.badgeUrls?.small
-                }
-                name={player.clan.name}
-                size={58}
-              />
-
-              <div className="w-full max-w-[220px] pt-0.5">
-                <GameButton
-                  variant="green"
-                  size="sm"
-                  onClick={handleClanClick}
-                  className="w-full min-h-[44px] text-xs font-bold"
-                  icon={<Users size={15} />}
-                >
-                  {t.player.viewClan}
-                </GameButton>
-              </div>
-            </>
+              <GameButton
+                variant="green"
+                size="sm"
+                onClick={handleClanClick}
+                className="min-h-[44px] px-3 text-xs font-bold shrink-0"
+                icon={<Users size={14} />}
+              >
+                {t.player.viewClan}
+              </GameButton>
+            </div>
           ) : (
-            <div className="py-4 text-center text-amber-100/80 text-xs sm:text-sm font-semibold">
+            <div className="ui-info p-3 text-center text-[var(--ui-text-muted)] text-xs sm:text-sm font-semibold">
               {t.player.noClan}
             </div>
           )}
         </div>
 
-        {/* 3. Right: Current League & Current Trophies */}
-        <div className="flex flex-col justify-center gap-3 border-t md:border-t-0 border-amber-300/15 pt-4 md:pt-0">
-          <div className="bg-[#2B1F16]/85 border border-amber-400/20 rounded-xl p-3.5 flex items-center gap-3.5 shadow-inner">
-            <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+        {/* 3. Right (Desktop): Current League + Trophies & Best Trophies */}
+        <div className="hidden lg:grid lg:col-span-3 grid-cols-2 gap-2.5 min-w-0">
+          <div className="ui-info p-2.5 flex items-center gap-2 min-w-0 shadow-inner">
+            <div className="w-9 h-9 shrink-0 flex items-center justify-center">
               {leagueIconUrl ? (
                 <img
                   src={leagueIconUrl}
@@ -292,56 +258,109 @@ export default function PlayerHeaderSection({
                   loading="lazy"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-lg bg-[#1D140E] border border-amber-400/30 flex items-center justify-center text-amber-400">
-                  <Trophy size={20} aria-hidden="true" />
-                </div>
+                <img
+                  src="/icons/ui/trophy.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="w-5 h-5 object-contain shrink-0 select-none"
+                />
               )}
             </div>
-
-            <div className="min-w-0 flex-1 space-y-0.5">
-              <div className="text-xs font-bold text-amber-200 uppercase tracking-wider">
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold text-[var(--ui-text-muted)] uppercase tracking-wider truncate">
                 {t.player.currentLeague}
               </div>
-              <div className="game-text-stroke-sm text-sm sm:text-base font-bold text-white leading-snug">
+              <div className="game-text-stroke-sm text-base font-black text-[var(--ui-text-main)] tabular-nums leading-tight">
+                {currentTrophiesValue}
+              </div>
+              <div className="text-[11px] font-semibold text-[var(--ui-text-muted)] truncate">
                 {localizedLeagueName}
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-300 pt-0.5 tabular-nums">
-                <Trophy size={14} className="fill-amber-400 text-amber-400 shrink-0" aria-hidden="true" />
-                <span className="game-text-stroke-sm text-base text-white">
-                  {fmtNum(player.trophies ?? 0)}
-                </span>
-                <span className="text-xs font-semibold text-amber-100/85">
-                  {t.search.pointsUnit}
-                </span>
+            </div>
+          </div>
+
+          <div className="ui-info p-2.5 flex items-center gap-2 min-w-0 shadow-inner">
+            <div className="w-8 h-8 rounded-lg bg-[var(--game-dark-box-dark)] border border-[var(--ui-info-border)] flex items-center justify-center shrink-0">
+              <img
+                src="/icons/ui/trophy.png"
+                alt=""
+                aria-hidden="true"
+                className="w-4 h-4 object-contain shrink-0 select-none"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold text-[var(--ui-text-muted)] uppercase tracking-wider leading-tight">
+                {t.player.bestTrophies}
+              </div>
+              <div className="game-text-stroke-sm text-base font-black text-[var(--ui-text-gold)] tabular-nums leading-tight mt-0.5">
+                {bestTrophiesValue}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Flattened 2-Layer Stat Tiles Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-        {statTiles.map((tile) => (
-          <div
-            key={tile.key}
-            className="bg-[#2B1F16]/85 border border-amber-400/20 rounded-xl px-3 py-2.5 flex flex-col justify-between gap-1 shadow-inner"
-          >
-            <span className="text-xs font-semibold text-amber-100/90 leading-snug">
-              {tile.label}
+      {/* Mobile (< lg) 3-Stat Row inside Header: War Stars | Current League | Best Trophies */}
+      <div className="grid grid-cols-3 gap-2 lg:hidden">
+        <div className="ui-info p-2.5 text-center flex flex-col items-center justify-center gap-1 shadow-inner min-w-0">
+          <span className="text-[11px] font-semibold text-[var(--ui-text-muted)] leading-tight">
+            {t.player.warStars}
+          </span>
+          <div className="flex items-center gap-1 tabular-nums">
+            <Star
+              size={13}
+              className="fill-[var(--ui-text-gold)] text-[var(--ui-text-gold)] shrink-0"
+              aria-hidden="true"
+            />
+            <span className="text-sm font-black text-[var(--ui-text-gold)]">
+              {warStarsValue}
             </span>
-            <div className="flex items-center gap-1.5">
-              {tile.icon}
-              <span
-                className={cn(
-                  "text-sm sm:text-base font-black tabular-nums leading-none",
-                  tile.valueColor
-                )}
-              >
-                {tile.value}
-              </span>
-            </div>
           </div>
-        ))}
+        </div>
+
+        <div className="ui-info p-2.5 text-center flex flex-col items-center justify-center gap-1 shadow-inner min-w-0">
+          <span className="text-[11px] font-semibold text-[var(--ui-text-muted)] leading-tight truncate max-w-full">
+            {t.player.currentLeague}
+          </span>
+          <div className="flex items-center gap-1 tabular-nums">
+            {leagueIconUrl ? (
+              <img
+                src={leagueIconUrl}
+                alt={localizedLeagueName}
+                className="w-4 h-4 object-contain shrink-0"
+                referrerPolicy="no-referrer"
+                loading="lazy"
+              />
+            ) : (
+              <img
+                src="/icons/ui/trophy.png"
+                alt=""
+                aria-hidden="true"
+                className="w-3.5 h-3.5 object-contain shrink-0 select-none"
+              />
+            )}
+            <span className="text-sm font-black text-[var(--ui-text-main)]">
+              {currentTrophiesValue}
+            </span>
+          </div>
+        </div>
+
+        <div className="ui-info p-2.5 text-center flex flex-col items-center justify-center gap-1 shadow-inner min-w-0">
+          <span className="text-[11px] font-semibold text-[var(--ui-text-muted)] leading-tight">
+            {t.player.bestTrophies}
+          </span>
+          <div className="flex items-center gap-1 tabular-nums">
+            <img
+              src="/icons/ui/trophy.png"
+              alt=""
+              aria-hidden="true"
+              className="w-3.5 h-3.5 object-contain shrink-0 select-none"
+            />
+            <span className="text-sm font-black text-[var(--ui-text-gold)]">
+              {bestTrophiesValue}
+            </span>
+          </div>
+        </div>
       </div>
     </SectionPanel>
   );

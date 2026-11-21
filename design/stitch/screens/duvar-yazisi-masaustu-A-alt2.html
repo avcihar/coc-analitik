@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CoC Analitik - Duvar Yazısı</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary": "#f5bf29",
+            "background": "#230d02",
+            "secondary": "#ffb77d",
+            "outline-variant": "#414939",
+            "on-error": "#690005",
+            "on-primary-container": "#214800",
+            "surface-variant": "#4a2e1d",
+            "primary": "#8ddb50",
+            "on-secondary": "#4d2600",
+            "inverse-surface": "#ffdbc9",
+            "surface-container-highest": "#4a2e1d",
+            "on-primary-fixed-variant": "#265100",
+            "surface-dim": "#230d02",
+            "error": "#ffb4ab",
+            "on-background": "#ffdbc9",
+            "error-container": "#93000a",
+            "on-tertiary-fixed": "#251a00",
+            "surface-container": "#32190a",
+            "on-secondary-container": "#432100",
+            "on-tertiary": "#3f2e00",
+            "on-surface-variant": "#c1cab4",
+            "on-primary": "#183800",
+            "secondary-fixed-dim": "#ffb77d",
+            "surface": "#230d02",
+            "inverse-primary": "#356b00",
+            "secondary-container": "#d97707",
+            "tertiary-fixed": "#ffdf9a",
+            "tertiary-fixed-dim": "#f5bf29",
+            "surface-container-low": "#2d1507",
+            "primary-fixed-dim": "#8ddb50",
+            "primary-fixed": "#a8f86a",
+            "outline": "#8b9480",
+            "inverse-on-surface": "#452a19",
+            "tertiary-container": "#d6a300",
+            "on-error-container": "#ffdad6",
+            "on-tertiary-container": "#513c00",
+            "secondary-fixed": "#ffdcc3",
+            "on-secondary-fixed-variant": "#6e3900",
+            "on-primary-fixed": "#0c2000",
+            "surface-container-high": "#3e2313",
+            "on-surface": "#ffdbc9",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "surface-tint": "#8ddb50",
+            "on-secondary-fixed": "#2f1500",
+            "primary-container": "#72bd36",
+            "surface-container-lowest": "#1d0800",
+            "surface-bright": "#4f3221"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #ffdbc9;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Clash of Clans Isometric Pattern without images */
+    .coc-grid-pattern {
+      background-color: #1a3818;
+      background-image: 
+        linear-gradient(45deg, #173315 25%, transparent 25%), 
+        linear-gradient(-45deg, #173315 25%, transparent 25%), 
+        linear-gradient(45deg, transparent 75%, #173315 75%), 
+        linear-gradient(-45deg, transparent 75%, #173315 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
+    }
+    .coc-grid-lines {
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Custom Slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: #1d0800;
+      height: 8px;
+      border-radius: 9999px;
+      border: 1px solid #4a2e1d;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #f5bf29;
+      border: 2px solid #513c00;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body class="w-full max-w-full overflow-x-hidden min-h-screen flex flex-col justify-between selection:bg-primary selection:text-background">
+<!-- TOP APP BAR -->
+<header class="w-full bg-surface-container-high border-b border-surface-container-highest shadow-[0_4px_12px_rgba(29,8,0,0.5)] sticky top-0 z-50">
+<div class="w-full max-w-[1360px] mx-auto px-4 flex items-center justify-between h-14">
+<!-- Logo / Brand Anchor -->
+<a class="font-headline font-extrabold text-base text-on-surface tracking-wide flex items-center gap-2 select-none" href="#">
+<div class="w-8 h-8 rounded-lg bg-surface-container border-2 border-surface-container-highest flex items-center justify-center text-tertiary shadow-inner">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm0 2.18l6 2.25v4.66c0 4.14-2.73 8.02-6 9.08-3.27-1.06-6-4.94-6-9.08V6.43l6-2.25z"></path>
+</svg>
+</div>
+<span>CoC Analitik</span>
+</a>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center gap-6 h-full font-headline font-bold text-sm tracking-tight">
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Ana Sayfa</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Oyuncu &amp; Klan</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Meta &amp; Ordu</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">CWL Keşif</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center h-full" href="#">Cevher Analizi</a>
+<a class="text-tertiary-fixed-dim border-b-2 border-tertiary-fixed-dim font-extrabold pb-1 flex items-center h-full" href="#">Duvar Yazısı</a>
+</nav>
+<!-- Mobile Indicator -->
+<div class="md:hidden flex items-center text-xs font-bold text-tertiary px-2 py-1 bg-surface-container rounded border border-surface-container-highest">
+        Duvar Yazısı
+      </div>
+</div>
+</header>
+<!-- MAIN WORKSPACE -->
+<main class="w-full flex-1 max-w-[1360px] mx-auto px-4 py-6 md:py-8 flex flex-col justify-start">
+<!-- Tab Extension Anchor -->
+<div class="flex items-end pl-4">
+<div class="bg-[#2E2016] border-t-4 border-l-4 border-r-4 border-[#543D2B] rounded-t-xl px-5 py-2.5 flex items-center gap-2 text-on-surface font-headline font-extrabold text-sm md:text-base shadow-lg -mb-1 z-10">
+<span class="material-symbols-outlined text-tertiary">grid_view</span>
+<span>Duvar Yazısı</span>
+</div>
+</div>
+<!-- MAIN GAME WINDOW CONTAINER (Variant 2: Top KPI Console + Balanced Dual Bento) -->
+<div class="w-full bg-[#2E2016] border-4 border-[#543D2B] rounded-2xl rounded-tl-none shadow-2xl p-4 md:p-6 lg:p-7 flex flex-col gap-6 relative">
+<!-- 1. ÜST BİLGİ & KPI KONSOLU -->
+<div class="w-full bg-[#241911] border-2 border-[#543D2B] rounded-xl p-4 md:p-5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-5 shadow-inner">
+<!-- Title & Status Description -->
+<div class="flex flex-col justify-center gap-1">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-primary">Canlı Planlama Konsolu</span>
+</div>
+<h1 class="font-extrabold text-2xl md:text-3xl text-stone-100 tracking-tight" style="text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+        Duvar Yazısı Şablon Oluşturucu
+      </h1>
+</div>
+<!-- Center/Right KPI Metrics Row & Action CTA -->
+<div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+<!-- KPI 1: Kullanılan Duvar -->
+<div class="flex-1 sm:flex-initial bg-[#1A120C] border border-[#4A3222] rounded-xl px-3.5 py-2.5 flex flex-col justify-center min-w-[120px] shadow-sm">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Kullanılan Duvar</span>
+<div class="flex items-baseline gap-1 mt-0.5">
+<span class="text-stone-100 font-extrabold text-base md:text-lg tabular-nums">211</span>
+<span class="text-stone-400 font-bold text-xs tabular-nums">/ 325</span>
+</div>
+</div>
+<!-- KPI 2: Kalan Duvar -->
+<div class="flex-1 sm:flex-initial bg-[#1A120C] border border-[#4A3222] rounded-xl px-3.5 py-2.5 flex flex-col justify-center min-w-[95px] shadow-sm">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Kalan</span>
+<span class="text-tertiary font-extrabold text-base md:text-lg tabular-nums mt-0.5">114</span>
+</div>
+<!-- KPI 3: Boyut -->
+<div class="flex-1 sm:flex-initial bg-[#1A120C] border border-[#4A3222] rounded-xl px-3.5 py-2.5 flex flex-col justify-center min-w-[95px] shadow-sm">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Boyut</span>
+<span class="text-stone-200 font-extrabold text-base md:text-lg tabular-nums mt-0.5">26x27</span>
+</div>
+<!-- KPI 4: Harf Yüksekliği -->
+<div class="flex-1 sm:flex-initial bg-[#1A120C] border border-[#4A3222] rounded-xl px-3.5 py-2.5 flex flex-col justify-center min-w-[95px] shadow-sm">
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Harf Yük.</span>
+<span class="text-stone-200 font-extrabold text-base md:text-lg tabular-nums mt-0.5">13</span>
+</div>
+<!-- Primary CTA Button -->
+<button class="w-full sm:w-auto bg-[#72BD36] hover:bg-[#5da02c] active:translate-y-0.5 text-white font-bold px-6 py-3 min-h-[46px] rounded-xl shadow-[0_4px_0_#386314] flex items-center justify-center gap-2 transition-all cursor-pointer select-none shrink-0" type="button">
+<span class="material-symbols-outlined font-bold text-xl">download</span>
+<span class="text-sm md:text-base font-headline">PNG Planı İndir</span>
+</button>
+</div>
+</div>
+<!-- 2. İKİ SÜTUNLU DENGELİ BENTO MATRİSİ -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- SOL KART: Ayarlar ve Giriş Konsolu (5 cols on lg) -->
+<div class="lg:col-span-5 bg-surface-container-lowest border-2 border-surface-container-highest rounded-2xl p-5 flex flex-col gap-4 shadow-inner">
+<div class="flex items-center justify-between pb-2 border-b border-[#3D2C20]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-lg">tune</span>
+<span class="font-headline font-bold text-sm text-stone-200">Giriş ve Tipografi Ayarları</span>
+</div>
+<span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Canlı Önizleme</span>
+</div>
+<!-- Metin ve Duvar Limiti -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<!-- Text Box Input (2 cols) -->
+<div class="sm:col-span-2 flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase">Metin</label>
+<div class="relative flex items-center">
+<input class="w-full bg-[#271C14] border-2 border-[#543D2B] focus:border-tertiary rounded-xl px-4 py-2.5 text-stone-100 font-extrabold text-lg tracking-wider min-h-[44px] outline-none transition-colors" maxlength="35" type="text" value="COC"/>
+<span class="absolute right-4 text-xs font-bold text-on-surface-variant tabular-nums select-none">
+              3/35
+            </span>
+</div>
+</div>
+<!-- Wall Limit Input Box (1 col) -->
+<div class="sm:col-span-1 flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase">Duvar</label>
+<div class="flex items-center bg-[#271C14] border-2 border-[#543D2B] rounded-xl px-3.5 py-2.5 min-h-[44px]">
+<span class="material-symbols-outlined text-tertiary text-lg mr-2 select-none">file_open</span>
+<input class="w-full bg-transparent border-none text-stone-100 font-extrabold text-lg tabular-nums outline-none p-0 focus:ring-0" type="number" value="325"/>
+</div>
+</div>
+</div>
+<!-- Font Dropdown Selector -->
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase">Yazı Tipi</label>
+<div class="w-full bg-[#271C14] border-2 border-[#543D2B] hover:border-tertiary rounded-xl px-4 py-3 flex items-center justify-between min-h-[44px] cursor-pointer transition-colors select-none">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">font_download</span>
+<span class="text-stone-100 font-bold text-sm">Cross Stitch (Varsayılan 5x7)</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Sliders: Font Size & Letter Spacing -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<!-- Slider: Font Size -->
+<div class="bg-[#271C14] border border-[#3D2C20] rounded-xl p-3 min-h-[44px] flex flex-col justify-center gap-1.5 shadow-sm">
+<div class="flex items-center justify-between text-xs font-bold">
+<span class="text-on-surface-variant">Yazı boyutu</span>
+<span class="text-tertiary tabular-nums font-extrabold">1x</span>
+</div>
+<input class="w-full cursor-pointer accent-tertiary" max="5" min="1" type="range" value="1"/>
+</div>
+<!-- Slider: Letter Spacing -->
+<div class="bg-[#271C14] border border-[#3D2C20] rounded-xl p-3 min-h-[44px] flex flex-col justify-center gap-1.5 shadow-sm">
+<div class="flex items-center justify-between text-xs font-bold">
+<span class="text-on-surface-variant">Harf aralığı</span>
+<span class="text-tertiary tabular-nums font-extrabold">1</span>
+</div>
+<input class="w-full cursor-pointer accent-tertiary" max="6" min="0" type="range" value="1"/>
+</div>
+</div>
+<!-- Auto-fit Switch Toggle -->
+<div class="bg-[#271C14] border border-[#3D2C20] rounded-xl px-4 py-3 min-h-[44px] flex items-center justify-between cursor-pointer select-none shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">aspect_ratio</span>
+<span class="text-xs md:text-sm font-bold text-stone-100">Otomatik sığdır</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-[#1a120c] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Scene / Background Dropdown -->
+<div class="flex flex-col gap-1.5 pt-1">
+<label class="text-xs font-bold text-on-surface-variant tracking-wider uppercase">Sahne &amp; Tema</label>
+<div class="w-full bg-[#271C14] border-2 border-[#543D2B] hover:border-tertiary rounded-xl px-4 py-3 flex items-center justify-between min-h-[44px] cursor-pointer transition-colors select-none shadow-inner">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#6ED3F7]">ac_unit</span>
+<span class="text-stone-100 font-bold text-sm">Arka Plan / Sahne: Kış Sahnesi (Winter)</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<!-- Quick Tips strip -->
+<div class="bg-[#1D150F] border border-[#382B22] rounded-xl p-3 flex items-center gap-2 text-xs text-stone-400 mt-1">
+<span class="material-symbols-outlined text-tertiary text-base shrink-0">info</span>
+<span>Karakterler varsayılan 5x7 matris oranında hesaplanır ve klan köyü sınırına göre ölçeklenir.</span>
+</div>
+</div>
+<!-- SAĞ KART: Odak Sahnesi (Canvas/Izgara) (7 cols on lg) -->
+<div class="lg:col-span-7 flex flex-col gap-4">
+<div class="w-full border-4 border-[#22140D] rounded-2xl overflow-hidden relative shadow-[inset_0_4px_12px_rgba(0,0,0,0.8)] bg-[#173315]">
+<!-- Stage Viewport Canvas Container -->
+<div class="w-full aspect-[4/3] sm:aspect-[16/10] min-h-[420px] relative coc-grid-pattern coc-grid-lines flex items-center justify-center select-none overflow-hidden p-6">
+<!-- Isometric Wall Canvas Simulation for 'C O C' in Flat Gold Stones -->
+<div class="grid grid-cols-27 gap-1 p-5 bg-black/45 border border-[#334b28] rounded-2xl shadow-2xl scale-95 sm:scale-105 md:scale-115 transform transition-transform">
+<!-- Custom CSS Grid representing Clash Walls forming 'COC' -->
+<div class="flex items-center justify-center gap-4 sm:gap-6">
+<!-- Letter 'C' -->
+<div class="grid grid-cols-5 gap-1">
+<!-- Row 1 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 2 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 3 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 4 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 5 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 6 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 7 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+</div>
+<!-- Letter 'O' -->
+<div class="grid grid-cols-5 gap-1">
+<!-- Row 1 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 2 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 3 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 4 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 5 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 6 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 7 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+</div>
+<!-- Letter 'C' (Second) -->
+<div class="grid grid-cols-5 gap-1">
+<!-- Row 1 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<!-- Row 2 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 3 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 4 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 5 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 6 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-transparent"></div>
+<!-- Row 7 -->
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+<div class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-[2px] bg-gradient-to-b from-[#FFEB75] via-[#F8C12C] to-[#DB930D] border border-[#613B00] shadow-[0_1.5px_0_#382101]"></div>
+</div>
+</div>
+</div>
+<!-- CONTROLS OVERLAID ON STAGE -->
+<!-- Top Center: Rotation buttons & indicator -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 flex items-center bg-[#1d0800]/80 backdrop-blur-sm border-2 border-[#543D2B] rounded-xl p-1 gap-2 shadow-lg">
+<button class="w-10 h-10 bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-lg flex items-center justify-center transition-all shadow-[0_2px_0_#386314]" type="button">
+<span class="material-symbols-outlined font-bold text-lg">rotate_left</span>
+</button>
+<span class="font-extrabold text-sm text-stone-100 tabular-nums px-2 select-none">-45°</span>
+<button class="w-10 h-10 bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-lg flex items-center justify-center transition-all shadow-[0_2px_0_#386314]" type="button">
+<span class="material-symbols-outlined font-bold text-lg">rotate_right</span>
+</button>
+</div>
+<!-- Directional Arrow Buttons -->
+<!-- Top Left -->
+<button class="absolute top-4 left-4 w-10 h-10 min-h-[40px] min-w-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-xl flex items-center justify-center shadow-[0_3px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold text-lg">north_west</span>
+</button>
+<!-- Bottom Left -->
+<button class="absolute bottom-4 left-4 w-10 h-10 min-h-[40px] min-w-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-xl flex items-center justify-center shadow-[0_3px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold text-lg">south_west</span>
+</button>
+<!-- Bottom Right -->
+<button class="absolute bottom-4 right-4 w-10 h-10 min-h-[40px] min-w-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-xl flex items-center justify-center shadow-[0_3px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold text-lg">south_east</span>
+</button>
+<!-- Right Edge: Vertical Toolbar (+, -, reset) -->
+<div class="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 bg-[#1d0800]/80 backdrop-blur-sm border-2 border-[#543D2B] rounded-xl p-1 shadow-lg">
+<button class="w-10 h-10 min-h-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-lg flex items-center justify-center shadow-[0_2px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold">add</span>
+</button>
+<button class="w-10 h-10 min-h-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-lg flex items-center justify-center shadow-[0_2px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold">remove</span>
+</button>
+<button class="w-10 h-10 min-h-[40px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-lg flex items-center justify-center shadow-[0_2px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-bold">restart_alt</span>
+</button>
+</div>
+<!-- Top Right Edge: 2D | 3D Toggle -->
+<div class="absolute top-4 right-4 flex items-center bg-[#1d0800]/85 border-2 border-[#543D2B] rounded-xl overflow-hidden shadow-lg p-0.5">
+<button class="px-3 py-1.5 text-xs font-bold text-stone-100 bg-[#5A3A28] rounded-lg shadow-sm" type="button">
+              2D
+            </button>
+<button class="px-3 py-1.5 text-xs font-bold text-on-surface-variant hover:text-stone-100" type="button">
+              3D
+            </button>
+</div>
+<!-- Bottom Center: Big Green Confirm Button -->
+<div class="absolute bottom-4 left-1/2 -translate-x-1/2">
+<button class="w-13 h-11 md:w-16 md:h-11 min-h-[44px] bg-[#72BD36] hover:bg-[#5da02c] active:scale-95 text-white rounded-xl flex items-center justify-center shadow-[0_4px_0_#386314] transition-all" type="button">
+<span class="material-symbols-outlined font-extrabold text-2xl">check</span>
+</button>
+</div>
+<!-- Bottom Left: Wall Count Status Tag -->
+<div class="absolute bottom-4 left-16 sm:left-18 bg-[#14100C]/90 backdrop-blur-sm border-2 border-[#543D2B] rounded-full px-3.5 py-1.5 flex items-center gap-2 shadow-lg select-none">
+<div class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></div>
+<span class="font-extrabold text-xs sm:text-sm text-stone-100 tabular-nums">211 / 325 duvar</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container mt-8">
+<div class="w-full max-w-[1360px] mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<!-- Legal Text strictly rendered -->
+<div class="font-body text-xs text-on-surface-variant max-w-2xl">
+<p>© 2025 CoC Analitik. Bu uygulama Supercell ile bağlantılı değildir, Supercell tarafından desteklenmemekte veya onaylanmamaktadır.</p>
+<p class="text-[11px] text-stone-500 mt-1">Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.</p>
+</div>
+<!-- Links -->
+<div class="flex items-center gap-6 font-body text-xs text-on-surface-variant select-none">
+<a class="hover:text-on-surface transition-colors" href="#">Kullanım Şartları</a>
+<a class="hover:text-on-surface transition-colors" href="#">Gizlilik Politikası</a>
+<a class="hover:text-on-surface transition-colors" href="#">İletişim</a>
+</div>
+</div>
+</footer>
+</body></html>

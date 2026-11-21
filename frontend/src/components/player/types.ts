@@ -109,7 +109,12 @@ export interface PlayerProfileViewData extends ImportedPlayerForOre {
   };
   clan?: PlayerClanInfo;
   league?: PlayerLeagueInfo;
+  leagueTier?: PlayerLeagueInfo;
   originalLeagueName?: string;
+  currentLeagueGroupTag?: string;
+  currentLeagueSeasonId?: string | number;
+  previousLeagueGroupTag?: string;
+  previousLeagueSeasonId?: string | number;
   labels?: PlayerLabel[];
   legendStatistics?: LegendStatistics;
   pets: UnitItem[];
@@ -131,4 +136,51 @@ export interface BattleLogEntry {
   trophyChange?: number;
   armyLink?: string;
   decodedArmy?: DecodedArmyShare;
+}
+
+export interface LeagueGroupMember {
+  playerTag: string;
+  playerName: string;
+  clanTag?: string;
+  clanName?: string;
+  leagueTrophies: number;
+  attackWinCount: number;
+  attackLoseCount: number;
+  defenseWinCount: number;
+  defenseLoseCount: number;
+  rank: number;
+  attackTotal: number;
+  attackWinRate: number;
+  defenseTotal: number;
+  defenseWinRate: number;
+  isCurrentPlayer: boolean;
+}
+
+export interface LeagueGroupLogEntry {
+  stars?: number;
+  destructionPercentage?: number;
+  attackerTag?: string;
+  attackerName?: string;
+  defenderTag?: string;
+  defenderName?: string;
+  trophies?: number;
+  trophyChange?: number;
+  timestamp?: string;
+  [key: string]: unknown;
+}
+
+export interface LeagueGroupData {
+  available: boolean;
+  reason?: string;
+  playerTag: string;
+  groupTag?: string;
+  seasonId?: string | number;
+  isPreviousSeason?: boolean;
+  hasCurrent: boolean;
+  hasPrevious: boolean;
+  leagueTier?: PlayerLeagueInfo;
+  totalMembers?: number;
+  members: LeagueGroupMember[];
+  attackLogs: LeagueGroupLogEntry[];
+  defenseLogs: LeagueGroupLogEntry[];
 }

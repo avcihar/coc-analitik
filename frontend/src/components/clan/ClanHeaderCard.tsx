@@ -32,8 +32,7 @@ export default function ClanHeaderCard({
   const descRef = useRef<HTMLParagraphElement | null>(null);
 
   const cleanTag = clan.tag?.replace(/^#/, "") || "";
-  const descriptionText =
-    clan.description || (isTr ? "Klan açıklaması bulunmuyor." : "No clan description provided.");
+  const descriptionText = clan.description?.trim() || "";
 
   useEffect(() => {
     setIsDescExpanded(false);
@@ -113,7 +112,7 @@ export default function ClanHeaderCard({
               className="drop-shadow-lg"
             />
             {Boolean(clan.clanLevel) && (
-              <span className="mt-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-[#1E140D]/90 border border-[#6E513B] text-amber-300 select-none tabular-nums">
+              <span className="mt-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-[var(--ui-pill-bg)] border border-[var(--ui-pill-border)] text-[var(--ui-text-gold)] select-none tabular-nums">
                 {fmtTemplate(t.clan.levelBadge, { level: fmtNum(clan.clanLevel) })}
               </span>
             )}
@@ -124,39 +123,41 @@ export default function ClanHeaderCard({
               <h2 className="game-title-stroke text-xl sm:text-2xl md:text-3xl font-black tracking-wide break-words">
                 {clan.name}
               </h2>
-              <span className="px-2.5 py-0.5 rounded-md text-xs font-sans font-bold tabular-nums tracking-wide bg-[#1E140D]/90 text-amber-300 border border-amber-300/35 select-all">
+              <span className="px-2.5 py-0.5 rounded-md text-xs font-sans font-bold tabular-nums tracking-wide bg-[var(--ui-pill-bg)] text-[var(--ui-text-gold)] border border-[var(--ui-pill-border)] select-all">
                 {clan.tag}
               </span>
             </div>
 
             {/* Expandable Description (Touch-friendly toggle instead of hover-only) */}
-            <div>
-              <p
-                ref={descRef}
-                className={cn(
-                  "text-[13px] sm:text-sm text-[#F5EFE6] font-medium leading-relaxed whitespace-pre-line select-text",
-                  !isDescExpanded && "line-clamp-4"
-                )}
-              >
-                {descriptionText}
-              </p>
-
-              {showDescToggle && (
-                <button
-                  type="button"
-                  onClick={() => setIsDescExpanded((prev) => !prev)}
-                  aria-expanded={isDescExpanded}
-                  className="min-h-[44px] inline-flex items-center gap-1 px-2.5 py-2 -ml-2.5 mt-0.5 rounded-lg text-xs sm:text-[13px] font-bold text-amber-300 hover:text-amber-200 hover:bg-black/20 transition-colors cursor-pointer"
-                >
-                  <span>{isDescExpanded ? t.common.showLess : t.common.showMore}</span>
-                  {isDescExpanded ? (
-                    <ChevronUp className="w-4 h-4 shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4 shrink-0" />
+            {descriptionText && (
+              <div>
+                <p
+                  ref={descRef}
+                  className={cn(
+                    "text-[13px] sm:text-sm text-[var(--ui-text-main)] font-medium leading-relaxed whitespace-pre-line select-text",
+                    !isDescExpanded && "line-clamp-4"
                   )}
-                </button>
-              )}
-            </div>
+                >
+                  {descriptionText}
+                </p>
+
+                {showDescToggle && (
+                  <button
+                    type="button"
+                    onClick={() => setIsDescExpanded((prev) => !prev)}
+                    aria-expanded={isDescExpanded}
+                    className="min-h-[44px] inline-flex items-center gap-1 px-2.5 py-2 -ml-2.5 mt-0.5 rounded-lg text-xs sm:text-[13px] font-bold text-[var(--ui-text-gold)] hover:bg-black/20 transition-colors cursor-pointer"
+                  >
+                    <span>{isDescExpanded ? t.common.showLess : t.common.showMore}</span>
+                    {isDescExpanded ? (
+                      <ChevronUp className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 shrink-0" />
+                    )}
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Clan Labels */}
             {clan.labels && clan.labels.length > 0 && (
@@ -181,86 +182,107 @@ export default function ClanHeaderCard({
         </div>
 
         {/* Right Column: High-Contrast Warm Espresso Key-Value Card */}
-        <div className="lg:col-span-5 bg-[#281C14]/[0.92] rounded-xl p-3.5 sm:p-4 border border-[#5B402D] shadow-inner">
+        <div className="lg:col-span-5 ui-info p-3.5 sm:p-4 shadow-inner">
           <div className="space-y-0.5">
-            <div className="clan-keyval-row">
-              <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
-                {t.clan.warLeague}
-              </span>
-              <span className="clan-keyval-val text-[13px] sm:text-sm text-amber-300 font-bold tabular-nums">
-                {clan.warLeague?.name && clan.warLeague.name.toLowerCase() !== "unranked"
-                  ? clan.warLeague.name
-                  : t.common.unranked}
-              </span>
-            </div>
+            {clan.warLeague?.name && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {t.clan.warLeague}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-gold)] font-bold tabular-nums">
+                  {clan.warLeague.name.toLowerCase() !== "unranked"
+                    ? clan.warLeague.name
+                    : t.common.unranked}
+                </span>
+              </div>
+            )}
 
-            <div className="clan-keyval-row">
-              <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
-                {t.clan.location}
-              </span>
-              <span className="clan-keyval-val text-[13px] sm:text-sm text-[#FFFBF5]">
-                {clan.location?.name || (isTr ? "Uluslararası" : "International")}
-              </span>
-            </div>
+            {clan.location?.name && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {t.clan.location}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-main)]">
+                  {clan.location.name}
+                </span>
+              </div>
+            )}
 
             {clan.chatLanguage?.name && (
               <div className="clan-keyval-row">
-                <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
                   {t.clan.chatLanguage}
                 </span>
-                <span className="clan-keyval-val text-[13px] sm:text-sm text-[#FFFBF5]">
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-main)]">
                   {clan.chatLanguage.name}
                 </span>
               </div>
             )}
 
-            <div className="clan-keyval-row">
-              <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
-                {t.clan.clanType}
-              </span>
-              <span className="clan-keyval-val text-[13px] sm:text-sm text-[#FFFBF5]">
-                {formatClanType(clan.type)}
-              </span>
-            </div>
+            {clan.type && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {t.clan.clanType}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-main)]">
+                  {formatClanType(clan.type)}
+                </span>
+              </div>
+            )}
 
             {clan.warFrequency && (
               <div className="clan-keyval-row">
-                <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
                   {t.clan.warFrequency}
                 </span>
-                <span className="clan-keyval-val text-[13px] sm:text-sm text-[#FFFBF5]">
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-main)]">
                   {formatWarFrequency(clan.warFrequency)}
                 </span>
               </div>
             )}
 
-            <div className="clan-keyval-row">
-              <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
-                {t.clan.requiredTrophies}
-              </span>
-              <span className="clan-keyval-val text-[13px] sm:text-sm text-amber-300 tabular-nums">
-                {clan.requiredTrophies !== undefined && clan.requiredTrophies > 0
-                  ? `${fmtNum(clan.requiredTrophies)} ${t.search.pointsUnit}`
-                  : t.clan.trophyFree}
-              </span>
-            </div>
+            {clan.requiredTrophies !== undefined && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {t.clan.requiredTrophies}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-gold)] tabular-nums">
+                  {clan.requiredTrophies > 0
+                    ? `${fmtNum(clan.requiredTrophies)} ${t.search.pointsUnit}`
+                    : t.clan.trophyFree}
+                </span>
+              </div>
+            )}
 
-            <div className="clan-keyval-row">
-              <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
-                {t.clan.requiredTh}
-              </span>
-              <span className="clan-keyval-val text-[13px] sm:text-sm text-sky-200 tabular-nums">
-                {t.common.thShort} {fmtNum(clan.requiredTownhallLevel || 1)}
-              </span>
-            </div>
+            {clan.requiredTownhallLevel !== undefined && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {t.clan.requiredTh}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-blue)] tabular-nums">
+                  {t.common.thShort} {fmtNum(clan.requiredTownhallLevel)}
+                </span>
+              </div>
+            )}
+
+            {clan.members !== undefined && (
+              <div className="clan-keyval-row">
+                <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
+                  {isTr ? "Mevcut Doluluk" : "Members"}
+                </span>
+                <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-green)] tabular-nums">
+                  {fmtNum(clan.members)} / 50
+                </span>
+              </div>
+            )}
 
             {clan.requiredBuilderBaseTrophies !== undefined &&
               clan.requiredBuilderBaseTrophies > 0 && (
                 <div className="clan-keyval-row">
-                  <span className="clan-keyval-key text-xs sm:text-[13px] text-[#E7D9C8]">
+                  <span className="clan-keyval-key text-xs sm:text-[13px] text-[var(--ui-text-muted)]">
                     {isTr ? "Gereken İnşaatçı Üssü" : "Required Builder Base"}
                   </span>
-                  <span className="clan-keyval-val text-[13px] sm:text-sm text-amber-200 tabular-nums">
+                  <span className="clan-keyval-val text-[13px] sm:text-sm text-[var(--ui-text-gold)] tabular-nums">
                     {fmtNum(clan.requiredBuilderBaseTrophies)} {t.search.pointsUnit}
                   </span>
                 </div>

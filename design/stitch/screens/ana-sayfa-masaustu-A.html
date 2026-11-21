@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CoC Analitik — Ana Sayfa</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "error-container": "#93000a",
+            "on-surface-variant": "#c1cab4",
+            "primary-container": "#72bd36",
+            "tertiary": "#f5bf29",
+            "outline-variant": "#414939",
+            "on-tertiary-fixed": "#251a00",
+            "secondary-fixed": "#ffdcc3",
+            "on-secondary": "#4d2600",
+            "surface-dim": "#230d02",
+            "on-primary-container": "#214800",
+            "surface-variant": "#4a2e1d",
+            "inverse-surface": "#ffdbc9",
+            "surface-container": "#32190a",
+            "primary-fixed": "#a8f86a",
+            "background": "#230d02",
+            "tertiary-fixed": "#ffdf9a",
+            "error": "#ffb4ab",
+            "outline": "#8b9480",
+            "surface-container-low": "#2d1507",
+            "on-tertiary-container": "#513c00",
+            "surface": "#230d02",
+            "inverse-on-surface": "#452a19",
+            "on-secondary-fixed": "#2f1500",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "tertiary-fixed-dim": "#f5bf29",
+            "surface-tint": "#8ddb50",
+            "on-error-container": "#ffdad6",
+            "surface-bright": "#4f3221",
+            "secondary-fixed-dim": "#ffb77d",
+            "primary-fixed-dim": "#8ddb50",
+            "surface-container-lowest": "#1d0800",
+            "on-tertiary": "#3f2e00",
+            "on-error": "#690005",
+            "tertiary-container": "#d6a300",
+            "on-secondary-fixed-variant": "#6e3900",
+            "on-primary-fixed-variant": "#265100",
+            "secondary": "#ffb77d",
+            "on-primary-fixed": "#0c2000",
+            "on-primary": "#183800",
+            "on-background": "#ffdbc9",
+            "primary": "#8ddb50",
+            "surface-container-highest": "#4a2e1d",
+            "on-surface": "#ffdbc9",
+            "inverse-primary": "#356b00",
+            "secondary-container": "#d97707",
+            "surface-container-high": "#3e2313",
+            "on-secondary-container": "#432100"
+          },
+          "fontFamily": {
+            "headline": ["Plus Jakarta Sans"],
+            "display": ["Plus Jakarta Sans"],
+            "body": ["Plus Jakarta Sans"],
+            "label": ["Plus Jakarta Sans"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+      color: #ffdbc9;
+    }
+    .material-symbols-outlined {
+      font-display: swap;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* CoC Özgün Ahşap & Yüzey Derinlikleri */
+    .coc-wood-window {
+      background: linear-gradient(180deg, #5A3A28 0%, #4A2E1E 50%, #3B2214 100%);
+      border: 3.5px solid #28160C;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.16), 0 8px 0 #1E0F08, 0 16px 28px rgba(0, 0, 0, 0.7);
+    }
+    .coc-tab-active {
+      background: linear-gradient(180deg, #64422F 0%, #5A3A28 100%);
+      border-top: 3px solid #28160C;
+      border-left: 3px solid #28160C;
+      border-right: 3px solid #28160C;
+      border-bottom: none;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.18);
+    }
+    .coc-banner {
+      background: linear-gradient(180deg, #63432B 0%, #4D321F 100%);
+      border: 2px solid #2A1A10;
+      box-shadow: inset 0 1.5px 0 rgba(255, 235, 117, 0.25), inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+    }
+    .coc-card {
+      background: linear-gradient(180deg, #7E5B47 0%, #6E4D3A 50%, #583929 100%);
+      border: 2.5px solid #2C180E;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.18), 0 4px 0 #1E0F08;
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .coc-card:hover {
+      transform: translateY(-2px);
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25), 0 6px 0 #1E0F08;
+      filter: brightness(1.04);
+    }
+    .coc-card:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 0 #1E0F08;
+    }
+    .coc-inset-well {
+      background: linear-gradient(180deg, #443026 0%, #342219 100%);
+      border: 2px solid #22140D;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.65);
+    }
+    .coc-green-button {
+      background: linear-gradient(180deg, #9CE04A 0%, #72BD36 50%, #519E23 100%);
+      border: 2.5px solid #142E06;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), 0 3px 0 #0F2104;
+      text-shadow: 0 1.5px 2px rgba(20, 46, 6, 0.85);
+    }
+    .coc-green-button:hover {
+      filter: brightness(1.06);
+    }
+    .coc-green-button:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 1px 0 #0F2104;
+    }
+    .coc-nav-active {
+      background: linear-gradient(180deg, #64422F 0%, #4E3220 100%);
+      border: 2px solid #2A170C;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.2), 0 2px 0 #160B05;
+      color: #9CE04A;
+    }
+    .coc-nav-item {
+      transition: all 0.15s ease;
+      border: 2px solid transparent;
+    }
+    .coc-nav-item:hover:not(.coc-nav-active) {
+      background-color: rgba(94, 63, 50, 0.45);
+      border-color: #382114;
+      color: #ffdbc9;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-primary selection:text-surface-dim">
+<!-- 1. En Üst Gezinme Çubuğu (Top App Bar - Masaüstü 1440px / Koyu Ahşap Stil) -->
+<header class="w-full bg-[#24150C] border-b-2 border-[#1A0E07] shadow-lg sticky top-0 z-50">
+<div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+<!-- Sol: Kalkan İkonu & Marka Başlığı -->
+<div class="flex items-center gap-3 select-none">
+<div class="w-10 h-10 rounded-lg bg-gradient-to-b from-[#6E4D3A] to-[#3B2214] border-2 border-[#28160C] flex items-center justify-center shadow-inner text-[#F8C12C]">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+</div>
+<span class="font-headline text-xl font-extrabold text-[#FFFFFF] tracking-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          CoC Analitik
+        </span>
+</div>
+<!-- Orta: 6 Gezinme Öğesi (Arama ikonu ve ekstra öğe yok, min-h-[44px]) -->
+<nav class="flex items-center gap-2">
+<!-- Aktif Öğe: Ana Sayfa -->
+<a class="coc-nav-active px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-bold text-sm tracking-wide" href="#">
+          Ana Sayfa
+        </a>
+<a class="coc-nav-item px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-semibold text-sm text-[#C4BDB1]" href="#">
+          Oyuncu & Klan
+        </a>
+<a class="coc-nav-item px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-semibold text-sm text-[#C4BDB1]" href="#">
+          Meta & Ordu
+        </a>
+<a class="coc-nav-item px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-semibold text-sm text-[#C4BDB1]" href="#">
+          CWL Keşif
+        </a>
+<a class="coc-nav-item px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-semibold text-sm text-[#C4BDB1]" href="#">
+          Cevher Analizi
+        </a>
+<a class="coc-nav-item px-4 min-h-[44px] flex items-center justify-center rounded-lg font-headline font-semibold text-sm text-[#C4BDB1]" href="#">
+          Duvar Yazısı
+        </a>
+</nav>
+<!-- Sağ Kısım Boş (Belirtildiği üzere ARAMA İKONU YOK, EKSTRA ÖĞE YOK) -->
+<div class="w-10"></div>
+</div>
+</header>
+<!-- 2. Ana İçerik Alanı -->
+<main class="w-full max-w-[1440px] mx-auto px-6 py-8 flex-1 flex flex-col items-center">
+<!-- Ahşap Sekme Şeridi (Pencere üstü tek sekme: 'Ana Sayfa', gövdeyle birleşik) -->
+<div class="w-full max-w-[1200px] flex justify-start pl-6 -mb-[3.5px] z-10">
+<div class="coc-tab-active px-8 py-3 rounded-t-xl flex items-center gap-2 cursor-default select-none">
+<span class="material-symbols-outlined text-[#F8C12C] text-[20px]" style="font-variation-settings: 'FILL' 1;">cottage</span>
+<span class="font-headline font-extrabold text-base text-[#FFFFFF] tracking-wide drop-shadow-sm">
+          Ana Sayfa
+        </span>
+</div>
+</div>
+<!-- Ortalanmış En Fazla 1200px Koyu Ahşap Oyun Penceresi -->
+<div class="w-full max-w-[1200px] coc-wood-window rounded-2xl rounded-tl-none p-6 md:p-8 flex flex-col gap-6 relative">
+<!-- Altın-Kahverengi Bilgi Şeridi -->
+<div class="coc-banner rounded-xl px-6 py-4 flex flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-9 h-9 rounded-lg bg-[#382114] border border-[#23140C] flex items-center justify-center flex-shrink-0 text-[#F5BF29]">
+<span class="material-symbols-outlined text-[20px]">info</span>
+</div>
+<p class="font-headline font-bold text-base md:text-lg text-[#FFDF9A] tracking-tight whitespace-nowrap">
+            Oyuncu ve klan araçlarını keşfet!
+          </p>
+</div>
+<!-- Hızlı Ara Düğmesi (Canlı yeşil, en az 44px) -->
+<button class="coc-green-button min-h-[44px] px-6 rounded-lg flex items-center justify-center gap-2.5 font-headline font-extrabold text-sm md:text-base text-white tracking-wide cursor-pointer flex-shrink-0 transition-transform" type="button">
+<span>Hızlı Ara</span>
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+</div>
+<!-- 3. Araç Kartları Grid Alanı (2 Sütun x 3 Satır = 6 Araç Kartı) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
+<!-- Kart 1: Oyuncu Ara -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px Yuvarlak Köşeli Kare İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">person_search</span>
+</div>
+<!-- Başlık, Açıklama, Alt Bilgi -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                Oyuncu Ara
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                Etiketle oyuncu profilini gör
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                Son aranan: #P89PCUPUQ
+              </span>
+</div>
+</div>
+<!-- Sağ Ok Göstergesi -->
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Kart 2: Klan Ara -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">groups</span>
+</div>
+<!-- İçerik -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                Klan Ara
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                Ad veya filtreyle klan bul
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                Konum, üye sayısı, seviye filtreleri
+              </span>
+</div>
+</div>
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Kart 3: Meta & Ordu -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">military_tech</span>
+</div>
+<!-- İçerik -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                Meta & Ordu
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                En çok kazanan meta ordular
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                200 oyuncu • Son güncelleme 21:33
+              </span>
+</div>
+</div>
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Kart 4: Duvar Yazısı -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">border_outer</span>
+</div>
+<!-- İçerik -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                Duvar Yazısı
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                Köyünde duvarlarla yazı yaz
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                44x44 ana köy
+              </span>
+</div>
+</div>
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Kart 5: CWL Rakip Analizi -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">swords</span>
+</div>
+<!-- İçerik -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                CWL Rakip Analizi
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                Rakip kadroyu ve ordularını incele
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                Klan etiketiyle
+              </span>
+</div>
+</div>
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+<!-- Kart 6: Cevher Analizi -->
+<div class="coc-card rounded-xl p-5 flex items-center justify-between gap-4 cursor-pointer min-h-[104px]" role="button" tabindex="0">
+<div class="flex items-center gap-4 min-w-0">
+<!-- 56px İkon Kutusu -->
+<div class="w-14 h-14 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#FFDCC3]">
+<span class="material-symbols-outlined text-[28px]">diamond</span>
+</div>
+<!-- İçerik -->
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline font-extrabold text-lg text-white tracking-tight drop-shadow-[0_1.5px_2px_rgba(0,0,0,0.8)]">
+                Cevher Analizi
+              </h2>
+<p class="font-body font-medium text-sm text-[#E7E7DE]/90 mt-0.5">
+                Ekipman cevher planı ve süre tahmini
+              </p>
+<span class="font-body font-semibold text-xs text-[#F5BF29] tabular-nums mt-1">
+                TH18 ekipmanları
+              </span>
+</div>
+</div>
+<div class="w-9 h-9 rounded-lg coc-inset-well flex items-center justify-center flex-shrink-0 text-[#D4D1C9]">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- 4. Alt Bilgi (Footer) -->
+<footer class="w-full py-6 mt-4 border-t border-[#23150C]/60 text-center">
+<p class="font-body text-xs text-[#8C7565] tracking-wide select-none">
+      Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+    </p>
+</footer>
+</body></html>

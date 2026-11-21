@@ -12,8 +12,8 @@ import {
 import PlayerHeaderSection from "./PlayerHeaderSection";
 import LegendTournamentPanel from "./LegendTournamentPanel";
 import PlayerArmySection from "./PlayerArmySection";
+import PlayerLeagueGroupSection from "./PlayerLeagueGroupSection";
 import BuilderBaseSection from "./BuilderBaseSection";
-import PlayerBattleLogSection from "./PlayerBattleLogSection";
 import type {
   PlayerProfileViewData,
   BattleLogEntry,
@@ -191,6 +191,11 @@ export default function PlayerProfileView({
         builderBaseLeague: data.builderBaseLeague,
         clan: data.clan,
         league: resolvedLeague,
+        leagueTier: data.leagueTier,
+        currentLeagueGroupTag: data.currentLeagueGroupTag,
+        currentLeagueSeasonId: data.currentLeagueSeasonId,
+        previousLeagueGroupTag: data.previousLeagueGroupTag,
+        previousLeagueSeasonId: data.previousLeagueSeasonId,
         labels: data.labels,
         legendStatistics: data.legendStatistics,
         heroes: rawHeroList,
@@ -203,10 +208,13 @@ export default function PlayerProfileView({
 
       setFetchedPlayer(parsedPlayer);
 
-      // Battlelog extraction (strictly ranked attacks/defenses)
+      // Battlelog extraction (strictly ranked/legend attacks & defenses)
       if (battleData && Array.isArray(battleData.items)) {
         const rawItems: BattleLogEntry[] = battleData.items;
-        const rankedOnly = rawItems.filter((item) => item && item.battleType === "ranked");
+        const rankedOnly = rawItems.filter((item) => {
+          const bt = (item?.battleType || "").toLowerCase();
+          return bt === "ranked" || bt === "legend";
+        });
         setFetchedBattleLog(rankedOnly);
       } else {
         setFetchedBattleLog([]);
@@ -278,14 +286,14 @@ export default function PlayerProfileView({
     return (
       <div className={cn("w-full mt-0 p-0 font-sans flex flex-col", className)}>
         {/* Sub-tab segmented bar skeleton */}
-        <div className="flex gap-1.5 items-end overflow-x-auto scrollbar-none flex-nowrap">
-          <SkeletonBlock height="42px" className="w-28 rounded-t-xl rounded-b-none" />
-          <SkeletonBlock height="38px" className="w-32 rounded-t-xl rounded-b-none" />
-          <SkeletonBlock height="38px" className="w-32 rounded-t-xl rounded-b-none" />
+        <div className="flex gap-1.5 items-center overflow-x-auto scrollbar-none flex-nowrap pb-3">
+          <SkeletonBlock height="44px" className="w-28 rounded-xl" />
+          <SkeletonBlock height="44px" className="w-32 rounded-xl" />
+          <SkeletonBlock height="44px" className="w-32 rounded-xl" />
         </div>
 
         {/* Header section skeleton */}
-        <SectionPanel className="p-4 space-y-4 mt-0 rounded-tl-none">
+        <SectionPanel className="p-4 space-y-4 mt-0">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center gap-3">
               <SkeletonBlock width="52px" height="52px" className="rounded-xl shrink-0" />
@@ -321,16 +329,16 @@ export default function PlayerProfileView({
     );
   }
 
-  // Error state (high-contrast alert on light cream GameWindow)
+  // Error state (using --ui-* / --game-* tokens)
   if (fetchError !== null && !activePlayer) {
     const resolvedError = getApiErrorMessage(fetchError, t.player.playerNotFoundError);
     return (
       <div className={cn("p-2 sm:p-4 space-y-4 font-sans", className)}>
         <div
           role="alert"
-          className="bg-[#FDF2F2] border-2 border-[#C53030] rounded-2xl p-5 text-center space-y-3 shadow-sm"
+          className="ui-panel border-[var(--ui-text-red)] p-5 text-center space-y-3 shadow-sm"
         >
-          <div className="flex items-center justify-center gap-2 text-[#8F1D18] font-bold text-sm">
+          <div className="flex items-center justify-center gap-2 text-[var(--ui-text-red)] font-bold text-sm">
             <AlertCircle size={18} className="shrink-0" aria-hidden="true" />
             <span>{resolvedError}</span>
           </div>
@@ -352,30 +360,46 @@ export default function PlayerProfileView({
     );
   }
 
-  // Empty state (high-contrast dark stone ink on light cream GameWindow)
+  // Empty state (using --ui-* / --game-* tokens)
   if (!activePlayer) {
     return (
       <div className={cn("p-4 font-sans", className)}>
-        <div className="bg-[#F6F1E7] border border-[#C9B99F] rounded-2xl p-6 text-center text-[#2B1F16] text-sm font-semibold shadow-sm">
-          <p className="text-[#4A3E35]">{t.player.playerNotFoundError}</p>
+        <div className="ui-info p-6 text-center text-[var(--ui-text-muted)] text-sm font-semibold shadow-sm">
+          <p>{t.player.playerNotFoundError}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn("w-full -mt-3 sm:-mt-6 font-sans flex flex-col", className)}>
-      {/* 1. Top Segmented Control + Inline Capital Availability Note */}
-      <div className="w-full flex items-end pl-2 sm:pl-4 overflow-x-auto scrollbar-none flex-nowrap border-b-2 border-[#5A5552]/50">
-        <GraySegmented<VillageTab>
-          items={segmentedItems}
-          activeId={activeVillageTab}
-          onChange={(id) => setActiveVillageTab(id)}
-          className="w-full sm:w-auto"
-        />
+    <div className={cn("w-full font-sans flex flex-col min-w-0", className)}>
+      {/* 1. Top Wood Segmented Control + Theme-Green Refresh Button + Inline Capital Note */}
+      <div className="w-full flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[var(--ui-panel-border)]">
+        <div className="min-w-0 max-w-full overflow-x-auto scrollbar-none">
+          <GraySegmented<VillageTab>
+            items={segmentedItems}
+            activeId={activeVillageTab}
+            onChange={(id) => setActiveVillageTab(id)}
+          />
+        </div>
+
+        {!propPlayer && tag && (
+          <GameButton
+            variant="green"
+            size="sm"
+            onClick={() => loadPlayerData(tag)}
+            disabled={loading}
+            aria-label={t.common.refresh}
+            title={t.common.refresh}
+            className="min-h-[44px] px-4 text-xs sm:text-sm font-extrabold shrink-0"
+            icon={<RefreshCw size={15} className={cn("shrink-0", loading && "animate-spin")} />}
+          >
+            {loading ? t.common.refreshing : t.common.refresh}
+          </GameButton>
+        )}
       </div>
-      <div className="mt-2 px-2 sm:px-4 flex items-center gap-1.5 text-xs font-medium text-[#4A3E35]">
-        <Info size={14} className="text-[#7D5420] shrink-0" aria-hidden="true" />
+      <div className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-[var(--ui-text-muted)]">
+        <Info size={14} className="text-[var(--ui-text-gold)] shrink-0" aria-hidden="true" />
         <span>
           {t.player.tabCapital}: {t.player.tabCapitalUnavailable}
         </span>
@@ -395,16 +419,19 @@ export default function PlayerProfileView({
             <LegendTournamentPanel stats={activePlayer.legendStatistics} />
           )}
 
-          {/* Army & Town Hall Layout */}
+          {/* 3-Column Army, Season Stats, Ore CTA & Ranked Battle Log */}
           <PlayerArmySection
             player={activePlayer}
             onImportPlayerToOre={onImportPlayerToOre}
+            battleLog={activeBattleLog}
+            battleLogLoading={loading}
           />
 
-          {/* Recent Battle Log (Ranked) */}
-          <PlayerBattleLogSection
-            battleLog={activeBattleLog}
-            loading={loading}
+          {/* Ranked League Season Group Leaderboard */}
+          <PlayerLeagueGroupSection
+            playerTag={activePlayer.tag}
+            leagueName={activePlayer.leagueName}
+            leagueIconUrl={activePlayer.league?.iconUrls?.small}
           />
         </div>
       )}

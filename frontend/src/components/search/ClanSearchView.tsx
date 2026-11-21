@@ -5,8 +5,8 @@ import {
   Search,
   SlidersHorizontal,
   ChevronDown,
+  ChevronRight,
   Users,
-  Trophy,
   Shield,
   MapPin,
   Clock,
@@ -17,9 +17,12 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import ClanBadge from "@/components/game/ClanBadge";
+import GameButton from "@/components/game/GameButton";
+import GameInput from "@/components/game/GameInput";
 import SkeletonBlock from "@/components/game/SkeletonBlock";
 import { safeFetchJson, ApiError } from "@/lib/apiClient";
 import { useLanguage } from "@/lib/i18n";
+import RecentTagChip from "./RecentTagChip";
 import {
   normalizeTag,
   isValidTag,
@@ -63,11 +66,10 @@ interface ActiveSearchMeta {
 /**
  * ClanSearchView component
  * - Supports clan name OR #tag directly (only treats as tag if starts with '#' or >=4 valid chars + digit)
- * - Green search & filter controls (.game-btn-panel-green) with >=44px tap targets
- * - Select & numeric points inputs use >=16px font on mobile (text-base sm:text-sm) to prevent iOS zoom
- * - Results flow naturally with the page (no max-h-[60vh] scroll trap)
- * - Compact member count badge (X/50) visible on all viewports including 390px mobile
- * - Full EN/TR i18n via useLanguage() and warm espresso/cream palette
+ * - GameInput (without '#' requirement, >=16px) + green GameButton "Ara" + green GameButton "Arama Seçenekleri"
+ * - Collapsible ui-well filter panel with ONLY backend-supported filters (minClanLevel, minMembers, minClanPoints)
+ * - 3-column desktop / 1-column mobile grid of ui-panel clan cards + "Daha Fazla Göster" pagination
+ * - Styled strictly with --ui-*, .ui-*, and --game-* tokens
  */
 export default function ClanSearchView({
   initialQuery = "",
@@ -79,7 +81,7 @@ export default function ClanSearchView({
   const [queryInput, setQueryInput] = useState<string>(initialQuery);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
-  // Search filter options
+  // Backend-supported search filter options
   const [minClanLevel, setMinClanLevel] = useState<number | undefined>(undefined);
   const [minMembers, setMinMembers] = useState<number | undefined>(undefined);
   const [minClanPointsText, setMinClanPointsText] = useState<string>("");
@@ -317,22 +319,23 @@ export default function ClanSearchView({
   };
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto py-2 px-1 sm:px-4 space-y-4", className)}>
-      {/* Top Search Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="space-y-2">
-          <label
-            htmlFor="clan-search-input"
-            className="block font-bold text-[#2D251E] text-sm sm:text-base select-none"
-          >
-            {t.search.clanInputLabel}
-          </label>
+    <div className={cn("w-full max-w-6xl mx-auto py-1 sm:py-2 px-1 sm:px-4 space-y-4 min-w-0", className)}>
+      {/* Top Search & Filter Panel */}
+      <section className="ui-panel p-4 sm:p-5 space-y-3 min-w-0">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-2">
+            <label
+              htmlFor="clan-search-input"
+              className="block font-extrabold text-[var(--ui-text-main)] text-sm sm:text-base select-none"
+            >
+              {t.search.clanInputLabel}
+            </label>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
-            <div className="game-input-container flex-1 min-w-0 focus-within:ring-2 focus-within:ring-amber-400">
-              <input
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2.5">
+              <GameInput
                 id="clan-search-input"
                 type="text"
+                prefixTag=""
                 value={queryInput}
                 onChange={(e) => {
                   setQueryInput(e.target.value);
@@ -342,159 +345,168 @@ export default function ClanSearchView({
                 autoCapitalize="words"
                 spellCheck={false}
                 disabled={isLoading}
-                className="game-input-field font-sans text-base"
+                containerClassName="flex-1 min-w-0"
+                className="font-sans text-base"
               />
-            </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="submit"
-                disabled={isLoading || !queryInput.trim()}
-                className="game-btn-panel-green min-h-[44px] flex-1 sm:flex-initial px-5 py-2.5 rounded-xl text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
-              >
-                {isLoading ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Search className="w-4 h-4 text-white" />
-                )}
-                <span className="game-text-stroke-sm">
+              <div className="flex flex-col xs:flex-row sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
+                <GameButton
+                  type="submit"
+                  variant="green"
+                  size="md"
+                  disabled={isLoading || !queryInput.trim()}
+                  icon={
+                    isLoading ? (
+                      <span className="inline-block w-4 h-4 border-2 border-[var(--ui-text-main)] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Search className="w-4 h-4" />
+                    )
+                  }
+                  className="min-h-[44px] flex-1 sm:flex-initial justify-center"
+                >
                   {isLoading ? t.common.searching : t.common.search}
-                </span>
-              </button>
+                </GameButton>
 
-              <button
-                type="button"
-                onClick={() => setShowFilters((prev) => !prev)}
-                aria-expanded={showFilters}
-                className={cn(
-                  "game-btn-panel-green min-h-[44px] flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-white font-extrabold text-sm sm:text-base flex items-center justify-center gap-1.5 cursor-pointer select-none",
-                  hasActiveFilters && "ring-2 ring-amber-300"
-                )}
-              >
-                <SlidersHorizontal className="w-4 h-4 text-white" />
-                <span className="game-text-stroke-sm">{t.search.clanFilterBtn}</span>
-                <ChevronDown
-                  className={cn(
-                    "w-4 h-4 text-white transition-transform duration-200",
-                    showFilters && "rotate-180"
-                  )}
-                />
-              </button>
-            </div>
-          </div>
-
-          <p className="text-[#5A4A3E] text-xs sm:text-sm font-medium select-none">
-            {t.search.clanHint}
-          </p>
-        </div>
-
-        {/* Collapsible Filter Panel */}
-        {showFilters && (
-          <div className="p-4 rounded-xl bg-[#EFE8DA] border-2 border-[#C2B39C] shadow-inner space-y-4">
-            <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#C2B39C]">
-              <span className="font-bold text-[#2D251E] text-sm">{t.search.clanFilterBtn}</span>
-              {hasActiveFilters && (
-                <button
+                <GameButton
                   type="button"
-                  onClick={handleResetFilters}
-                  className="min-h-[44px] px-2 -my-2 flex items-center gap-1.5 text-xs text-[#5A4A3E] hover:text-[#2D251E] font-bold cursor-pointer underline"
+                  variant="green"
+                  size="md"
+                  onClick={() => setShowFilters((prev) => !prev)}
+                  aria-expanded={showFilters}
+                  icon={<SlidersHorizontal className="w-4 h-4" />}
+                  className={cn(
+                    "min-h-[44px] flex-1 sm:flex-initial justify-center",
+                    hasActiveFilters && "ring-2 ring-[var(--game-cream-light)]"
+                  )}
                 >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  {t.search.resetFilters}
-                </button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* Min Clan Level */}
-              <div>
-                <label
-                  htmlFor="clan-filter-min-level"
-                  className="block text-xs font-bold text-[#2D251E] mb-1.5 select-none"
-                >
-                  {t.search.minClanLevel}
-                </label>
-                <select
-                  id="clan-filter-min-level"
-                  value={minClanLevel ?? ""}
-                  onChange={(e) =>
-                    setMinClanLevel(e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  className="w-full min-h-[44px] bg-[#FFFDF8] border-2 border-[#C2B39C] rounded-xl py-2 px-3 text-base sm:text-sm font-semibold text-[#2D251E] outline-none focus:border-amber-600 cursor-pointer tabular-nums"
-                >
-                  <option value="">{t.common.all}</option>
-                  <option value="2">{t.common.levelShort} {fmtNum(2)}+</option>
-                  <option value="5">{t.common.levelShort} {fmtNum(5)}+</option>
-                  <option value="10">{t.common.levelShort} {fmtNum(10)}+</option>
-                  <option value="15">{t.common.levelShort} {fmtNum(15)}+</option>
-                  <option value="20">{t.common.levelShort} {fmtNum(20)}+</option>
-                </select>
-              </div>
-
-              {/* Min Members */}
-              <div>
-                <label
-                  htmlFor="clan-filter-min-members"
-                  className="block text-xs font-bold text-[#2D251E] mb-1.5 select-none"
-                >
-                  {t.search.minMembers}
-                </label>
-                <select
-                  id="clan-filter-min-members"
-                  value={minMembers ?? ""}
-                  onChange={(e) =>
-                    setMinMembers(e.target.value ? Number(e.target.value) : undefined)
-                  }
-                  className="w-full min-h-[44px] bg-[#FFFDF8] border-2 border-[#C2B39C] rounded-xl py-2 px-3 text-base sm:text-sm font-semibold text-[#2D251E] outline-none focus:border-amber-600 cursor-pointer tabular-nums"
-                >
-                  <option value="">{t.common.all}</option>
-                  <option value="10">{fmtNum(10)}+ {t.search.membersUnit}</option>
-                  <option value="20">{fmtNum(20)}+ {t.search.membersUnit}</option>
-                  <option value="30">{fmtNum(30)}+ {t.search.membersUnit}</option>
-                  <option value="40">{fmtNum(40)}+ {t.search.membersUnit}</option>
-                </select>
-              </div>
-
-              {/* Min Clan Points (Numeric input with cursor-safe sanitization) */}
-              <div>
-                <label
-                  htmlFor="clan-filter-min-points"
-                  className="block text-xs font-bold text-[#2D251E] mb-1.5 select-none"
-                >
-                  {t.search.minClanPoints}
-                </label>
-                <input
-                  ref={pointsInputRef}
-                  id="clan-filter-min-points"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={minClanPointsText}
-                  onChange={handleMinPointsChange}
-                  onBlur={handleMinPointsBlur}
-                  placeholder={isTr ? "Örn: 20000" : "e.g. 20000"}
-                  className="w-full min-h-[44px] bg-[#FFFDF8] border-2 border-[#C2B39C] rounded-xl py-2 px-3 text-base sm:text-sm font-semibold text-[#2D251E] placeholder:text-[#847B70] outline-none focus:border-amber-600 tabular-nums"
-                />
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>{t.search.clanFilterBtn}</span>
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 transition-transform duration-200",
+                        showFilters && "rotate-180"
+                      )}
+                    />
+                  </span>
+                </GameButton>
               </div>
             </div>
+
+            <p className="text-[var(--ui-text-muted)] text-xs sm:text-sm font-medium select-none">
+              {t.search.clanHint}
+            </p>
           </div>
-        )}
-      </form>
+
+          {/* Collapsible Filter Panel (ONLY backend-supported filters) */}
+          {showFilters && (
+            <div className="ui-well p-3.5 sm:p-4 space-y-3.5">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[var(--ui-well-border)]">
+                <span className="font-extrabold text-[var(--ui-text-main)] text-sm">
+                  {t.search.clanFilterBtn}
+                </span>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={handleResetFilters}
+                    className="min-h-[44px] px-2 -my-2 flex items-center gap-1.5 text-xs text-[var(--game-cream-light)] hover:text-[var(--ui-text-main)] font-bold cursor-pointer underline"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    {t.search.resetFilters}
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Min Clan Level */}
+                <div>
+                  <label
+                    htmlFor="clan-filter-min-level"
+                    className="block text-xs font-bold text-[var(--ui-text-muted)] mb-1.5 select-none"
+                  >
+                    {t.search.minClanLevel}
+                  </label>
+                  <select
+                    id="clan-filter-min-level"
+                    value={minClanLevel ?? ""}
+                    onChange={(e) =>
+                      setMinClanLevel(e.target.value ? Number(e.target.value) : undefined)
+                    }
+                    className="ui-input w-full min-h-[44px] py-2 px-3 text-base sm:text-sm font-semibold outline-none focus:border-[var(--game-cream-mid)] cursor-pointer tabular-nums"
+                  >
+                    <option value="">{t.common.all}</option>
+                    <option value="2">{t.common.levelShort} {fmtNum(2)}+</option>
+                    <option value="5">{t.common.levelShort} {fmtNum(5)}+</option>
+                    <option value="10">{t.common.levelShort} {fmtNum(10)}+</option>
+                    <option value="15">{t.common.levelShort} {fmtNum(15)}+</option>
+                    <option value="20">{t.common.levelShort} {fmtNum(20)}+</option>
+                  </select>
+                </div>
+
+                {/* Min Members */}
+                <div>
+                  <label
+                    htmlFor="clan-filter-min-members"
+                    className="block text-xs font-bold text-[var(--ui-text-muted)] mb-1.5 select-none"
+                  >
+                    {t.search.minMembers}
+                  </label>
+                  <select
+                    id="clan-filter-min-members"
+                    value={minMembers ?? ""}
+                    onChange={(e) =>
+                      setMinMembers(e.target.value ? Number(e.target.value) : undefined)
+                    }
+                    className="ui-input w-full min-h-[44px] py-2 px-3 text-base sm:text-sm font-semibold outline-none focus:border-[var(--game-cream-mid)] cursor-pointer tabular-nums"
+                  >
+                    <option value="">{t.common.all}</option>
+                    <option value="10">{fmtNum(10)}+ {t.search.membersUnit}</option>
+                    <option value="20">{fmtNum(20)}+ {t.search.membersUnit}</option>
+                    <option value="30">{fmtNum(30)}+ {t.search.membersUnit}</option>
+                    <option value="40">{fmtNum(40)}+ {t.search.membersUnit}</option>
+                  </select>
+                </div>
+
+                {/* Min Clan Points */}
+                <div>
+                  <label
+                    htmlFor="clan-filter-min-points"
+                    className="block text-xs font-bold text-[var(--ui-text-muted)] mb-1.5 select-none"
+                  >
+                    {t.search.minClanPoints}
+                  </label>
+                  <input
+                    ref={pointsInputRef}
+                    id="clan-filter-min-points"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={minClanPointsText}
+                    onChange={handleMinPointsChange}
+                    onBlur={handleMinPointsBlur}
+                    placeholder={isTr ? "Örn: 20000" : "e.g. 20000"}
+                    className="ui-input w-full min-h-[44px] py-2 px-3 text-base sm:text-sm font-semibold placeholder:text-[var(--ui-text-muted)]/60 outline-none focus:border-[var(--game-cream-mid)] tabular-nums"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </form>
+      </section>
 
       {/* Error Message Box */}
       {errorMessage && (
         <div
           role="alert"
-          className="p-3.5 rounded-xl bg-red-100 border-2 border-red-400 text-red-900 flex items-start justify-between gap-3 shadow-sm"
+          className="p-3.5 rounded-xl bg-[var(--game-dark-box-dark)] border-2 border-[var(--game-btn-red-mid)] text-[var(--ui-text-main)] flex items-start justify-between gap-3 shadow-sm"
         >
           <div className="flex items-start gap-2.5 min-w-0">
-            <AlertCircle className="w-5 h-5 text-red-700 shrink-0 mt-0.5" />
-            <p className="text-sm font-semibold leading-snug">{errorMessage}</p>
+            <AlertCircle className="w-5 h-5 text-[var(--game-btn-red-top)] shrink-0 mt-0.5" />
+            <p className="text-sm font-semibold leading-snug break-words">{errorMessage}</p>
           </div>
           <button
             type="button"
             onClick={() => setErrorMessage(null)}
-            className="min-w-[44px] min-h-[44px] -my-2 -mr-2 inline-flex items-center justify-center text-red-700 hover:text-red-950 cursor-pointer rounded-lg transition-colors shrink-0"
+            className="min-w-[44px] min-h-[44px] -my-2 -mr-2 inline-flex items-center justify-center text-[var(--ui-text-muted)] hover:text-[var(--ui-text-main)] cursor-pointer rounded-lg transition-colors shrink-0"
             aria-label={t.common.close}
             title={t.common.close}
           >
@@ -505,103 +517,126 @@ export default function ClanSearchView({
 
       {/* Loading Skeleton Indicator */}
       {isLoading && (
-        <div
-          aria-live="polite"
-          className="space-y-2.5 rounded-2xl bg-[#EFE8DA] border-2 border-[#C2B39C] p-3 sm:p-4"
-        >
-          <div className="flex items-center gap-2 text-xs font-bold text-[#5A4A3E] pb-1">
-            <span className="inline-block w-3.5 h-3.5 border-2 border-[#6B4A2E] border-t-transparent rounded-full animate-spin" />
+        <div aria-live="polite" className="space-y-3">
+          <div className="flex items-center gap-2 text-xs font-bold text-[var(--ui-text-muted)] px-1">
+            <span className="inline-block w-3.5 h-3.5 border-2 border-[var(--game-cream-light)] border-t-transparent rounded-full animate-spin" />
             <span>{t.common.searching}</span>
           </div>
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="p-3 rounded-xl bg-[#FFFDF8]/70 border border-[#C2B39C] flex items-center justify-between gap-3"
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <SkeletonBlock width={48} height={48} className="rounded-xl shrink-0" />
-                <div className="space-y-2 flex-1 min-w-0">
-                  <SkeletonBlock width="52%" height={18} />
-                  <SkeletonBlock width="34%" height={14} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="ui-panel p-4 space-y-3">
+                <div className="flex items-center gap-3">
+                  <SkeletonBlock width={48} height={48} className="rounded-xl shrink-0" />
+                  <div className="space-y-2 flex-1 min-w-0">
+                    <SkeletonBlock width="68%" height={18} />
+                    <SkeletonBlock width="42%" height={14} />
+                  </div>
+                </div>
+                <SkeletonBlock height={10} className="rounded-full" />
+                <div className="flex items-center justify-between gap-2">
+                  <SkeletonBlock width="38%" height={24} className="rounded-lg" />
+                  <SkeletonBlock width="32%" height={24} className="rounded-lg" />
                 </div>
               </div>
-              <SkeletonBlock width={84} height={28} className="rounded-lg shrink-0" />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Results List (Flows naturally with the page — no max-h scroll trap) */}
+      {/* Results Grid (3-column on desktop, 1-column on mobile) */}
       {!isLoading && visibleClans.length > 0 && (
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between flex-wrap gap-2 px-1 text-xs text-[#5A4A3E] font-bold select-none">
-            <span className="tabular-nums">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between flex-wrap gap-2 px-1 text-xs text-[var(--ui-text-muted)] font-bold select-none">
+            <span className="tabular-nums text-[var(--ui-text-main)]">
               {fmtTemplate(t.search.resultsFound, { count: fmtNum(visibleClans.length) })}
             </span>
             <span>{t.search.resultsHint}</span>
           </div>
 
-          <div className="space-y-2.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {visibleClans.map((clan) => {
               const cleanTag = normalizeTag(clan.tag);
+              const memberCount = clan.members ?? 0;
+              const memberPct = Math.min(100, Math.max(0, Math.round((memberCount / 50) * 100)));
+
               return (
                 <button
                   key={cleanTag}
                   type="button"
                   onClick={() => handleSelectClanRow(clan)}
-                  className="group w-full text-left p-3 sm:p-3.5 rounded-xl bg-[#FFFDF8] hover:bg-[#F5ECD9] border-2 border-[#C2B39C] hover:border-[#A87146] transition-all cursor-pointer shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3"
+                  className="group ui-panel p-3.5 sm:p-4 text-left flex flex-col justify-between gap-3 cursor-pointer transition-all hover:border-[var(--game-cream-mid)] hover:-translate-y-0.5 active:translate-y-0 min-w-0 min-h-[44px]"
                 >
-                  {/* Top / Left: Badge + Names + Metadata */}
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <ClanBadge
-                      url={clan.badgeUrls?.medium || clan.badgeUrls?.small}
-                      name={clan.name}
-                      size={48}
-                    />
+                  {/* Card Top: Badge + Name + Tag + Level Badge */}
+                  <div className="flex items-start justify-between gap-2.5 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <ClanBadge
+                        url={clan.badgeUrls?.medium || clan.badgeUrls?.small}
+                        name={clan.name}
+                        size={48}
+                      />
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-extrabold text-[#2D251E] text-base group-hover:text-[#7C4408] transition-colors truncate">
-                          {clan.name}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-amber-100 border border-amber-400/70 text-[#7C4408] text-xs font-extrabold shrink-0 tabular-nums">
-                          {t.common.levelShort} {fmtNum(clan.clanLevel)}
-                        </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="font-extrabold text-[var(--ui-text-main)] text-base group-hover:text-[var(--game-cream-light)] transition-colors truncate">
+                            {clan.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                          <span className="font-sans text-xs font-semibold tabular-nums text-[var(--ui-text-muted)]">
+                            #{cleanTag}
+                          </span>
+                          <span className="ui-pill px-2 py-0.5 text-[11px] font-extrabold tabular-nums text-[var(--game-cream-light)]">
+                            {t.common.levelShort} {fmtNum(clan.clanLevel)}
+                          </span>
+                        </div>
                       </div>
+                    </div>
 
-                      <div className="flex items-center gap-1.5 text-xs text-[#5A4A3E] font-medium mt-0.5 flex-wrap">
-                        <span className="font-sans font-semibold tabular-nums">#{cleanTag}</span>
-                        <span aria-hidden="true">•</span>
-                        <span>{formatClanType(clan.type)}</span>
-                        {clan.location?.name && (
-                          <>
-                            <span aria-hidden="true">•</span>
-                            <span className="inline-flex items-center gap-1">
-                              <MapPin className="w-3 h-3 text-[#6B4A2E] shrink-0" />
-                              <span className="truncate max-w-[160px]">{clan.location.name}</span>
-                            </span>
-                          </>
-                        )}
-                      </div>
+                    <ChevronRight className="w-4 h-4 text-[var(--ui-text-muted)] group-hover:text-[var(--game-cream-light)] shrink-0 mt-1 transition-colors" />
+                  </div>
+
+                  {/* Card Middle: Members / 50 Capacity Bar */}
+                  <div className="ui-well px-3 py-2 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2 text-xs font-bold">
+                      <span className="inline-flex items-center gap-1.5 text-[var(--ui-text-muted)]">
+                        <Users className="w-3.5 h-3.5 text-[var(--game-cream-light)] shrink-0" />
+                        <span>{t.search.membersUnit}</span>
+                      </span>
+                      <span className="tabular-nums text-[var(--ui-text-main)]">
+                        {fmtNum(memberCount)} / 50
+                      </span>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-[var(--game-dark-box-dark)] border border-[var(--ui-well-border)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[var(--game-btn-green-mid)] transition-all duration-300"
+                        style={{ width: `${memberPct}%` }}
+                      />
                     </div>
                   </div>
 
-                  {/* Right / Bottom Mobile Strip: Member Count (Always Visible!) & Clan Points */}
-                  <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#DDD2C0]">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#EFE8DA] border border-[#C2B39C] text-[#2D251E] text-xs sm:text-sm font-bold tabular-nums">
-                      <Users className="w-3.5 h-3.5 text-[#6B4A2E] shrink-0" />
-                      <span>{fmtNum(clan.members ?? 0)}/50</span>
-                      <span className="text-[11px] font-semibold text-[#5A4A3E] sm:hidden">
-                        {t.search.membersUnit}
-                      </span>
+                  {/* Card Footer: Clan Points + Type + Location */}
+                  <div className="flex items-center justify-between gap-2 text-xs pt-0.5 min-w-0">
+                    <div className="inline-flex items-center gap-1.5 font-extrabold text-[var(--game-cream-light)] tabular-nums shrink-0">
+                      <img
+                        src="/icons/ui/trophy.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="w-3.5 h-3.5 object-contain shrink-0 select-none"
+                      />
+                      <span>{fmtNum(clan.clanPoints ?? 0)}</span>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100/90 border border-amber-400/60 text-[#7C4408] text-xs sm:text-sm font-extrabold tabular-nums">
-                      <Trophy className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-                      <span>{fmtNum(clan.clanPoints ?? 0)}</span>
-                      <span className="text-[11px] font-semibold text-[#7C4408]/80 sm:hidden">
-                        {t.search.pointsUnit}
-                      </span>
+                    <div className="flex items-center gap-1.5 text-[var(--ui-text-muted)] font-semibold min-w-0 truncate">
+                      <span className="truncate">{formatClanType(clan.type)}</span>
+                      {clan.location?.name && (
+                        <>
+                          <span aria-hidden="true">•</span>
+                          <span className="inline-flex items-center gap-1 min-w-0">
+                            <MapPin className="w-3 h-3 text-[var(--game-cream-light)] shrink-0" />
+                            <span className="truncate">{clan.location.name}</span>
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </button>
@@ -612,17 +647,21 @@ export default function ClanSearchView({
           {/* Pagination: Load More */}
           {afterCursor && (
             <div className="pt-2 text-center">
-              <button
+              <GameButton
                 type="button"
+                variant="green"
+                size="md"
                 onClick={() => executeSearch(queryInput, afterCursor)}
                 disabled={isLoadingMore}
-                className="game-btn-panel-green min-h-[44px] px-6 py-2.5 rounded-xl text-white font-extrabold text-sm inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 select-none"
+                icon={
+                  isLoadingMore ? (
+                    <span className="inline-block w-4 h-4 border-2 border-[var(--ui-text-main)] border-t-transparent rounded-full animate-spin" />
+                  ) : undefined
+                }
+                className="min-h-[44px] px-6"
               >
-                {isLoadingMore && (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                )}
-                <span className="game-text-stroke-sm">{t.common.showMore}</span>
-              </button>
+                {t.common.showMore}
+              </GameButton>
             </div>
           )}
         </div>
@@ -630,25 +669,31 @@ export default function ClanSearchView({
 
       {/* Empty State after search */}
       {!isLoading && hasSearched && visibleClans.length === 0 && !errorMessage && (
-        <div className="p-6 sm:p-8 text-center rounded-2xl bg-[#EFE8DA] border-2 border-[#C2B39C] space-y-3">
-          <Shield className="w-10 h-10 text-[#6B4A2E] mx-auto" />
-          <h4 className="font-extrabold text-[#2D251E] text-base">{t.search.noClansTitle}</h4>
-          <p className="text-sm text-[#5A4A3E] max-w-md mx-auto font-medium">
+        <div className="ui-panel p-6 sm:p-8 text-center space-y-3">
+          <Shield className="w-10 h-10 text-[var(--game-cream-light)] mx-auto" />
+          <h4 className="font-extrabold text-[var(--ui-text-main)] text-base">
+            {t.search.noClansTitle}
+          </h4>
+          <p className="text-sm text-[var(--ui-text-muted)] max-w-md mx-auto font-medium">
             {t.search.noClansDesc}
           </p>
           {afterCursor && (
             <div className="pt-1">
-              <button
+              <GameButton
                 type="button"
+                variant="green"
+                size="md"
                 onClick={() => executeSearch(queryInput, afterCursor)}
                 disabled={isLoadingMore}
-                className="game-btn-panel-green min-h-[44px] px-5 py-2 rounded-xl text-white font-extrabold text-sm inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 select-none"
+                icon={
+                  isLoadingMore ? (
+                    <span className="inline-block w-4 h-4 border-2 border-[var(--ui-text-main)] border-t-transparent rounded-full animate-spin" />
+                  ) : undefined
+                }
+                className="min-h-[44px]"
               >
-                {isLoadingMore && (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                )}
-                <span className="game-text-stroke-sm">{t.common.showMore}</span>
-              </button>
+                {t.common.showMore}
+              </GameButton>
             </div>
           )}
         </div>
@@ -656,13 +701,13 @@ export default function ClanSearchView({
 
       {/* Recent Clan Searches Section */}
       {!hasSearched && (
-        <div className="mt-6 pt-5 border-t border-[#C2B39C]">
-          <div className="flex items-center justify-between gap-2 mb-3">
-            <div className="flex items-center gap-2 text-[#2D251E]">
-              <Clock className="w-4 h-4 text-[#6B4A2E]" />
-              <span className="font-bold text-sm select-none">
+        <section className="ui-panel p-4 sm:p-5 space-y-3.5 min-w-0">
+          <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-[var(--ui-panel-border)]">
+            <div className="flex items-center gap-2 text-[var(--ui-text-main)] min-w-0">
+              <Clock className="w-4 h-4 text-[var(--game-cream-light)] shrink-0" />
+              <h2 className="font-extrabold text-sm sm:text-base truncate select-none">
                 {isTr ? "Son Aranan Klanlar" : t.search.recentTitle}
-              </span>
+              </h2>
             </div>
 
             {recentSearches.length > 0 && (
@@ -672,7 +717,7 @@ export default function ClanSearchView({
                   clearRecentClanSearches();
                   setRecentSearches([]);
                 }}
-                className="min-h-[44px] px-2 text-xs text-[#5A4A3E] hover:text-[#2D251E] font-bold cursor-pointer underline select-none"
+                className="min-h-[44px] px-2.5 -my-1.5 text-xs text-[var(--game-cream-light)] hover:text-[var(--ui-text-main)] font-bold cursor-pointer underline select-none shrink-0"
               >
                 {t.search.clearHistory}
               </button>
@@ -680,49 +725,34 @@ export default function ClanSearchView({
           </div>
 
           {recentSearches.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {recentSearches.map((item, idx) => {
                 const label = item.isTag && item.tag ? `#${item.tag}` : item.query;
+                const subLabel =
+                  item.name && item.name.trim() !== item.query.trim() ? item.name : undefined;
                 return (
-                  <div
+                  <RecentTagChip
                     key={`${item.query}-${idx}`}
-                    className="inline-flex items-stretch rounded-xl bg-[#EFE8DA] border-2 border-[#C2B39C] shadow-sm overflow-hidden transition-colors hover:border-[#A87146]"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleRecentClick(item)}
-                      disabled={isLoading}
-                      className="min-h-[44px] px-3 py-1.5 inline-flex items-center gap-2 text-sm font-bold text-[#2D251E] hover:bg-[#E4DAC7] transition-colors cursor-pointer disabled:opacity-50 text-left"
-                      title={label}
-                    >
-                      <Shield className="w-4 h-4 text-[#6B4A2E] shrink-0" />
-                      <span className="tabular-nums">{label}</span>
-                      {item.name && item.name !== item.query && (
-                        <span className="text-xs text-[#5A4A3E] font-medium truncate max-w-[140px]">
-                          ({item.name})
-                        </span>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveRecent(item.tag || item.query)}
-                      disabled={isLoading}
-                      className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center border-l border-[#C2B39C] text-[#5A4A3E] hover:text-[#2D251E] hover:bg-[#E4DAC7] transition-colors cursor-pointer disabled:opacity-50"
-                      aria-label={`${t.search.removeItem} ${label}`}
-                      title={t.search.removeItem}
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
+                    icon="clan"
+                    label={label}
+                    subLabel={subLabel}
+                    onSelect={() => handleRecentClick(item)}
+                    onRemove={() => handleRemoveRecent(item.tag || item.query)}
+                    removeAriaLabel={`${t.search.removeItem} ${label}`}
+                    removeTitle={t.search.removeItem}
+                    disabled={isLoading}
+                  />
                 );
               })}
             </div>
           ) : (
-            <p className="text-xs text-[#5A4A3E] italic select-none">
-              {t.search.recentEmpty}
-            </p>
+            <div className="ui-well p-4 text-center">
+              <p className="text-xs sm:text-sm text-[var(--ui-text-muted)] italic select-none">
+                {t.search.recentEmpty}
+              </p>
+            </div>
           )}
-        </div>
+        </section>
       )}
     </div>
   );

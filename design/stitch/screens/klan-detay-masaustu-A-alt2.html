@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CoC Analitik - Klan Detayı (İki Sütunlu Düzen)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            espresso: '#14100C',
+            wood: {
+              main: '#2E1A11',
+              dark: '#21130B',
+              panel: '#28170F',
+              card: '#1F120B',
+              border: '#45291B',
+              inner: '#180E08',
+            },
+            cocgreen: {
+              DEFAULT: '#5EA31A',
+              hover: '#6EBD1F',
+              active: '#529116',
+              light: '#72BD36',
+              border: '#3F7010',
+            },
+            gold: {
+              DEFAULT: '#FFB800',
+              muted: '#CCA043',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #F5EBE1;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+</head>
+<body class="bg-[#14100C] text-[#F5EBE1] min-h-screen flex flex-col justify-between selection:bg-[#72BD36] selection:text-white">
+<!-- EN ÜST UYGULAMA ÇUBUĞU -->
+<header class="w-full bg-[#1C1009] border-b border-[#3D2315] shadow-[0_4px_16px_rgba(0,0,0,0.6)] sticky top-0 z-50">
+<div class="max-w-[1360px] mx-auto px-6 h-14 flex items-center justify-between">
+<!-- Sol: Kalkan ikonu ve marka -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#54321E] flex items-center justify-center text-[#72BD36] shadow-inner">
+<span class="material-symbols-outlined text-[20px]">shield</span>
+</div>
+<span class="font-extrabold text-base tracking-wide text-[#F5EBE1]">CoC Analitik</span>
+</div>
+<!-- Orta: 6 Gezinme Öğesi -->
+<nav class="flex items-center gap-7 text-sm font-semibold">
+<a class="text-[#A38A7E] hover:text-[#F5EBE1] transition-colors py-1" href="#">Ana Sayfa</a>
+<!-- Aktif: Oyuncu & Klan -->
+<a class="text-[#72BD36] font-extrabold border-b-2 border-[#72BD36] py-1 tracking-wide" href="#">Oyuncu &amp; Klan</a>
+<a class="text-[#A38A7E] hover:text-[#F5EBE1] transition-colors py-1" href="#">Meta &amp; Ordu</a>
+<a class="text-[#A38A7E] hover:text-[#F5EBE1] transition-colors py-1" href="#">CWL Keşif</a>
+<a class="text-[#A38A7E] hover:text-[#F5EBE1] transition-colors py-1" href="#">Cevher Analizi</a>
+<a class="text-[#A38A7E] hover:text-[#F5EBE1] transition-colors py-1" href="#">Duvar Yazısı</a>
+</nav>
+<!-- Sağ: Dengeleyici -->
+<div class="w-24"></div>
+</div>
+</header>
+<!-- ANA İÇERİK: İKİ SÜTUNLU ASİMETRİK DÜZEN -->
+<main class="w-full max-w-[1360px] mx-auto px-4 lg:px-6 py-6 flex-1">
+<!-- Sayfaya Özel Üst Sekme -->
+<div class="flex items-end mb-0">
+<div class="bg-[#2E1A11] border-t-2 border-x-2 border-[#4A2A1A] rounded-t-xl px-7 py-3 flex items-center gap-2.5 text-[#F5EBE1] font-bold text-sm tracking-wide shadow-[0_-2px_6px_rgba(0,0,0,0.3)]">
+<span class="material-symbols-outlined text-[18px] text-[#A38A7E]">groups</span>
+<span>Oyuncu &amp; Klan</span>
+</div>
+</div>
+<!-- Ahşap Pencere Gövdesi: 2 Kolon Grid (Sidecard ~360px + Geniş Tablo) -->
+<div class="bg-[#2E1A11] border-2 border-[#4A2A1A] rounded-b-2xl rounded-tr-2xl p-5 md:p-6 shadow-[0_12px_32px_rgba(0,0,0,0.7)]">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- ================= SOL SÜTUN: KLAN KARTI (SIDECARD ~360px) ================= -->
+<aside class="lg:col-span-4 xl:col-span-4 bg-[#21130B] border border-[#3E2214] rounded-xl p-5 flex flex-col gap-5 shadow-inner">
+<!-- Klan Başlık & Rozet -->
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-xl bg-gradient-to-b from-[#3B2316] to-[#1E0F07] border-2 border-[#FFB800] flex flex-col items-center justify-center text-[#FFB800] shadow-[0_4px_10px_rgba(0,0,0,0.5)] shrink-0">
+<span class="text-2xl font-black leading-none">25</span>
+<span class="text-[10px] font-extrabold uppercase tracking-widest text-[#CCA043] mt-0.5">Seviye</span>
+</div>
+<div class="flex flex-col min-w-0">
+<h1 class="text-xl md:text-2xl font-extrabold text-[#F5EBE1] tracking-tight truncate">(- YAW HE HE -)</h1>
+<span class="text-sm font-bold text-[#FFB800] tracking-wider mt-0.5">#UUJL8CYP</span>
+</div>
+</div>
+<!-- 3 Etiket Hapları -->
+<div class="flex flex-wrap items-center gap-2">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#180E08] border border-[#3E2214] text-xs font-bold text-[#F5EBE1]">
+<span class="w-2 h-2 rounded-full bg-[#72BD36]"></span>
+              Klan Savaşları
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#180E08] border border-[#3E2214] text-xs font-bold text-[#F5EBE1]">
+<span class="w-2 h-2 rounded-full bg-[#FFB800]"></span>
+              CWL
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#180E08] border border-[#3E2214] text-xs font-bold text-[#F5EBE1]">
+<span class="w-2 h-2 rounded-full bg-[#D8C4B6]"></span>
+              Bağışçı
+            </span>
+</div>
+<!-- Açıklama Kutusu -->
+<div class="p-3.5 rounded-lg bg-[#180E08] border border-[#341B0E] text-[#D8C4B6] text-xs md:text-sm leading-relaxed">
+            Klanımıza hoş geldiniz! Düzenli klan savaşları ve CWL katılımcıları aranıyor. Saygı, aktiflik ve bağış esastır. Birlikte zafere!
+          </div>
+<!-- Klan Bilgileri Listesi (Anahtar - Değer) -->
+<div class="bg-[#180E08] border border-[#341B0E] rounded-xl p-4 space-y-2.5 text-xs md:text-sm">
+<div class="flex items-center justify-between pb-2 border-b border-[#28150B]">
+<span class="text-[#A38A7E] font-medium">Klan Savaşı Ligi</span>
+<span class="text-[#FFB800] font-extrabold">Şampiyon</span>
+</div>
+<div class="flex items-center justify-between pb-2 border-b border-[#28150B]">
+<span class="text-[#A38A7E] font-medium">Klan Konumu</span>
+<span class="text-[#F5EBE1] font-bold">Türkiye</span>
+</div>
+<div class="flex items-center justify-between pb-2 border-b border-[#28150B]">
+<span class="text-[#A38A7E] font-medium">Sohbet Dili</span>
+<span class="text-[#F5EBE1] font-bold">Türkçe</span>
+</div>
+<div class="flex items-center justify-between pb-2 border-b border-[#28150B]">
+<span class="text-[#A38A7E] font-medium">Tür</span>
+<span class="text-[#F5EBE1] font-bold">Herkese açık</span>
+</div>
+<div class="flex items-center justify-between pb-2 border-b border-[#28150B]">
+<span class="text-[#A38A7E] font-medium">Gereken kupa</span>
+<span class="text-[#F5EBE1] font-bold">Kupasız</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-[#A38A7E] font-medium">Gereken Belediye Binası</span>
+<span class="text-[#F5EBE1] font-bold">17</span>
+</div>
+</div>
+<!-- Butonlar (Dikey Yığınlanmış Sidecard Aksiyonları) -->
+<div class="flex flex-col gap-2.5 pt-1">
+<button class="w-full min-h-[44px] h-11 px-5 rounded-xl bg-[#5EA31A] hover:bg-[#6EBD1F] active:bg-[#529116] border border-[#3F7010] text-white font-extrabold text-sm tracking-wide shadow-[0_4px_12px_rgba(94,163,26,0.35)] flex items-center justify-center gap-2 transition-all cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[20px]">military_tech</span>
+<span>CWL Rakip Analizi</span>
+</button>
+<button class="w-full min-h-[44px] h-11 px-5 rounded-xl bg-[#3A2216] hover:bg-[#462B1D] active:bg-[#2C1910] border border-[#523322] text-[#E0D0C4] font-extrabold text-sm tracking-wide shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[20px]">history_edu</span>
+<span>Savaş Günlüğü</span>
+</button>
+</div>
+</aside>
+<!-- ================= SAĞ SÜTUN: GENİŞ ÜYE LİSTESİ TABLOSU ================= -->
+<section class="lg:col-span-8 xl:col-span-8 flex flex-col gap-4">
+<!-- Üst Özet Barı & Kontrolleri -->
+<div class="flex items-center justify-between bg-[#21130B] border border-[#3E2214] rounded-xl px-4 py-3 shadow-inner">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[#72BD36] text-[20px]">group</span>
+<span class="text-base md:text-lg font-black text-[#F5EBE1] tracking-tight">Üye 29/50</span>
+</div>
+<div class="relative">
+<select aria-label="Sıralama ölçütü" class="min-h-[40px] h-10 pl-3.5 pr-9 rounded-lg bg-[#180E08] border border-[#3E2214] text-[#F5EBE1] text-xs font-bold appearance-none cursor-pointer focus:outline-none focus:border-[#72BD36]">
+<option value="trophy">Kupaya Göre</option>
+<option value="role">Role Göre</option>
+<option value="donations">Bağışa Göre</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#A38A7E] text-[18px]">expand_more</span>
+</div>
+</div>
+<!-- Yüksek Yoğunluklu Üye Tablosu -->
+<div class="overflow-hidden rounded-xl border border-[#3E2214] bg-[#21130B] shadow-inner">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm border-collapse min-w-[700px]">
+<thead>
+<tr class="bg-[#180E08] border-b border-[#341B0E] text-[11px] font-extrabold uppercase tracking-wider text-[#A38A7E]">
+<th class="py-3 px-3 w-10 text-center">#</th>
+<th class="py-3 px-2 w-14 text-center">Lig</th>
+<th class="py-3 px-3 w-16 text-center">BB</th>
+<th class="py-3 px-4">Oyuncu</th>
+<th class="py-3 px-4 w-32">Rol</th>
+<th class="py-3 px-3 w-24 text-right">Bağışlanan</th>
+<th class="py-3 px-3 w-24 text-right">Alınan</th>
+<th class="py-3 px-4 w-28 text-right">Kupa</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#2B170E] font-semibold text-xs md:text-sm">
+<!-- 1. Satır: Barbaros -->
+<tr class="hover:bg-[#2A180E] transition-colors">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#A38A7E]">1</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#311C11] border border-[#4F2D1C] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#180E08] border border-[#482818] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#45291B] flex items-center justify-center text-[#D8C4B6] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="font-extrabold text-[#F5EBE1] text-sm">Barbaros</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#D8C4B6] font-medium">Lider</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 4.100</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#D8C4B6]">▼ 2.200</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">5.420</td>
+</tr>
+<!-- 2. Satır: HARUN (SEN / Vurgulu Yeşil Satır) -->
+<tr class="bg-[#1C2C13] border-y-2 border-[#5EA31A] shadow-md">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#72BD36]">2</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#2D4518] border border-[#5EA31A] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#14230D] border border-[#5EA31A] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#233B13] border border-[#5EA31A] flex items-center justify-center text-[#72BD36] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-black text-white text-sm tracking-wide">HARUN</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-[#2D4518] border border-[#5EA31A] text-[9px] font-extrabold text-[#8DDB50] uppercase tracking-wider">SEN</span>
+<span class="w-2 h-2 rounded-full bg-[#72BD36]"></span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#A7E275] font-bold">Yardımcı Lider</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 2.450</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#CDE7B4]">▼ 1.119</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">5.154</td>
+</tr>
+<!-- 3. Satır: GölgeSavaşçı -->
+<tr class="hover:bg-[#2A180E] transition-colors">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#A38A7E]">3</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#311C11] border border-[#4F2D1C] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#180E08] border border-[#482818] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#45291B] flex items-center justify-center text-[#D8C4B6] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="font-extrabold text-[#F5EBE1] text-sm">GölgeSavaşçı</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#D8C4B6] font-medium">Yardımcı Lider</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 1.850</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#D8C4B6]">▼ 980</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">5.010</td>
+</tr>
+<!-- 4. Satır: Kuzeyli -->
+<tr class="hover:bg-[#2A180E] transition-colors">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#A38A7E]">4</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#311C11] border border-[#4F2D1C] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#180E08] border border-[#482818] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#45291B] flex items-center justify-center text-[#D8C4B6] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="font-extrabold text-[#F5EBE1] text-sm">Kuzeyli</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#D8C4B6] font-medium">Büyük</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 1.200</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#D8C4B6]">▼ 1.450</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">4.890</td>
+</tr>
+<!-- 5. Satır: AteşOku -->
+<tr class="hover:bg-[#2A180E] transition-colors">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#A38A7E]">5</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#311C11] border border-[#4F2D1C] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#180E08] border border-[#482818] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#45291B] flex items-center justify-center text-[#D8C4B6] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="font-extrabold text-[#F5EBE1] text-sm">AteşOku</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#D8C4B6] font-medium">Büyük</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 950</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#D8C4B6]">▼ 800</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">4.750</td>
+</tr>
+<!-- 6. Satır: DemirYumruk -->
+<tr class="hover:bg-[#2A180E] transition-colors">
+<td class="py-3.5 px-3 text-center font-extrabold text-[#A38A7E]">6</td>
+<td class="py-3.5 px-2 text-center">
+<span class="inline-flex items-center justify-center px-1.5 py-0.5 rounded bg-[#311C11] border border-[#4F2D1C] text-[10px] font-extrabold text-[#FFB800]">LİG</span>
+</td>
+<td class="py-3.5 px-3 text-center">
+<div class="inline-flex flex-col items-center justify-center w-10 h-8 rounded-lg bg-[#180E08] border border-[#482818] shadow-inner">
+<span class="text-[10px] font-black text-[#F5EBE1] tracking-tight">TH18</span>
+<span class="text-[7.5px] font-extrabold text-[#FFB800] leading-none">MAX</span>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-[#2E1A11] border border-[#45291B] flex items-center justify-center text-[#D8C4B6] shrink-0">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="font-extrabold text-[#F5EBE1] text-sm">DemirYumruk</span>
+</div>
+</td>
+<td class="py-3.5 px-4 text-[#D8C4B6] font-medium">Üye</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#72BD36] font-bold">▲ 640</td>
+<td class="py-3.5 px-3 text-right font-mono text-[#D8C4B6]">▼ 1.100</td>
+<td class="py-3.5 px-4 text-right font-mono font-extrabold text-sm text-[#FFB800]">4.620</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- DAHA FAZLA GÖSTER BUTONU -->
+<button class="w-full min-h-[44px] h-11 px-4 rounded-xl bg-[#21130B] hover:bg-[#28170F] active:bg-[#1A0E08] border border-[#3E2214] text-[#D8C4B6] hover:text-[#F5EBE1] text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-inner cursor-pointer" type="button">
+<span class="material-symbols-outlined text-[18px]">expand_more</span>
+<span>Daha fazla göster</span>
+</button>
+</section>
+</div>
+</div>
+</main>
+<!-- ALT BİLGİ (FOOTER) -->
+<footer class="w-full border-t border-[#26150C] py-6 px-4 bg-[#100B08] text-center">
+<p class="text-xs text-[#8A7569]">
+      Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+    </p>
+</footer>
+</body></html>

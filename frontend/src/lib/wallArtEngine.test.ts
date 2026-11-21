@@ -220,6 +220,96 @@ function runTests() {
   }
   console.log("✓ Test 15: Grid position shift (offsetX, offsetY) accurately translates rendered text coordinates.");
 
+  // 16. Calibrated 5-Letter Diagonal Fit & Native Turkish Support (clash_bold, clash_slim, clash_block)
+  for (const fontId of ["clash_bold", "clash_slim", "clash_block"]) {
+    const f = getBitmapFont(fontId);
+    if (!f || f.id !== fontId) {
+      throw new Error(`Expected calibrated font ${fontId} to be registered`);
+    }
+    for (const sampleText of ["CLASH", "GÜÇLÜ", "ŞAMPİ", "(123)", "12345"]) {
+      const diagRes = computeWallArt(sampleText, f, 1.0, -45, 325, 2, false, true, false, 0, 0);
+      if (diagRes.lineCount !== 1) {
+        throw new Error(`${fontId} "${sampleText}" expected 1 line diagonally, got ${diagRes.lineCount}`);
+      }
+      if (!diagRes.fitsInGrid || diagRes.isOverBudget || diagRes.effectiveScale !== 1.0) {
+        throw new Error(
+          `${fontId} "${sampleText}" failed 1.0x diagonal fit: fits=${diagRes.fitsInGrid}, walls=${diagRes.wallCount}, scale=${diagRes.effectiveScale}`
+        );
+      }
+      if (diagRes.missingChars.length > 0 || diagRes.convertedChars.length > 0) {
+        throw new Error(`${fontId} "${sampleText}" unexpected missing/converted chars`);
+      }
+      if (diagRes.thickenedChars.length > 0) {
+        throw new Error(`${fontId} "${sampleText}" should not trigger chebyshev dilation (${diagRes.thickenedChars.join(",")})`);
+      }
+    }
+  }
+  console.log("✓ Test 16: Calibrated fonts (clash_bold, clash_slim, clash_block) fit 5-char Turkish/symbol strings on 1 diagonal line at 1.0x without dilation.");
+
+  // 17. Open Counter Preservation (No Unreadable Blobs at -45° on 'O', 'B', '8')
+  const countOpenInteriorPockets = (grid: number[][]): number => {
+    const H = grid.length;
+    const W = grid[0].length;
+    const vis = Array.from({ length: H }, () => new Array(W).fill(false));
+    const q: [number, number][] = [];
+    for (let r = 0; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        if ((r === 0 || r === H - 1 || c === 0 || c === W - 1) && grid[r][c] === 0 && !vis[r][c]) {
+          vis[r][c] = true;
+          q.push([r, c]);
+        }
+      }
+    }
+    let head = 0;
+    while (head < q.length) {
+      const [r, c] = q[head++];
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < H && nc >= 0 && nc < W && !vis[nr][nc] && grid[nr][nc] === 0) {
+          vis[nr][nc] = true;
+          q.push([nr, nc]);
+        }
+      }
+    }
+    let pockets = 0;
+    for (let r = 0; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        if (grid[r][c] === 0 && !vis[r][c]) {
+          pockets++;
+          const pq: [number, number][] = [[r, c]];
+          vis[r][c] = true;
+          let phead = 0;
+          while (phead < pq.length) {
+            const [pr, pc] = pq[phead++];
+            for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+              const nr = pr + dr;
+              const nc = pc + dc;
+              if (nr >= 0 && nr < H && nc >= 0 && nc < W && !vis[nr][nc] && grid[nr][nc] === 0) {
+                vis[nr][nc] = true;
+                pq.push([nr, nc]);
+              }
+            }
+          }
+        }
+      }
+    }
+    return pockets;
+  };
+
+  for (const fontId of ["clash_bold", "clash_slim", "clash_block"]) {
+    const f = getBitmapFont(fontId)!;
+    const oRes = computeWallArt("O", f, 1.0, -45, 325, 2, false, false, false, 0, 0);
+    if (countOpenInteriorPockets(oRes.grid) < 1) {
+      throw new Error(`${fontId} 'O' counter collapsed at -45°`);
+    }
+    const bRes = computeWallArt("B8", f, 1.0, -45, 325, 2, false, false, false, 0, 0);
+    if (countOpenInteriorPockets(bRes.grid) < 4) {
+      throw new Error(`${fontId} 'B8' counters collapsed at -45°`);
+    }
+  }
+  console.log("✓ Test 17: Open counters ('O', 'B', '8') remain strictly open at -45° with zero blobification.");
+
   console.log("=== ALL BITMAP WALL ART (LOSSLESS 45° LATTICE) TESTS PASSED! ===");
 }
 

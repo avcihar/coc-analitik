@@ -16,7 +16,6 @@ import {
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { TabKey } from "./GameHeaderTabs";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { useLanguage } from "@/lib/i18n";
 
 function cn(...inputs: ClassValue[]) {
@@ -35,9 +34,7 @@ export default function MobileNav({
   className,
 }: MobileNavProps) {
   const [moreOpen, setMoreOpen] = useState(false);
-  const { theme } = useTheme();
   const { isTr, t } = useLanguage();
-  const isDark = theme === "dark";
 
   // Close "more" bottom sheet on Escape key
   useEffect(() => {
@@ -79,50 +76,23 @@ export default function MobileNav({
             role="dialog"
             aria-modal="true"
             aria-label={t.nav.moreTools}
-            className={cn(
-              "fixed bottom-0 left-0 right-0 border-t-2 rounded-t-2xl shadow-2xl p-4 space-y-3 z-50",
-              isDark
-                ? "bg-gradient-to-b from-[#2A1B12] to-[#1A100A] border-[#5A3A28]"
-                : "bg-gradient-to-b from-[#FBF7EE] to-[#EFE5D4] border-[#C2B094]"
-            )}
+            className="fixed bottom-0 left-0 right-0 ui-panel !rounded-b-none rounded-t-2xl shadow-2xl p-4 space-y-3 z-50"
             style={{ paddingBottom: "max(1.75rem, env(safe-area-inset-bottom))" }}
           >
             {/* Sheet Header */}
-            <div
-              className={cn(
-                "flex items-center justify-between pb-2 border-b",
-                isDark ? "border-[#462E1F]" : "border-[#D6C6AD]"
-              )}
-            >
+            <div className="flex items-center justify-between pb-2 border-b border-[var(--ui-panel-border)]">
               <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "text-sm font-extrabold font-game",
-                    isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
-                  )}
-                >
+                <span className="text-sm font-extrabold font-game text-[var(--ui-text-main)]">
                   {t.nav.moreTools}
                 </span>
-                <span
-                  className={cn(
-                    "text-[10px] font-black px-1.5 py-0.5 rounded border tabular-nums",
-                    isDark
-                      ? "bg-[#D98A2B]/20 text-[#FFEB75] border-[#D98A2B]/45"
-                      : "bg-[#D98A2B]/15 text-[#7A4B12] border-[#D98A2B]/40"
-                  )}
-                >
+                <span className="ui-pill text-[10px] font-black px-1.5 py-0.5 text-[var(--ui-text-gold)] border-[var(--ui-text-gold)]/45 tabular-nums">
                   {t.nav.thBadge}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={() => setMoreOpen(false)}
-                className={cn(
-                  "min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl transition-colors cursor-pointer",
-                  isDark
-                    ? "text-[#CBBBA3] hover:text-[#FFFDF8] hover:bg-[#3B2214]"
-                    : "text-[#5D4B3B] hover:text-[#2A2018] hover:bg-[#E4D5BF]"
-                )}
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-[var(--ui-text-muted)] hover:text-[var(--ui-text-main)] hover:bg-[var(--game-dark-box-mid)] transition-colors cursor-pointer"
                 aria-label={t.common.close}
               >
                 <X size={18} />
@@ -138,12 +108,8 @@ export default function MobileNav({
                 className={cn(
                   "w-full min-h-[56px] flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
                   activeTab === "ore"
-                    ? isDark
-                      ? "bg-[#3B2214] border-[#D98A2B]/70 text-[#FFEB75] shadow-sm"
-                      : "bg-[#E6D4B8] border-[#B87D2A] text-[#3B2214] shadow-sm"
-                    : isDark
-                    ? "bg-[#14100C]/70 border-[#462E1F] text-[#F5EFE6] hover:bg-[#2F1D13]"
-                    : "bg-[#FFFDF8]/85 border-[#D6C6AD] text-[#2A2018] hover:bg-[#EFE7D8]"
+                    ? "ui-info border-[var(--ui-text-gold)]/70 text-[var(--ui-text-gold)] shadow-sm"
+                    : "ui-well hover:brightness-110 text-[var(--ui-text-main)]"
                 )}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -151,36 +117,24 @@ export default function MobileNav({
                     className={cn(
                       "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
                       activeTab === "ore"
-                        ? "bg-[#D98A2B]/25 border-[#D98A2B]/55 text-[#F8C12C]"
-                        : isDark
-                        ? "bg-[#2A1B12] border-[#5A3A28] text-[#E8D8C3]"
-                        : "bg-[#EFE7D8] border-[#CBBBA3] text-[#4A2E1E]"
+                        ? "bg-[var(--ui-text-gold)]/15 border-[var(--ui-text-gold)]/55 text-[var(--ui-text-gold)]"
+                        : "bg-[var(--game-dark-box-mid)] border-[var(--ui-panel-border)] text-[var(--ui-text-muted)]"
                     )}
                   >
                     <Sparkles size={18} />
                   </div>
                   <div className="min-w-0">
-                    <div
-                      className={cn(
-                        "text-xs font-extrabold font-game truncate",
-                        isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
-                      )}
-                    >
+                    <div className="text-xs font-extrabold font-game truncate text-[var(--ui-text-main)]">
                       {t.nav.ore}
                     </div>
-                    <div
-                      className={cn(
-                        "text-[11px] truncate",
-                        isDark ? "text-[#CBBBA3]" : "text-[#5D4B3B]"
-                      )}
-                    >
+                    <div className="text-[11px] truncate text-[var(--ui-text-muted)]">
                       {t.home.cards.ore.subtitle}
                     </div>
                   </div>
                 </div>
                 <ChevronRight
                   size={16}
-                  className={cn("shrink-0", isDark ? "text-[#B8A99A]" : "text-[#6B5D4F]")}
+                  className="shrink-0 text-[var(--ui-text-muted)]"
                 />
               </button>
 
@@ -191,12 +145,8 @@ export default function MobileNav({
                 className={cn(
                   "w-full min-h-[56px] flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer text-left",
                   activeTab === "wall"
-                    ? isDark
-                      ? "bg-[#3B2214] border-[#D98A2B]/70 text-[#FFEB75] shadow-sm"
-                      : "bg-[#E6D4B8] border-[#B87D2A] text-[#3B2214] shadow-sm"
-                    : isDark
-                    ? "bg-[#14100C]/70 border-[#462E1F] text-[#F5EFE6] hover:bg-[#2F1D13]"
-                    : "bg-[#FFFDF8]/85 border-[#D6C6AD] text-[#2A2018] hover:bg-[#EFE7D8]"
+                    ? "ui-info border-[var(--ui-text-gold)]/70 text-[var(--ui-text-gold)] shadow-sm"
+                    : "ui-well hover:brightness-110 text-[var(--ui-text-main)]"
                 )}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -204,36 +154,24 @@ export default function MobileNav({
                     className={cn(
                       "w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border",
                       activeTab === "wall"
-                        ? "bg-[#D98A2B]/25 border-[#D98A2B]/55 text-[#F8C12C]"
-                        : isDark
-                        ? "bg-[#2A1B12] border-[#5A3A28] text-[#E8D8C3]"
-                        : "bg-[#EFE7D8] border-[#CBBBA3] text-[#4A2E1E]"
+                        ? "bg-[var(--ui-text-gold)]/15 border-[var(--ui-text-gold)]/55 text-[var(--ui-text-gold)]"
+                        : "bg-[var(--game-dark-box-mid)] border-[var(--ui-panel-border)] text-[var(--ui-text-muted)]"
                     )}
                   >
                     <PenTool size={18} />
                   </div>
                   <div className="min-w-0">
-                    <div
-                      className={cn(
-                        "text-xs font-extrabold font-game truncate",
-                        isDark ? "text-[#FFFDF8]" : "text-[#2A2018]"
-                      )}
-                    >
+                    <div className="text-xs font-extrabold font-game truncate text-[var(--ui-text-main)]">
                       {t.nav.wall}
                     </div>
-                    <div
-                      className={cn(
-                        "text-[11px] truncate",
-                        isDark ? "text-[#CBBBA3]" : "text-[#5D4B3B]"
-                      )}
-                    >
+                    <div className="text-[11px] truncate text-[var(--ui-text-muted)]">
                       {t.home.cards.wall.subtitle}
                     </div>
                   </div>
                 </div>
                 <ChevronRight
                   size={16}
-                  className={cn("shrink-0", isDark ? "text-[#B8A99A]" : "text-[#6B5D4F]")}
+                  className="shrink-0 text-[var(--ui-text-muted)]"
                 />
               </button>
             </div>
@@ -245,10 +183,7 @@ export default function MobileNav({
       <nav
         aria-label={isTr ? "Mobil Gezinme" : "Mobile Navigation"}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-40 backdrop-blur-md border-t-2 lg:hidden px-1.5 pt-1.5 transition-colors duration-200",
-          isDark
-            ? "bg-[#1B120C]/95 border-[#4A2F1F] shadow-[0_-6px_24px_rgba(0,0,0,0.65)]"
-            : "bg-[#F6F1E7]/95 border-[#CBBBA3] shadow-[0_-4px_18px_rgba(42,30,18,0.12)]",
+          "fixed bottom-0 left-0 right-0 z-40 border-t-2 lg:hidden px-1.5 pt-1.5 transition-colors duration-200 ui-nav shadow-[0_-6px_24px_rgba(0,0,0,0.65)]",
           className
         )}
         style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
@@ -267,16 +202,12 @@ export default function MobileNav({
                 className={cn(
                   "flex-1 min-w-[44px] min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1 px-1",
                   isActive
-                    ? isDark
-                      ? "bg-[#3B2214]/90 border border-[#D98A2B]/45 text-[#FFEB75] font-extrabold shadow-sm"
-                      : "bg-[#E8D7BC] border border-[#B87D2A]/70 text-[#3B2214] font-extrabold shadow-sm"
-                    : isDark
-                    ? "text-[#CBBBA3] hover:text-[#FFFDF8] border border-transparent font-bold"
-                    : "text-[#6B5D4F] hover:text-[#2A2018] border border-transparent font-bold"
+                    ? "bg-[var(--game-wood-dark)] border border-[var(--ui-text-gold)]/45 text-[var(--ui-text-gold)] font-extrabold shadow-sm"
+                    : "text-[var(--ui-text-muted)] hover:text-[var(--ui-text-main)] border border-transparent font-bold"
                 )}
               >
                 {isActive && (
-                  <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#E09A1F] shadow-sm" />
+                  <span className="absolute -top-1 w-8 h-1 rounded-full bg-[var(--ui-text-gold)] shadow-sm" />
                 )}
                 <Icon size={18} className="shrink-0" />
                 <span className="text-[10px] leading-none tracking-tight font-game truncate max-w-full">
@@ -296,16 +227,12 @@ export default function MobileNav({
             className={cn(
               "flex-1 min-w-[44px] min-h-[48px] flex flex-col items-center justify-center gap-1 rounded-xl transition-all cursor-pointer relative py-1 px-1",
               isMoreActive
-                ? isDark
-                  ? "bg-[#3B2214]/90 border border-[#D98A2B]/45 text-[#FFEB75] font-extrabold shadow-sm"
-                  : "bg-[#E8D7BC] border border-[#B87D2A]/70 text-[#3B2214] font-extrabold shadow-sm"
-                : isDark
-                ? "text-[#CBBBA3] hover:text-[#FFFDF8] border border-transparent font-bold"
-                : "text-[#6B5D4F] hover:text-[#2A2018] border border-transparent font-bold"
+                ? "bg-[var(--game-wood-dark)] border border-[var(--ui-text-gold)]/45 text-[var(--ui-text-gold)] font-extrabold shadow-sm"
+                : "text-[var(--ui-text-muted)] hover:text-[var(--ui-text-main)] border border-transparent font-bold"
             )}
           >
             {isMoreActive && (
-              <span className="absolute -top-1 w-8 h-1 rounded-full bg-[#E09A1F] shadow-sm" />
+              <span className="absolute -top-1 w-8 h-1 rounded-full bg-[var(--ui-text-gold)] shadow-sm" />
             )}
             <MoreHorizontal size={18} className="shrink-0" />
             <span className="text-[10px] leading-none tracking-tight font-game truncate max-w-full">

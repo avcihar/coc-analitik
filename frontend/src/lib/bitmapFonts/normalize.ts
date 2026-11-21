@@ -109,7 +109,7 @@ export function validateAndNormalizeFont(
       "baselines",
     ]);
     for (const [key, value] of Object.entries(record)) {
-      if (!key.startsWith("_") && !metaKeySet.has(key)) {
+      if ((key === "_" || !key.startsWith("_")) && !metaKeySet.has(key)) {
         rawGlyphs[key] = value;
       }
     }

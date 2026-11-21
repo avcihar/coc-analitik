@@ -29,15 +29,15 @@ export default function SectionPanel({
 }: SectionPanelProps) {
   return (
     <div
-      className={cn("game-section-panel p-3 sm:p-4 text-white", className)}
+      className={cn("ui-panel p-3 sm:p-4 text-[var(--ui-text-main)]", className)}
       {...rest}
     >
       {(title || icon || rightBadge) && (
-        <div className="flex items-center justify-between gap-2 mb-3 border-b border-[#261810]/65 pb-2">
+        <div className="flex items-center justify-between gap-2 mb-3 border-b border-[var(--ui-panel-border)] pb-2">
           <div className="flex items-center gap-2 min-w-0">
             {icon && <span className="inline-flex shrink-0">{icon}</span>}
             {title && (
-              <h3 className="font-game text-sm sm:text-base font-extrabold tracking-tight text-[#FFF8EE] drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] truncate">
+              <h3 className="font-game text-sm sm:text-base font-extrabold tracking-tight text-[var(--ui-text-main)] drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] truncate">
                 {title}
               </h3>
             )}

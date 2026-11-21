@@ -6,7 +6,7 @@ import { LanguageProvider } from "@/lib/i18n";
 export const metadata: Metadata = {
   title: "CoC Analitik • Clash of Clans İstatistik ve Strateji Platformu",
   description:
-    "Clash of Clans oyuncu ve klan analitiği, TH18 meta orduları, CWL keşfi, cevher simülatörü ve duvar yazısı planlayıcı.",
+    "Clash of Clans oyuncu ve klan analitiği, TH19 meta orduları, CWL keşfi, cevher simülatörü ve duvar yazısı planlayıcı.",
 };
 
 export default function RootLayout({

@@ -1,9 +1,6 @@
 export { default as GameButton } from "./GameButton";
 export type { GameButtonProps } from "./GameButton";
 
-export { default as GamePanel } from "./GamePanel";
-export type { GamePanelProps } from "./GamePanel";
-
 export { GameTab, GameTabBar } from "./GameTab";
 export type { GameTabProps, GameTabBarProps } from "./GameTab";
 
@@ -31,6 +28,9 @@ export type { GraySegmentedProps, GraySegmentedItem } from "./GraySegmented";
 
 export { default as TownHallImage } from "./TownHallImage";
 export type { TownHallImageProps } from "./TownHallImage";
+
+export { default as BuilderHallImage } from "./BuilderHallImage";
+export type { BuilderHallImageProps } from "./BuilderHallImage";
 
 export { default as ClanBadge } from "./ClanBadge";
 export type { ClanBadgeProps } from "./ClanBadge";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useId } from "react";
+import React from "react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useLanguage } from "@/lib/i18n";
@@ -25,9 +25,6 @@ export default function ExpLevelBadge({
   size = "md",
 }: ExpLevelBadgeProps) {
   const { t, fmtNum } = useLanguage();
-  const uid = useId().replace(/:/g, "");
-  const fillGradId = `exp-shield-fill-${uid}`;
-  const rimGradId = `exp-shield-rim-${uid}`;
 
   const sizeClasses = {
     sm: "w-11 h-11",
@@ -56,49 +53,18 @@ export default function ExpLevelBadge({
           sizeClasses
         )}
       >
-        {/* XP Star-Shield Crest SVG */}
-        <svg
-          viewBox="0 0 100 100"
+        <img
+          src="/icons/ui/xp.png"
+          alt=""
           aria-hidden="true"
-          className="w-full h-full"
-        >
-          <defs>
-            <linearGradient id={fillGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#38BDF8" />
-              <stop offset="45%" stopColor="#0284C7" />
-              <stop offset="100%" stopColor="#075985" />
-            </linearGradient>
-            <linearGradient id={rimGradId} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#FDE68A" />
-              <stop offset="50%" stopColor="#D97706" />
-              <stop offset="100%" stopColor="#78350F" />
-            </linearGradient>
-          </defs>
-
-          {/* Outer Crest Shape */}
-          <polygon
-            points="50,2 62,28 92,20 78,48 98,72 68,76 58,98 42,98 32,76 2,72 22,48 8,20 38,28"
-            fill={`url(#${fillGradId})`}
-            stroke={`url(#${rimGradId})`}
-            strokeWidth="4"
-            strokeLinejoin="round"
-          />
-
-          {/* Inner Bevel Highlight */}
-          <polygon
-            points="50,11 59,32 82,26 71,48 87,68 63,71 50,82 37,71 13,68 29,48 18,26 41,32"
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.42)"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-        </svg>
+          className="w-full h-full object-contain select-none"
+        />
 
         {/* Level Number */}
         <span
           aria-hidden="true"
           className={cn(
-            "absolute inset-0 flex items-center justify-center font-black tabular-nums text-white game-text-stroke leading-none tracking-tight pt-0.5",
+            "absolute inset-0 flex items-center justify-center font-black tabular-nums text-white game-text-stroke leading-none tracking-tight",
             fontSizeClasses
           )}
         >

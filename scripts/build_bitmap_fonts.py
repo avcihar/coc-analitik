@@ -52,7 +52,7 @@ def validate_and_normalize(raw_json, file_id: str, filename: str):
         raw_glyphs = record["glyphs"]
     else:
         meta_keys = {"_meta", "meta", "name", "author", "license", "description", "version", "id", "height", "width", "size", "glyphs", "metadata", "baselines"}
-        raw_glyphs = {k: v for k, v in record.items() if not k.startswith("_") and k not in meta_keys}
+        raw_glyphs = {k: v for k, v in record.items() if (k == "_" or not k.startswith("_")) and k not in meta_keys}
 
     glyph_keys = list(raw_glyphs.keys())
     if not glyph_keys:

@@ -145,32 +145,30 @@ export default function ClanDetailsView({
   }, [currentClan?.memberList, villageTab]);
 
   return (
-    <div className={cn("w-full -mt-3 sm:-mt-6 flex flex-col", className)}>
+    <div className={cn("w-full flex flex-col", className)}>
       <div className="w-full space-y-0">
-        {/* 1. Top Segmented Bar + Always-Visible Refresh Button */}
-        <div className="w-full flex flex-col-reverse sm:flex-row sm:items-end justify-between gap-1.5 sm:gap-2 pl-1.5 sm:pl-4 pr-1 sm:pr-3 border-b-2 border-[#5A5552]/50">
-          <div className="w-full sm:flex-1 min-w-0">
+        {/* 1. Top Wood Segmented Bar + Theme-Green Refresh Button */}
+        <div className="w-full flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[var(--ui-panel-border)]">
+          <div className="min-w-0 max-w-full overflow-x-auto scrollbar-none">
             <GraySegmented<ClanVillageTab>
               items={villageTabs}
               activeId={villageTab}
               onChange={(id) => setVillageTab(id)}
-              className="w-full sm:w-auto"
             />
           </div>
 
-          <button
-            type="button"
+          <GameButton
+            variant="green"
+            size="sm"
             onClick={handleManualRefresh}
             disabled={isLoading}
             aria-label={t.common.refresh}
             title={t.common.refresh}
-            className="self-end inline-flex items-center justify-center gap-1.5 min-h-[44px] min-w-[44px] px-3 sm:px-3.5 py-2 rounded-xl bg-[#D8CFC0]/90 hover:bg-[#C9BEAB] border border-[#9E907C] text-[#2D251E] text-xs font-bold transition-colors cursor-pointer disabled:opacity-50 shrink-0 mb-1 shadow-sm"
+            className="min-h-[44px] px-4 text-xs sm:text-sm font-extrabold shrink-0"
+            icon={<RefreshCw size={15} className={cn("shrink-0", isLoading && "animate-spin")} />}
           >
-            <RefreshCw className={cn("w-4 h-4 shrink-0", isLoading && "animate-spin")} />
-            <span className="whitespace-nowrap">
-              {isLoading ? t.common.refreshing : t.common.refresh}
-            </span>
-          </button>
+            {isLoading ? t.common.refreshing : t.common.refresh}
+          </GameButton>
         </div>
 
         {/* 2. Loading State */}
@@ -218,7 +216,7 @@ export default function ClanDetailsView({
             />
 
             {villageTab === "capital" ? (
-              <div className="clan-header-panel p-5 sm:p-6 text-[#FFF8EE] space-y-4">
+              <div className="clan-header-panel p-5 sm:p-6 text-[var(--ui-text-main)] space-y-4">
                 <div className="flex items-center gap-2.5 border-b border-white/15 pb-3">
                   <Landmark className="w-6 h-6 text-amber-300 shrink-0" />
                   <h3 className="game-text-stroke text-lg sm:text-xl font-black">
@@ -227,28 +225,28 @@ export default function ClanDetailsView({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="rounded-xl bg-[#281C14]/[0.92] p-4 border border-[#5B402D] space-y-1">
-                    <span className="text-xs sm:text-[13px] text-[#E7D9C8] font-semibold block">
+                  <div className="ui-info p-4 space-y-1">
+                    <span className="text-xs sm:text-[13px] text-[var(--ui-text-muted)] font-semibold block">
                       {isTr ? "Başkent Ligi" : "Capital League"}
                     </span>
-                    <span className="text-lg font-black text-amber-300 block">
+                    <span className="text-lg font-black text-[var(--ui-text-gold)] block">
                       {currentClan.capitalLeague?.name &&
                       currentClan.capitalLeague.name.toLowerCase() !== "unranked"
                         ? currentClan.capitalLeague.name
                         : t.common.unranked}
                     </span>
                   </div>
-                  <div className="rounded-xl bg-[#281C14]/[0.92] p-4 border border-[#5B402D] space-y-1">
-                    <span className="text-xs sm:text-[13px] text-[#E7D9C8] font-semibold block">
+                  <div className="ui-info p-4 space-y-1">
+                    <span className="text-xs sm:text-[13px] text-[var(--ui-text-muted)] font-semibold block">
                       {t.clan.capitalPoints}
                     </span>
-                    <span className="text-lg font-black text-[#FFF8EE] block tabular-nums">
+                    <span className="text-lg font-black text-[var(--ui-text-main)] block tabular-nums">
                       {fmtNum(currentClan.clanCapitalPoints ?? 0)}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-xs sm:text-sm text-[#F5EFE6]/90 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm text-[var(--ui-text-main)] font-medium leading-relaxed">
                   {isTr
                     ? "Haftalık Başkent Baskınları tamamlandığında kazanılan Başkent Kupası ve lig ilerlemesi resmi klan profilinden derlenir."
                     : "Clan Capital league tier and capital trophy points are pulled directly from official clan data."}

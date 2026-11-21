@@ -111,7 +111,7 @@ export default function UnitIcon({
     >
       <div
         className={cn(
-          "relative rounded-xl border-2 flex items-center justify-center font-extrabold overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-[#261A12]/85",
+          "relative rounded-xl border-2 flex items-center justify-center font-extrabold overflow-hidden shadow-sm transition-transform group-hover:scale-105 bg-[var(--game-dark-box-mid)]",
           sizeClasses,
           colorClasses,
           isEpic && "ring-1 ring-amber-400/80 border-amber-400/75",
@@ -146,7 +146,7 @@ export default function UnitIcon({
               "absolute bottom-0 right-0 px-1 py-0.5 rounded-tl-md text-[10px] font-extrabold leading-none shadow-sm z-10 tabular-nums",
               isMax
                 ? "bg-amber-400 text-[#261501] border-t border-l border-amber-200"
-                : "bg-[#1B120C]/92 text-amber-50 border-t border-l border-[#4A3628]"
+                : "bg-[var(--game-dark-box-mid)] text-amber-50 border-t border-l border-[#4A3628]"
             )}
           >
             {isMax ? "MAX" : `L${level}`}

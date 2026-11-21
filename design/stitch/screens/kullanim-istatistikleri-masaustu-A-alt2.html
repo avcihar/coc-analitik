@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CoC Analitik - Kullanım İstatistikleri (Masaüstü) - Komuta Matrisi</title>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#3e2313",
+            "surface-container-lowest": "#1d0800",
+            "secondary-container": "#d97707",
+            "on-surface": "#ffdbc9",
+            "on-tertiary-fixed": "#251a00",
+            "surface-container": "#32190a",
+            "on-primary-fixed": "#0c2000",
+            "tertiary-fixed": "#ffdf9a",
+            "on-tertiary-fixed-variant": "#5a4300",
+            "outline": "#8b9480",
+            "on-surface-variant": "#c1cab4",
+            "on-tertiary": "#3f2e00",
+            "surface-bright": "#4f3221",
+            "inverse-primary": "#356b00",
+            "on-secondary": "#4d2600",
+            "surface-dim": "#230d02",
+            "secondary-fixed": "#ffdcc3",
+            "on-background": "#ffdbc9",
+            "error-container": "#93000a",
+            "primary-container": "#72bd36",
+            "on-error": "#690005",
+            "inverse-surface": "#ffdbc9",
+            "on-error-container": "#ffdad6",
+            "tertiary-container": "#d6a300",
+            "inverse-on-surface": "#452a19",
+            "error": "#ffb4ab",
+            "on-primary": "#183800",
+            "on-primary-fixed-variant": "#265100",
+            "on-secondary-fixed-variant": "#6e3900",
+            "secondary": "#ffb77d",
+            "tertiary-fixed-dim": "#f5bf29",
+            "tertiary": "#f5bf29",
+            "surface-container-highest": "#4a2e1d",
+            "primary-fixed": "#a8f86a",
+            "on-tertiary-container": "#513c00",
+            "outline-variant": "#414939",
+            "surface": "#230d02",
+            "background": "#230d02",
+            "on-secondary-container": "#432100",
+            "on-secondary-fixed": "#2f1500",
+            "on-primary-container": "#214800",
+            "surface-variant": "#4a2e1d",
+            "primary-fixed-dim": "#8ddb50",
+            "secondary-fixed-dim": "#ffb77d",
+            "primary": "#8ddb50",
+            "surface-tint": "#8ddb50",
+            "surface-container-low": "#2d1507"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans", "sans-serif"],
+            display: ["Plus Jakarta Sans", "sans-serif"],
+            body: ["Plus Jakarta Sans", "sans-serif"],
+            label: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #14100C;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* CoC Architectural Shadows & Insets */
+    .wood-window {
+      background: linear-gradient(180deg, #5A3A28 0%, #4A2E1E 50%, #3B2214 100%);
+      border: 3.5px solid #28160C;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.16), 0 8px 24px rgba(20, 8, 0, 0.75), 0 5px 0 #1E0F08;
+    }
+    .section-panel {
+      background: linear-gradient(180deg, #5E4634 0%, #4E3828 50%, #3E2B1E 100%);
+      border: 2.5px solid #261810;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.12), 0 4px 10px rgba(10, 5, 2, 0.5);
+    }
+    .inset-well {
+      background: linear-gradient(180deg, #382B22 0%, #2A1F17 60%, #1D150F 100%);
+      border: 2px solid #140D08;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.65);
+    }
+    .icon-box-well {
+      background: linear-gradient(180deg, #443026 0%, #342219 100%);
+      border: 2px solid #22140D;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7);
+    }
+    .tab-active {
+      background: linear-gradient(180deg, #64422F 0%, #5A3A28 100%);
+      border-top: 3px solid #7E5B47;
+      border-left: 3px solid #28160C;
+      border-right: 3px solid #28160C;
+      border-bottom: 3.5px solid #5A3A28; /* Merges seamlessly with window */
+      margin-bottom: -3.5px;
+      z-index: 20;
+    }
+    .tab-inactive {
+      background: linear-gradient(180deg, #26140A 0%, #1A0D06 100%);
+      border: 2.5px solid #140803;
+      border-bottom: 3px solid #28160C;
+    }
+    .badge-max {
+      background: linear-gradient(180deg, #FDD64B 0%, #D88E10 100%);
+      border: 1px solid #613B00;
+      color: #261501;
+      text-shadow: none;
+    }
+    .badge-count {
+      background: #1A0F0A;
+      border: 1.5px solid #5A3F30;
+      color: #FFDCC3;
+      text-shadow: none;
+    }
+    .btn-green-active {
+      background: linear-gradient(180deg, #9CE04A 0%, #72BD36 50%, #519E23 100%);
+      border: 2px solid #142E06;
+      box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+      color: #FFFFFF;
+    }
+    .btn-wood-inactive {
+      background: linear-gradient(180deg, #473225 0%, #352319 100%);
+      border: 2px solid #1A100B;
+      color: #C1CAB4;
+    }
+  </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col justify-between selection:bg-secondary-container selection:text-white">
+<!-- TOP APP BAR -->
+<header class="w-full bg-surface-container-high border-b border-surface-container-highest shadow-[0_4px_12px_rgba(29,8,0,0.5)] z-40 sticky top-0">
+<div class="w-full max-w-[1240px] mx-auto px-4 flex items-center justify-between h-14">
+<!-- Left Brand with Shield placeholder -->
+<a class="font-headline font-extrabold text-base text-on-surface tracking-wide flex items-center gap-2 group" href="#">
+<div class="w-8 h-8 rounded-lg bg-surface-container-highest border border-outline-variant flex items-center justify-center text-primary-fixed shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="shield">shield</span>
+</div>
+<span>CoC Analitik</span>
+</a>
+<!-- Center 6 Navigation Links -->
+<nav class="flex items-center gap-6 font-headline font-bold text-sm tracking-tight h-full pt-1">
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center min-h-[44px]" href="#">Ana Sayfa</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center min-h-[44px]" href="#">Oyuncu &amp; Klan</a>
+<!-- ACTIVE TAB: Meta & Ordu -->
+<a class="text-tertiary-fixed-dim border-b-2 border-tertiary-fixed-dim font-extrabold pb-1 flex items-center min-h-[44px]" href="#">Meta &amp; Ordu</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center min-h-[44px]" href="#">CWL Keşif</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center min-h-[44px]" href="#">Cevher Analizi</a>
+<a class="text-on-surface-variant font-medium hover:text-on-surface transition-colors pb-1 flex items-center min-h-[44px]" href="#">Duvar Yazısı</a>
+</nav>
+<!-- Trailing Space Reserved -->
+<div class="w-8"></div>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="w-full max-w-[1240px] mx-auto px-4 py-8 flex-1">
+<!-- DOCKED WINDOW TABS -->
+<div class="flex items-end gap-2 px-3 relative z-10">
+<!-- Inactive Tab: Meta Ordular -->
+<button class="tab-inactive px-6 py-2.5 rounded-t-xl min-h-[44px] flex items-center gap-2.5 text-on-surface-variant hover:text-on-surface transition-colors group cursor-pointer">
+<span class="material-symbols-outlined text-lg text-tertiary-fixed-dim/70 group-hover:text-tertiary-fixed-dim" data-icon="swords">swords</span>
+<span class="font-headline font-bold text-sm tracking-wide">Meta Ordular</span>
+</button>
+<!-- ACTIVE TAB: Kullanım İstatistikleri (Seamless Window Integration) -->
+<button class="tab-active px-7 py-3 rounded-t-xl min-h-[44px] flex items-center gap-2.5 text-white cursor-default">
+<span class="material-symbols-outlined text-xl text-tertiary-fixed-dim" data-icon="bar_chart" data-weight="fill" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+<span class="font-headline font-extrabold text-base tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Kullanım İstatistikleri</span>
+</button>
+</div>
+<!-- MAIN DARK WOOD WINDOW BODY -->
+<div class="wood-window rounded-2xl rounded-tl-none p-6 space-y-6 relative">
+<!-- ================= ÜST BÖLÜM: KAHRAMANLAR (FULL WIDTH BANNER / KPI STRIP) ================= -->
+<section class="section-panel rounded-xl p-4">
+<!-- Section Header -->
+<div class="flex items-center justify-between pb-3.5 mb-3.5 border-b border-surface-container-highest/60">
+<div class="flex items-center gap-2.5">
+<div class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center text-tertiary-fixed-dim border border-surface-bright">
+<span class="material-symbols-outlined text-lg" data-icon="crown" data-weight="fill" style="font-variation-settings: 'FILL' 1;">crown</span>
+</div>
+<h2 class="font-headline font-extrabold text-lg text-white tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.7)]">Kahramanlar</h2>
+</div>
+<!-- Right Badge -->
+<span class="px-3 py-1 rounded-full text-xs font-extrabold tracking-wider bg-surface-container-lowest text-tertiary-fixed-dim border border-tertiary-container/40 uppercase">
+          TH16 Meta
+        </span>
+</div>
+<!-- 6 Hero Cards Single Row Grid -->
+<div class="grid grid-cols-6 gap-3">
+<!-- Hero 1: Barbar Kral -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="sports_martial_arts">sports_martial_arts</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Barbar Kral</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%94.2</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 94.2%;"></div>
+</div>
+</div>
+<!-- Hero 2: Okçu Kraliçe -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="adjust">adjust</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Okçu Kraliçe</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%96.8</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 96.8%;"></div>
+</div>
+</div>
+<!-- Hero 3: Büyük Koruyucu -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="auto_fix_high">auto_fix_high</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Büyük Koruyucu</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%98.1</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 98.1%;"></div>
+</div>
+</div>
+<!-- Hero 4: Kraliyet Şampiyonu -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="shield_with_heart">shield_with_heart</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Kraliyet Şampiyonu</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%91.5</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 91.5%;"></div>
+</div>
+</div>
+<!-- Hero 5: Minyon Prensi -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="flutter">flutter</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Minyon Prensi</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%62.4</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 62.4%;"></div>
+</div>
+</div>
+<!-- Hero 6: Ejderha Dükü -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center group hover:border-surface-bright transition-colors">
+<div class="relative w-14 h-14 rounded-xl icon-box-well flex items-center justify-center mb-2.5">
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="local_fire_department">local_fire_department</span>
+<span class="badge-max absolute -bottom-1.5 -left-1.5 text-[10px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface line-clamp-1 mb-1">Ejderha Dükü</span>
+<span class="font-display font-extrabold text-xl text-white tabular-nums tracking-tight mb-2">%48.0</span>
+<div class="w-full h-2 rounded-full bg-[#110B07] overflow-hidden p-0.5 border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary-container" style="width: 48%;"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- ================= ALT BÖLÜM: 3 EŞİT SÜTUNLU GRİD ================= -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
+<!-- SÜTUN 1: KAHRAMAN EKİPMANLARI & EN ÇOK KULLANILAN İKİLİLER -->
+<section class="section-panel rounded-xl p-4 flex flex-col justify-between space-y-4">
+<div>
+<!-- Sub Header 1 -->
+<div class="flex items-center justify-between pb-2.5 mb-3 border-b border-surface-container-highest/60">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-lg" data-icon="hardware">hardware</span>
+<h3 class="font-headline font-extrabold text-sm text-white">Kahraman Ekipmanları</h3>
+</div>
+</div>
+<!-- Filter Chips (min-h-[44px]) -->
+<div class="flex items-center gap-1.5 mb-3">
+<button class="btn-green-active px-2.5 py-1.5 rounded-lg text-xs font-bold min-h-[44px] flex-1 flex items-center justify-center shadow text-center">
+              Barbar Kral
+            </button>
+<button class="btn-wood-inactive px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-[44px] flex-1 flex items-center justify-center hover:text-white transition-colors text-center">
+              Okçu Kraliçe
+            </button>
+<button class="btn-wood-inactive px-2.5 py-1.5 rounded-lg text-xs font-medium min-h-[44px] flex-1 flex items-center justify-center hover:text-white transition-colors text-center">
+              Büyük Koruyucu
+            </button>
+</div>
+<!-- 2x2 Equipment Cards Grid -->
+<div class="grid grid-cols-2 gap-2.5 mb-4">
+<!-- Equip 1: Dev Eldiven -->
+<div class="inset-well rounded-xl p-2.5 flex items-center gap-2.5">
+<div class="relative w-11 h-11 shrink-0 rounded-lg icon-box-well flex items-center justify-center">
+<span class="material-symbols-outlined text-xl text-tertiary" data-icon="front_hand">front_hand</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-headline font-bold text-xs text-on-surface truncate block">Dev Eldiven</span>
+<div class="font-display font-extrabold text-base text-white tabular-nums my-0.5">%88.4</div>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 88.4%;"></div>
+</div>
+</div>
+</div>
+<!-- Equip 2: Öfke Şişesi -->
+<div class="inset-well rounded-xl p-2.5 flex items-center gap-2.5">
+<div class="relative w-11 h-11 shrink-0 rounded-lg icon-box-well flex items-center justify-center">
+<span class="material-symbols-outlined text-xl text-tertiary" data-icon="science">science</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-headline font-bold text-xs text-on-surface truncate block">Öfke Şişesi</span>
+<div class="font-display font-extrabold text-base text-white tabular-nums my-0.5">%81.2</div>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 81.2%;"></div>
+</div>
+</div>
+</div>
+<!-- Equip 3: Deprem Çizmesi -->
+<div class="inset-well rounded-xl p-2.5 flex items-center gap-2.5">
+<div class="relative w-11 h-11 shrink-0 rounded-lg icon-box-well flex items-center justify-center">
+<span class="material-symbols-outlined text-xl text-tertiary" data-icon="footprint">footprint</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-headline font-bold text-xs text-on-surface truncate block">Deprem Çizmesi</span>
+<div class="font-display font-extrabold text-base text-white tabular-nums my-0.5">%45.0</div>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 45%;"></div>
+</div>
+</div>
+</div>
+<!-- Equip 4: Vampir Bıyığı -->
+<div class="inset-well rounded-xl p-2.5 flex items-center gap-2.5">
+<div class="relative w-11 h-11 shrink-0 rounded-lg icon-box-well flex items-center justify-center">
+<span class="material-symbols-outlined text-xl text-tertiary" data-icon="face">face</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="flex-1 min-w-0">
+<span class="font-headline font-bold text-xs text-on-surface truncate block">Vampir Bıyığı</span>
+<div class="font-display font-extrabold text-base text-white tabular-nums my-0.5">%24.6</div>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-secondary-container" style="width: 24.6%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sub Header 2: İkililer -->
+<div class="flex items-center justify-between pb-2 mb-2.5 border-b border-surface-container-highest/60 pt-1">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-lg" data-icon="join">join</span>
+<h3 class="font-headline font-extrabold text-sm text-white">En çok kullanılan ikililer</h3>
+</div>
+</div>
+<!-- 2 Combo Cards -->
+<div class="flex flex-col gap-2.5">
+<!-- Combo 1 -->
+<div class="inset-well rounded-xl p-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="flex items-center -space-x-2">
+<div class="relative w-10 h-10 rounded-lg icon-box-well flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-lg text-tertiary" data-icon="front_hand">front_hand</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="relative w-10 h-10 rounded-lg icon-box-well flex items-center justify-center z-0">
+<span class="material-symbols-outlined text-lg text-tertiary" data-icon="science">science</span>
+<span class="badge-max absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+</div>
+<div class="min-w-0">
+<h4 class="font-headline font-extrabold text-xs text-white truncate max-w-[130px]">Dev Eldiven + Öfke Şişesi</h4>
+<span class="font-body text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="military_tech">military_tech</span> Barbar Kral Kombo
+                  </span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-display font-extrabold text-lg text-primary tabular-nums tracking-tight">%72.8</div>
+<span class="text-[10px] font-medium text-on-surface-variant">Kullanım Oranı</span>
+</div>
+</div>
+<!-- Combo 2 -->
+<div class="inset-well rounded-xl p-2.5 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="flex items-center -space-x-2">
+<div class="relative w-10 h-10 rounded-lg icon-box-well flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-lg text-tertiary" data-icon="face">face</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+<div class="relative w-10 h-10 rounded-lg icon-box-well flex items-center justify-center z-0">
+<span class="material-symbols-outlined text-lg text-tertiary" data-icon="front_hand">front_hand</span>
+<span class="badge-max absolute -bottom-1 -right-1 text-[8px] font-extrabold px-1 py-0.2 rounded shadow">MAX</span>
+</div>
+</div>
+<div class="min-w-0">
+<h4 class="font-headline font-extrabold text-xs text-white truncate max-w-[130px]">Vampir Bıyığı + Dev Eldiven</h4>
+<span class="font-body text-[11px] text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]" data-icon="favorite">favorite</span> Hayatta Kalma Kombo
+                  </span>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-display font-extrabold text-lg text-tertiary tabular-nums tracking-tight">%18.4</div>
+<span class="text-[10px] font-medium text-on-surface-variant">Kullanım Oranı</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SÜTUN 2: EVCİL HAYVANLAR (2 SÜTUN x 3 SATIR) -->
+<section class="section-panel rounded-xl p-4 flex flex-col justify-between">
+<div>
+<!-- Section Header -->
+<div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container-highest/60">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-surface-container-highest flex items-center justify-center text-tertiary-fixed-dim border border-surface-bright">
+<span class="material-symbols-outlined text-lg" data-icon="pets">pets</span>
+</div>
+<h3 class="font-headline font-extrabold text-base text-white">Evcil Hayvanlar</h3>
+</div>
+<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-container-lowest text-on-surface-variant border border-outline-variant/30">
+              Genel Tercih
+            </span>
+</div>
+<!-- 2 Columns x 3 Rows Matrix -->
+<div class="grid grid-cols-2 gap-3">
+<!-- Pet 1: Fox -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="pest_control">pest_control</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Fox</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%89.4</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 89.4%;"></div>
+</div>
+</div>
+<!-- Pet 2: Unicorn -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="magic_button">magic_button</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Unicorn</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%82.1</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 82.1%;"></div>
+</div>
+</div>
+<!-- Pet 3: Phoenix -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="egg">egg</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Phoenix</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%74.5</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 74.5%;"></div>
+</div>
+</div>
+<!-- Pet 4: Diggy -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="radar">radar</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Diggy</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%68.0</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 68%;"></div>
+</div>
+</div>
+<!-- Pet 5: Frosty -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="ac_unit">ac_unit</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Frosty</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%31.2</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-secondary-container" style="width: 31.2%;"></div>
+</div>
+</div>
+<!-- Pet 6: Yak -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="material-symbols-outlined text-2xl text-tertiary-fixed" data-icon="nature">nature</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface mb-0.5">Yak</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%14.8</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-secondary-container" style="width: 14.8%;"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SÜTUN 3: BİRLİKLER / BÜYÜLER / KUŞATMA (2 SÜTUN x 3 SATIR) -->
+<section class="section-panel rounded-xl p-4 flex flex-col justify-between">
+<div>
+<!-- Sub-Tabs Pill Switcher (min-h-[44px]) -->
+<div class="flex items-center justify-between pb-3 mb-3 border-b border-surface-container-highest/60">
+<div class="flex items-center gap-1 overflow-x-auto">
+<button class="btn-green-active px-3 py-1.5 rounded-lg text-xs font-extrabold min-h-[44px] flex items-center justify-center tracking-wide whitespace-nowrap">
+              Birlikler
+            </button>
+<button class="btn-wood-inactive px-2.5 py-1.5 rounded-lg text-xs font-semibold min-h-[44px] flex items-center justify-center hover:text-white transition-colors whitespace-nowrap">
+              Büyüler
+            </button>
+<button class="btn-wood-inactive px-2.5 py-1.5 rounded-lg text-xs font-semibold min-h-[44px] flex items-center justify-center hover:text-white transition-colors whitespace-nowrap">
+              Kuşatma
+            </button>
+<button class="btn-wood-inactive px-2.5 py-1.5 rounded-lg text-xs font-semibold min-h-[44px] flex items-center justify-center hover:text-white transition-colors whitespace-nowrap">
+              Süper Birlikler
+            </button>
+</div>
+</div>
+<!-- 2 Columns x 3 Rows Matrix with xN & MAX Badges -->
+<div class="grid grid-cols-2 gap-3">
+<!-- Troop 1: Kök Binicisi -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x8</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="park">park</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Kök Binicisi</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%64.2</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container to-primary" style="width: 64.2%;"></div>
+</div>
+</div>
+<!-- Troop 2: Balon -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x12</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="paragliding">paragliding</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Balon</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%52.0</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 52%;"></div>
+</div>
+</div>
+<!-- Troop 3: Şifacı -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x5</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="healing">healing</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Şifacı</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%49.8</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 49.8%;"></div>
+</div>
+</div>
+<!-- Troop 4: Buz Golemi -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x2</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="icecream">icecream</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Buz Golemi</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%41.3</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-gradient-to-r from-secondary-container to-tertiary" style="width: 41.3%;"></div>
+</div>
+</div>
+<!-- Troop 5: Elektro Ejderha -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x1</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="bolt">bolt</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Elektro Ejderha</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%38.5</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-secondary-container" style="width: 38.5%;"></div>
+</div>
+</div>
+<!-- Troop 6: Büyücü -->
+<div class="inset-well rounded-xl p-3 flex flex-col items-center text-center">
+<div class="relative w-12 h-12 rounded-xl icon-box-well flex items-center justify-center mb-1.5">
+<span class="badge-count absolute -top-1.5 -left-1.5 text-[9px] font-bold px-1.5 py-0.2 rounded shadow">x4</span>
+<span class="material-symbols-outlined text-2xl text-on-surface" data-icon="flare">flare</span>
+<span class="badge-max absolute -bottom-1 -left-1 text-[8px] font-extrabold px-1.5 py-0.2 rounded shadow">MAX</span>
+</div>
+<span class="font-headline font-bold text-xs text-on-surface truncate w-full mb-0.5">Büyücü</span>
+<span class="font-display font-extrabold text-lg text-white tabular-nums mb-1.5">%28.6</span>
+<div class="w-full h-1.5 rounded-full bg-[#110B07] overflow-hidden border border-surface-dim">
+<div class="h-full rounded-full bg-secondary-container" style="width: 28.6%;"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Small Legal Notice Above Footer -->
+<div class="text-center mt-4">
+<p class="font-body text-[11px] text-on-surface-variant/80">
+      Supercell ile bağlantılı değildir, Fan Content Policy kapsamındadır.
+    </p>
+</div>
+</main>
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container-lowest border-t border-surface-container mt-8">
+<div class="w-full max-w-[1240px] mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<div class="flex flex-col gap-1">
+<span class="font-headline font-bold text-xs text-on-surface">CoC Analitik</span>
+<p class="font-body text-xs text-on-surface-variant max-w-2xl">
+        © 2025 CoC Analitik. Bu uygulama Supercell ile bağlantılı değildir, Supercell tarafından desteklenmemekte veya onaylanmamaktadır.
+      </p>
+</div>
+<div class="flex items-center gap-6 font-body text-xs">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">Kullanım Şartları</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">Gizlilik Politikası</a>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors min-h-[44px] flex items-center" href="#">İletişim</a>
+</div>
+</div>
+</footer>
+</body></html>
