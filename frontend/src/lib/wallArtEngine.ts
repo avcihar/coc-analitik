@@ -289,6 +289,222 @@ export function superSampleRotateMatrix(
 }
 
 /**
+ * Labels 8-connected components in a binary matrix with 1-based component IDs.
+ */
+function labelComponents8(matrix: number[][]): { labels: number[][]; count: number } {
+  const H = matrix.length;
+  const W = H > 0 ? matrix[0].length : 0;
+  const labels: number[][] = Array.from({ length: H }, () => new Array(W).fill(0));
+  if (H === 0 || W === 0) return { labels, count: 0 };
+
+  let count = 0;
+  for (let r = 0; r < H; r++) {
+    for (let c = 0; c < W; c++) {
+      if (matrix[r][c] === 1 && labels[r][c] === 0) {
+        count++;
+        labels[r][c] = count;
+        const queue: number[] = [r * W + c];
+        let head = 0;
+        while (head < queue.length) {
+          const idx = queue[head++];
+          const cr = Math.floor(idx / W);
+          const cc = idx % W;
+          for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+              if (dr === 0 && dc === 0) continue;
+              const nr = cr + dr;
+              const nc = cc + dc;
+              if (nr >= 0 && nr < H && nc >= 0 && nc < W && matrix[nr][nc] === 1 && labels[nr][nc] === 0) {
+                labels[nr][nc] = count;
+                queue.push(nr * W + nc);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return { labels, count };
+}
+
+/**
+ * Rotates a binary bitmap matrix with continuous S x S super-sampling and bridges
+ * diagonal 1-cell corners into continuous 4-connected zigzags while keeping
+ * separate source components (e.g. dots on 'İ'/'i') isolated and glyph counters open.
+ */
+export function superSampleRotateMatrixZigzag(
+  matrix: number[][],
+  angleDeg: number,
+  threshold: number = 0.4,
+  S: number = 4,
+  outRows: number = COC_GRID_SIZE,
+  outCols: number = COC_GRID_SIZE,
+  offsetX: number = 0,
+  offsetY: number = 0
+): number[][] {
+  const H = matrix.length;
+  const W = H > 0 ? matrix[0].length : 0;
+  if (H === 0 || W === 0) {
+    return Array.from({ length: outRows }, () => new Array(outCols).fill(0));
+  }
+
+  const { labels: srcLabels } = labelComponents8(matrix);
+  const rad = (angleDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+
+  const uc = H / 2.0;
+  const vc = W / 2.0;
+  const Rc = outRows / 2.0 + offsetY;
+  const Cc = outCols / 2.0 + offsetX;
+  const totalSamples = S * S;
+
+  const base: number[][] = Array.from({ length: outRows }, () => new Array(outCols).fill(0));
+  const cov: number[][] = Array.from({ length: outRows }, () => new Array(outCols).fill(0));
+  const cellComp: number[][] = Array.from({ length: outRows }, () => new Array(outCols).fill(0));
+
+  for (let R = 0; R < outRows; R++) {
+    for (let C = 0; C < outCols; C++) {
+      let filledHits = 0;
+      let dominantComp = 0;
+      let dominantHits = 0;
+      const compCounts = new Map<number, number>();
+
+      for (let si = 0; si < S; si++) {
+        const rSample = R + (si + 0.5) / S;
+        const deltaR = rSample - Rc;
+        for (let sj = 0; sj < S; sj++) {
+          const cSample = C + (sj + 0.5) / S;
+          const deltaC = cSample - Cc;
+
+          const deltaCSrc = deltaC * cos + deltaR * sin;
+          const deltaRSrc = -deltaC * sin + deltaR * cos;
+
+          const u = Math.floor(uc + deltaRSrc);
+          const v = Math.floor(vc + deltaCSrc);
+
+          if (u >= 0 && u < H && v >= 0 && v < W && matrix[u][v] === 1) {
+            filledHits++;
+            const cid = srcLabels[u][v];
+            const nextCount = (compCounts.get(cid) || 0) + 1;
+            compCounts.set(cid, nextCount);
+            if (nextCount > dominantHits) {
+              dominantHits = nextCount;
+              dominantComp = cid;
+            }
+          }
+        }
+      }
+
+      const cval = filledHits / totalSamples;
+      cov[R][C] = cval;
+      if (cval >= threshold - 1e-9) {
+        base[R][C] = 1;
+        cellComp[R][C] = dominantComp;
+      }
+    }
+  }
+
+  // Step 1: Fill midpoints of thin diagonal source edges (e.g. 1px strokes in X, K, N, V, W, Z)
+  const midGrid = base.map((row) => [...row]);
+  const midComp = cellComp.map((row) => [...row]);
+
+  const fwdMap = (uF: number, vF: number): [number, number] => {
+    const dRSrc = uF - uc;
+    const dCSrc = vF - vc;
+    const dC = dCSrc * cos - dRSrc * sin;
+    const dR = dCSrc * sin + dRSrc * cos;
+    return [Math.floor(Rc + dR), Math.floor(Cc + dC)];
+  };
+
+  for (let u = 0; u < H; u++) {
+    for (let v = 0; v < W; v++) {
+      if (matrix[u][v] !== 1) continue;
+      const diagNeighbors: [number, number][] = [
+        [u + 1, v + 1],
+        [u + 1, v - 1],
+      ];
+      for (const [nu, nv] of diagNeighbors) {
+        if (nu < 0 || nu >= H || nv < 0 || nv >= W || matrix[nu][nv] !== 1) continue;
+        if (matrix[u][nv] === 1 || matrix[nu][v] === 1) continue;
+        const [rm, cm] = fwdMap((u + nu) / 2.0 + 0.5, (v + nv) / 2.0 + 0.5);
+        if (rm >= 0 && rm < outRows && cm >= 0 && cm < outCols && midGrid[rm][cm] === 0) {
+          midGrid[rm][cm] = 1;
+          midComp[rm][cm] = srcLabels[u][v];
+        }
+      }
+    }
+  }
+
+  // Step 2: Simultaneous component-aware 2x2 zigzag corner bridging
+  const out = midGrid.map((row) => [...row]);
+  const countN4 = (r: number, c: number): number => {
+    let n = 0;
+    if (r > 0 && midGrid[r - 1][c] === 1) n++;
+    if (r + 1 < outRows && midGrid[r + 1][c] === 1) n++;
+    if (c > 0 && midGrid[r][c - 1] === 1) n++;
+    if (c + 1 < outCols && midGrid[r][c + 1] === 1) n++;
+    return n;
+  };
+  const countN8 = (r: number, c: number): number => {
+    let n = 0;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr >= 0 && nr < outRows && nc >= 0 && nc < outCols && midGrid[nr][nc] === 1) {
+          n++;
+        }
+      }
+    }
+    return n;
+  };
+  const candidateScore = (r: number, c: number): number => countN4(r, c) * 10 + countN8(r, c);
+
+  for (let r = 0; r < outRows - 1; r++) {
+    for (let c = 0; c < outCols - 1; c++) {
+      const a = midGrid[r][c];
+      const b = midGrid[r][c + 1];
+      const d = midGrid[r + 1][c];
+      const e = midGrid[r + 1][c + 1];
+
+      if (a === 1 && e === 1 && b === 0 && d === 0 && midComp[r][c] === midComp[r + 1][c + 1]) {
+        const sB = candidateScore(r, c + 1);
+        const sD = candidateScore(r + 1, c);
+        if (sB < sD) {
+          out[r][c + 1] = 1;
+        } else if (sD < sB) {
+          out[r + 1][c] = 1;
+        } else if (cov[r][c + 1] > cov[r + 1][c] + 1e-6) {
+          out[r][c + 1] = 1;
+        } else if (cov[r + 1][c] > cov[r][c + 1] + 1e-6) {
+          out[r + 1][c] = 1;
+        } else {
+          out[r][c + 1] = 1;
+        }
+      } else if (b === 1 && d === 1 && a === 0 && e === 0 && midComp[r][c + 1] === midComp[r + 1][c]) {
+        const sA = candidateScore(r, c);
+        const sE = candidateScore(r + 1, c + 1);
+        if (sA < sE) {
+          out[r][c] = 1;
+        } else if (sE < sA) {
+          out[r + 1][c + 1] = 1;
+        } else if (cov[r][c] > cov[r + 1][c + 1] + 1e-6) {
+          out[r][c] = 1;
+        } else if (cov[r + 1][c + 1] > cov[r][c] + 1e-6) {
+          out[r + 1][c + 1] = 1;
+        } else {
+          out[r][c] = 1;
+        }
+      }
+    }
+  }
+
+  return out;
+}
+
+/**
  * Tests a single glyph's connectivity when rotated by angleDeg.
  * Compares post-rotation 4-connected components against source 8-connected components.
  * Retries with T down to 0.30; if still broken, marks for Chebyshev dilation.
@@ -988,7 +1204,7 @@ export function placeBitmapInGrid(
   const spanC = Math.abs(W * Math.cos(rad)) + Math.abs(H * Math.sin(rad));
   const spanReq = Math.ceil(Math.max(spanR, spanC));
 
-  const rotatedGrid = superSampleRotateMatrix(localMat, norm, threshold, 4, N, N, offsetX, offsetY);
+  const rotatedGrid = superSampleRotateMatrixZigzag(localMat, norm, threshold, 4, N, N, offsetX, offsetY);
   const analysis = analyzeGrid(rotatedGrid);
   const fitsInGrid = spanR <= N + 1e-4 && spanC <= N + 1e-4 && analysis.minR >= 0 && analysis.maxR < N && analysis.minC >= 0 && analysis.maxC < N;
 

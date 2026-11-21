@@ -4,12 +4,10 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import {
   PenTool,
   Download,
-  Camera,
   AlertTriangle,
   CheckCircle2,
   Sliders,
   Info,
-  Copy,
   Check,
   Move,
   Crosshair,
@@ -18,7 +16,6 @@ import {
   ChevronDown,
   Plus,
   Minus,
-  ListOrdered,
   Layers,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
@@ -254,7 +251,6 @@ export default function WallArtView() {
   const [isWallPickerOpen, setIsWallPickerOpen] = useState<boolean>(false);
   const [isSceneryOpen, setIsSceneryOpen] = useState<boolean>(false);
   const [isOtherSettingsOpen, setIsOtherSettingsOpen] = useState<boolean>(false);
-  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
   const [selectedWallLevel, setSelectedWallLevel] = useState<number>(20);
 
   // Viewport Zoom & Pan Engine State
@@ -291,7 +287,6 @@ export default function WallArtView() {
   const [sceneryLoading, setSceneryLoading] = useState<boolean>(false);
   const [sceneryImg, setSceneryImg] = useState<HTMLImageElement | null>(null);
   const [wallImg, setWallImg] = useState<HTMLImageElement | null>(null);
-  const [wallMiddleImg, setWallMiddleImg] = useState<HTMLImageElement | null>(null);
 
   // Restore selected scenery & wall level from localStorage or URL query on mount
   useEffect(() => {
@@ -381,7 +376,7 @@ export default function WallArtView() {
     };
   }, [currentScenery.src]);
 
-  // Preload selected wall level pillar & middle textures dynamically
+  // Preload selected wall level pillar texture dynamically
   useEffect(() => {
     let cancelled = false;
     const w = new Image();
@@ -390,28 +385,14 @@ export default function WallArtView() {
       if (!cancelled) setWallImg(w);
     };
 
-    if (currentWallConfig.middleSrc) {
-      const m = new Image();
-      m.src = currentWallConfig.middleSrc;
-      m.onload = () => {
-        if (!cancelled) setWallMiddleImg(m);
-      };
-      m.onerror = () => {
-        if (!cancelled) setWallMiddleImg(null);
-      };
-    } else {
-      setWallMiddleImg(null);
-    }
-
     return () => {
       cancelled = true;
     };
-  }, [currentWallConfig.src, currentWallConfig.middleSrc]);
+  }, [currentWallConfig.src]);
 
   // Interaction State
   const [hoveredCell, setHoveredCell] = useState<{ r: number; c: number } | null>(null);
   const [isExporting, setIsExporting] = useState<boolean>(false);
-  const [copiedGuide, setCopiedGuide] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
   // Canvas Refs
@@ -707,14 +688,10 @@ export default function WallArtView() {
       ctx.restore();
     }
 
-    // Active green selection glow & exterior boundary around wall formation
+    // Active light-green selection glow & exterior boundary strictly beneath wall sprites
     type PerimeterEdge = {
       p0: { x: number; y: number };
       p1: { x: number; y: number };
-      frontP0?: { x: number; y: number };
-      frontP1?: { x: number; y: number };
-      isFront: boolean;
-      edgeDir: "NE" | "SE" | "SW" | "NW";
     };
     const perimeterEdges: PerimeterEdge[] = [];
     if (isWallsSelected && filledCells.length > 0) {
@@ -724,67 +701,21 @@ export default function WallArtView() {
         const ptBR = mapGridToScenery(c + 1, r + 1, buildArea);
         const ptBL = mapGridToScenery(c, r + 1, buildArea);
         if (r === 0 || result.grid[r - 1][c] !== 1) {
-          perimeterEdges.push({ p0: ptTL, p1: ptTR, isFront: false, edgeDir: "NE" });
+          perimeterEdges.push({ p0: ptTL, p1: ptTR });
         }
         if (c === COC_GRID_SIZE - 1 || result.grid[r][c + 1] !== 1) {
-          perimeterEdges.push({
-            p0: ptTR,
-            p1: ptBR,
-            frontP0: mapGridToScenery(c + 1.06, r, buildArea),
-            frontP1: mapGridToScenery(c + 1.06, r + 1, buildArea),
-            isFront: true,
-            edgeDir: "SE",
-          });
+          perimeterEdges.push({ p0: ptTR, p1: ptBR });
         }
         if (r === COC_GRID_SIZE - 1 || result.grid[r + 1][c] !== 1) {
-          perimeterEdges.push({
-            p0: ptBR,
-            p1: ptBL,
-            frontP0: mapGridToScenery(c + 1, r + 1.06, buildArea),
-            frontP1: mapGridToScenery(c, r + 1.06, buildArea),
-            isFront: true,
-            edgeDir: "SW",
-          });
+          perimeterEdges.push({ p0: ptBR, p1: ptBL });
         }
         if (c === 0 || result.grid[r][c - 1] !== 1) {
-          perimeterEdges.push({ p0: ptBL, p1: ptTL, isFront: false, edgeDir: "NW" });
+          perimeterEdges.push({ p0: ptBL, p1: ptTL });
         }
       }
 
       ctx.save();
-      // Step 1: Slightly expanded dark-forest diamonds form seamless outer casing around corners
-      ctx.fillStyle = "#0E3B16";
-      for (const { r, c } of filledCells) {
-        const gTop = mapGridToScenery(c - 0.18, r - 0.18, buildArea);
-        const gRight = mapGridToScenery(c + 1.18, r - 0.18, buildArea);
-        const gBot = mapGridToScenery(c + 1.18, r + 1.18, buildArea);
-        const gLeft = mapGridToScenery(c - 0.18, r + 1.18, buildArea);
-        ctx.beginPath();
-        ctx.moveTo(gTop.x, gTop.y);
-        ctx.lineTo(gRight.x, gRight.y);
-        ctx.lineTo(gBot.x, gBot.y);
-        ctx.lineTo(gLeft.x, gLeft.y);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Step 2: Expanded vivid-emerald diamonds create bright continuous green border
-      ctx.fillStyle = "#38F260";
-      for (const { r, c } of filledCells) {
-        const gTop = mapGridToScenery(c - 0.10, r - 0.10, buildArea);
-        const gRight = mapGridToScenery(c + 1.10, r - 0.10, buildArea);
-        const gBot = mapGridToScenery(c + 1.10, r + 1.10, buildArea);
-        const gLeft = mapGridToScenery(c - 0.10, r + 1.10, buildArea);
-        ctx.beginPath();
-        ctx.moveTo(gTop.x, gTop.y);
-        ctx.lineTo(gRight.x, gRight.y);
-        ctx.lineTo(gBot.x, gBot.y);
-        ctx.lineTo(gLeft.x, gLeft.y);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Step 3: Multi-pass perimeter strokes scaled for 3705px canvas visibility
+      // Thin light-green selection outline beneath walls (never draws over front walls)
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.beginPath();
@@ -792,75 +723,22 @@ export default function WallArtView() {
         ctx.moveTo(edge.p0.x, edge.p0.y);
         ctx.lineTo(edge.p1.x, edge.p1.y);
       }
-      ctx.strokeStyle = "rgba(56, 242, 96, 0.45)";
-      ctx.lineWidth = Math.max(20, cellW * 0.44);
+      ctx.strokeStyle = "rgba(156, 224, 74, 0.28)";
+      ctx.lineWidth = Math.max(4, cellW * 0.11);
       ctx.stroke();
-      ctx.strokeStyle = "#0E3B16";
-      ctx.lineWidth = Math.max(15, cellW * 0.30);
+      ctx.strokeStyle = "#9CE04A";
+      ctx.lineWidth = Math.max(2.5, cellW * 0.065);
       ctx.stroke();
-      ctx.strokeStyle = "#38F260";
-      ctx.lineWidth = Math.max(9.5, cellW * 0.18);
-      ctx.stroke();
-      ctx.strokeStyle = "#D9FFE1";
-      ctx.lineWidth = Math.max(3, cellW * 0.06);
+      ctx.strokeStyle = "#E5FFC2";
+      ctx.lineWidth = Math.max(1, cellW * 0.022);
       ctx.stroke();
       ctx.restore();
     }
 
-    const canUseMiddleSprite = Boolean(
-      wallMiddleImg && wallMiddleImg.complete && wallMiddleImg.naturalWidth > 0
+    // Pass 2: Strictly 1 wall model per occupied tile (sorted back-to-front by isometric depth)
+    const sortedWalls = [...filledCells].sort(
+      (a, b) => a.c + a.r - (b.c + b.r) || a.r - b.r
     );
-
-    const getCellWallKind = (r: number, c: number): "pillar" | "midNESW" | "midNWSE" => {
-      if (!canUseMiddleSprite) return "pillar";
-      const hasNW = c > 0 && result.grid[r][c - 1] === 1;
-      const hasSE = c < COC_GRID_SIZE - 1 && result.grid[r][c + 1] === 1;
-      const hasNE = r > 0 && result.grid[r - 1][c] === 1;
-      const hasSW = r < COC_GRID_SIZE - 1 && result.grid[r + 1][c] === 1;
-      if (hasNE && hasSW && !hasNW && !hasSE) return "midNESW";
-      if (hasNW && hasSE && !hasNE && !hasSW) return "midNWSE";
-      return "pillar";
-    };
-
-    // Pass 2: Build strict back-to-front render queue:
-    //   - Exactly ONE wall sprite per occupied tile (r, c)
-    //   - One thin masonry beam strictly bridging the tile edge (never an extra wall post)
-    type RenderItem =
-      | { kind: "wall"; r: number; c: number; wallKind: "pillar" | "midNESW" | "midNWSE"; depth: number }
-      | { kind: "bridgeSE"; r: number; c: number; depth: number }
-      | { kind: "bridgeSW"; r: number; c: number; depth: number };
-
-    const items: RenderItem[] = [];
-    for (const { r, c } of filledCells) {
-      const wallKind = getCellWallKind(r, c);
-      const d0 = c + 0.5 + (r + 0.5);
-      items.push({ kind: "wall", r, c, wallKind, depth: d0 });
-
-      const hasSE = c < COC_GRID_SIZE - 1 && result.grid[r][c + 1] === 1;
-      if (hasSE) {
-        const rightKind = getCellWallKind(r, c + 1);
-        if (!(wallKind === "midNWSE" && rightKind === "midNWSE")) {
-          items.push({ kind: "bridgeSE", r, c, depth: d0 + 0.5 });
-        }
-      }
-
-      const hasSW = r < COC_GRID_SIZE - 1 && result.grid[r + 1][c] === 1;
-      if (hasSW) {
-        const downKind = getCellWallKind(r + 1, c);
-        if (!(wallKind === "midNESW" && downKind === "midNESW")) {
-          items.push({ kind: "bridgeSW", r, c, depth: d0 + 0.5 });
-        }
-      }
-    }
-
-    items.sort((a, b) => a.depth - b.depth || a.r - b.r);
-
-    const connColors = currentWallConfig.connectorColors || {
-      top: "#615F5B",
-      left: "#333227",
-      right: "#5C5344",
-      stroke: "#151510",
-    };
 
     if (wallImg && wallImg.complete && wallImg.naturalWidth > 0) {
       const naturalW = wallImg.naturalWidth;
@@ -870,144 +748,25 @@ export default function WallArtView() {
       const pillarW = cellW * apronComp;
       const pillarH = Math.min(cellW * 1.38, pillarW * (naturalH / naturalW));
 
-      const midNaturalW = wallMiddleImg?.naturalWidth || naturalW;
-      const midNaturalH = wallMiddleImg?.naturalHeight || naturalH;
-      const midApronComp = selectedWallLevel === 12 || selectedWallLevel === 13 ? 1.12 : 1.02;
-      const midW = cellW * midApronComp;
-      const midH = Math.min(cellW * 1.40, midW * (midNaturalH / midNaturalW));
-
-      const beamHeight = Math.max(8, pillarH * 0.44);
-      const halfThick = 0.18;
-
-      const drawBridgeQuad = (
-        g1: { x: number; y: number },
-        g2: { x: number; y: number },
-        g3: { x: number; y: number },
-        g4: { x: number; y: number },
-        dir: "SE" | "SW"
-      ) => {
-        const t1 = { x: g1.x, y: g1.y - beamHeight };
-        const t2 = { x: g2.x, y: g2.y - beamHeight };
-        const t3 = { x: g3.x, y: g3.y - beamHeight };
-        const t4 = { x: g4.x, y: g4.y - beamHeight };
-
-        ctx.save();
-        ctx.lineWidth = Math.max(1.2, cellW * 0.025);
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = connColors.stroke;
-
-        // Visible isometric front wall face
-        ctx.beginPath();
-        if (dir === "SE") {
-          ctx.moveTo(g4.x, g4.y);
-          ctx.lineTo(g3.x, g3.y);
-          ctx.lineTo(t3.x, t3.y);
-          ctx.lineTo(t4.x, t4.y);
-        } else {
-          ctx.moveTo(g2.x, g2.y);
-          ctx.lineTo(g3.x, g3.y);
-          ctx.lineTo(t3.x, t3.y);
-          ctx.lineTo(t2.x, t2.y);
-        }
-        ctx.closePath();
-        ctx.fillStyle = dir === "SE" ? connColors.left : connColors.right;
-        ctx.fill();
-        ctx.stroke();
-
-        // Top crest of connector beam
-        ctx.beginPath();
-        ctx.moveTo(t1.x, t1.y);
-        ctx.lineTo(t2.x, t2.y);
-        ctx.lineTo(t3.x, t3.y);
-        ctx.lineTo(t4.x, t4.y);
-        ctx.closePath();
-        ctx.fillStyle = connColors.top;
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-      };
-
-      for (const item of items) {
-        if (item.kind === "wall") {
-          const pt = mapGridToScenery(item.c + 0.5, item.r + 0.5, buildArea);
-          if (item.wallKind === "midNESW" && wallMiddleImg) {
-            ctx.drawImage(
-              wallMiddleImg,
-              pt.x - midW / 2.0,
-              pt.y - midH * 0.78,
-              midW,
-              midH
-            );
-          } else if (item.wallKind === "midNWSE" && wallMiddleImg) {
-            ctx.save();
-            ctx.translate(pt.x, pt.y);
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-              wallMiddleImg,
-              -midW / 2.0,
-              -midH * 0.78,
-              midW,
-              midH
-            );
-            ctx.restore();
-          } else {
-            ctx.drawImage(
-              wallImg,
-              pt.x - pillarW / 2.0,
-              pt.y - pillarH * 0.80,
-              pillarW,
-              pillarH
-            );
-          }
-        } else if (item.kind === "bridgeSE") {
-          const g1 = mapGridToScenery(item.c + 0.64, item.r + 0.5 - halfThick, buildArea);
-          const g2 = mapGridToScenery(item.c + 1.36, item.r + 0.5 - halfThick, buildArea);
-          const g3 = mapGridToScenery(item.c + 1.36, item.r + 0.5 + halfThick, buildArea);
-          const g4 = mapGridToScenery(item.c + 0.64, item.r + 0.5 + halfThick, buildArea);
-          drawBridgeQuad(g1, g2, g3, g4, "SE");
-        } else if (item.kind === "bridgeSW") {
-          const g1 = mapGridToScenery(item.c + 0.5 - halfThick, item.r + 0.64, buildArea);
-          const g2 = mapGridToScenery(item.c + 0.5 + halfThick, item.r + 0.64, buildArea);
-          const g3 = mapGridToScenery(item.c + 0.5 + halfThick, item.r + 1.36, buildArea);
-          const g4 = mapGridToScenery(item.c + 0.5 - halfThick, item.r + 1.36, buildArea);
-          drawBridgeQuad(g1, g2, g3, g4, "SW");
-        }
+      for (const { r, c } of sortedWalls) {
+        const pt = mapGridToScenery(c + 0.5, r + 0.5, buildArea);
+        ctx.drawImage(
+          wallImg,
+          pt.x - pillarW / 2.0,
+          pt.y - pillarH * 0.80,
+          pillarW,
+          pillarH
+        );
       }
     } else {
       // Fallback isometric diamond wall renderer while sprite is loading
-      for (const { r, c } of filledCells) {
+      for (const { r, c } of sortedWalls) {
         const center = mapGridToScenery(c + 0.5, r + 0.5, buildArea);
         ctx.fillStyle = "#F59E0B";
         ctx.fillRect(center.x - 12, center.y - 12, 24, 24);
       }
     }
-
-    if (isWallsSelected && perimeterEdges.length > 0) {
-      const frontEdges = perimeterEdges.filter((edge) => edge.isFront);
-      if (frontEdges.length > 0) {
-        ctx.save();
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.beginPath();
-        for (const edge of frontEdges) {
-          const p0 = edge.frontP0 || edge.p0;
-          const p1 = edge.frontP1 || edge.p1;
-          ctx.moveTo(p0.x, p0.y);
-          ctx.lineTo(p1.x, p1.y);
-        }
-        ctx.strokeStyle = "#0E3B16";
-        ctx.lineWidth = Math.max(13, cellW * 0.26);
-        ctx.stroke();
-        ctx.strokeStyle = "#38F260";
-        ctx.lineWidth = Math.max(8, cellW * 0.16);
-        ctx.stroke();
-        ctx.strokeStyle = "#DCFFE3";
-        ctx.lineWidth = Math.max(2.5, cellW * 0.05);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-  }, [viewMode, result, sceneryImg, wallImg, wallMiddleImg, selectedWallLevel, currentWallConfig, showDebugGrid, currentScenery, isWallsSelected]);
+  }, [viewMode, result, sceneryImg, wallImg, selectedWallLevel, showDebugGrid, currentScenery, isWallsSelected]);
 
   // ── Viewport Geometry & Pan/Zoom Handlers ────────────────────────────────
   const clampPan = useCallback(
@@ -1572,59 +1331,6 @@ export default function WallArtView() {
       setIsExporting(false);
     }
   }, [result, text, currentFont, rotation, offsetX, offsetY, locale, isTr]);
-
-  // Copy Build Guide text
-  const handleCopyGuide = async () => {
-    const lines = result.buildGuide.map((g) => {
-      if (isTr) {
-        return `Satır ${g.row}: ${g.wallCount} duvar [${g.segments
-          .map((s) => (s.fromCol === s.toCol ? `Sütun ${s.fromCol}` : `Sütun ${s.fromCol}–${s.toCol} (${s.count} adet)`))
-          .join(", ")}]`;
-      }
-      return `Row ${g.row}: ${g.wallCount} walls [${g.segments
-        .map((s) => (s.fromCol === s.toCol ? `Col ${s.fromCol}` : `Col ${s.fromCol}–${s.toCol} (${s.count})`))
-        .join(", ")}]`;
-    });
-
-    const fullText = isTr
-      ? [
-          `=== CoC Duvar Yazısı İnşa Rehberi ===`,
-          `Metin: "${text}"`,
-          `Font: ${currentFont?.name || "Bilinmiyor"} (Ölçek: ${result.effectiveScale}x, Açı: ${rotation}°)`,
-          `Toplam Duvar: ${result.wallCount} / ${result.maxWalls}`,
-          `Izgara: 44x44 Ana Köy`,
-          `------------------------------------`,
-          ...lines,
-        ].join("\n")
-      : [
-          `=== CoC Wall Art Build Guide ===`,
-          `Text: "${text}"`,
-          `Font: ${currentFont?.name || "Unknown"} (Scale: ${result.effectiveScale}x, Angle: ${rotation}°)`,
-          `Total Walls: ${result.wallCount} / ${result.maxWalls}`,
-          `Grid: 44x44 Home Village`,
-          `------------------------------------`,
-          ...lines,
-        ].join("\n");
-
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(fullText);
-      } else {
-        const ta = document.createElement("textarea");
-        ta.value = fullText;
-        ta.style.position = "fixed";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      }
-      setCopiedGuide(true);
-      setTimeout(() => setCopiedGuide(false), 2000);
-    } catch {
-      // Clipboard fallback failed silently
-    }
-  };
 
   const usagePct = Math.min(100, Math.round((result.wallCount / Math.max(1, maxWalls)) * 100));
 
@@ -2754,7 +2460,7 @@ export default function WallArtView() {
                   </div>
                 </div>
 
-                {/* Export & Build Guide Action Buttons */}
+                {/* Export Action Button */}
                 <div className="flex flex-wrap items-center gap-2">
                   <GameButton
                     variant="gold"
@@ -2765,101 +2471,22 @@ export default function WallArtView() {
                       isExportingViewport ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       ) : (
-                        <Camera size={16} />
+                        <Download size={16} />
                       )
                     }
-                    className="min-h-[44px] px-3 py-2 text-xs sm:text-sm whitespace-nowrap font-game"
+                    className="min-h-[44px] px-3.5 py-2 text-xs sm:text-sm whitespace-nowrap font-game"
                     title={
                       isTr
-                        ? "Mevcut köy görünümünü 2 kat çözünürlükte önizleme PNG olarak indir"
-                        : "Save current village preview as 2x PNG image"
+                        ? "Mevcut köy görünümünü PNG olarak indir"
+                        : "Download current village preview as PNG"
                     }
                   >
-                    {t.wall.downloadPreview}
+                    {isTr ? "PNG Olarak İndir" : "Download as PNG"}
                   </GameButton>
-
-                  <GameButton
-                    variant="blue"
-                    size="sm"
-                    onClick={handleCopyGuide}
-                    disabled={result.wallCount === 0}
-                    icon={copiedGuide ? <Check size={16} /> : <Copy size={16} />}
-                    className="min-h-[44px] px-3 py-2 text-xs sm:text-sm whitespace-nowrap font-game"
-                    title={
-                      isTr
-                        ? "Satır satır koordinatlı inşa rehberini panoya kopyala"
-                        : "Copy row-by-row coordinate build guide to clipboard"
-                    }
-                  >
-                    {copiedGuide ? t.wall.copiedGuide : t.wall.copyGuide}
-                  </GameButton>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsGuideOpen((prev) => !prev)}
-                    disabled={result.buildGuide.length === 0}
-                    aria-expanded={isGuideOpen}
-                    className="ui-well min-h-[44px] min-w-[44px] px-3 hover:border-[var(--ui-text-gold)]/60 disabled:opacity-45 disabled:cursor-not-allowed flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[var(--ui-text-gold)] cursor-pointer transition-colors"
-                    title={
-                      isTr
-                        ? "Satır bazlı koordinat listesini göster/gizle"
-                        : "Toggle row-by-row coordinate list"
-                    }
-                  >
-                    <ListOrdered size={16} className="text-[var(--ui-text-gold)] shrink-0" />
-                    <span className="tabular-nums">{fmtNum(result.buildGuide.length)}</span>
-                    <ChevronDown
-                      size={15}
-                      className={cn(
-                        "transition-transform duration-200 text-[var(--ui-text-gold)]",
-                        isGuideOpen && "rotate-180"
-                      )}
-                    />
-                  </button>
                 </div>
               </div>
             </div>
           </section>
-
-          {/* Collapsible Row-by-Row Build Guide Drawer */}
-          {isGuideOpen && result.buildGuide.length > 0 && (
-            <section className="ui-panel overflow-hidden">
-              <div className="ui-panel-header px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-2">
-                <span className="font-game text-xs sm:text-sm text-[var(--ui-text-gold)]">
-                  {isTr ? "Satır Bazlı Koordinat Rehberi (1–44)" : "Row-by-Row Build Guide (1–44)"}
-                </span>
-                <span className="text-xs text-[var(--ui-text-muted)] tabular-nums">
-                  {fmtTemplate(t.wall.filledRows, { filled: fmtNum(result.buildGuide.length) })}
-                </span>
-              </div>
-              <div className="p-3 sm:p-4 max-h-60 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                {result.buildGuide.map((g) => (
-                  <div
-                    key={g.row}
-                    className="ui-info px-2.5 py-2 text-xs text-[var(--ui-text-main)] flex flex-col gap-1 tabular-nums"
-                  >
-                    <div className="flex items-center justify-between font-bold">
-                      <span className="text-[var(--ui-text-gold)]">
-                        {isTr ? `Satır ${g.row}` : `Row ${g.row}`}
-                      </span>
-                      <span className="text-[var(--ui-text-green)]">
-                        {fmtNum(g.wallCount)} {isTr ? "duvar" : "walls"}
-                      </span>
-                    </div>
-                    <div className="text-xs text-[var(--ui-text-muted)] font-mono">
-                      {g.segments
-                        .map((s) =>
-                          s.fromCol === s.toCol
-                            ? `${isTr ? "Süt" : "C"}${s.fromCol}`
-                            : `${isTr ? "Süt" : "C"}${s.fromCol}–${s.toCol}(${s.count})`
-                        )
-                        .join(", ")}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </div>
     </div>

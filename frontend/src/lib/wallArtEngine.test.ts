@@ -310,6 +310,35 @@ function runTests() {
   }
   console.log("✓ Test 17: Open counters ('O', 'B', '8') remain strictly open at -45° with zero blobification.");
 
+  // 18. Continuous 4-Connected Zigzag on Diagonal 1-Wall-Thick Strokes
+  for (const fontId of ["clash_slim", "clash_bold", "clash_block"]) {
+    const f = getBitmapFont(fontId)!;
+    const checks: [string, number][] = [
+      ["CLASH", 5],
+      ["ŞAMPİ", 6], // 5 letters + 1 dot above 'İ'
+      ["OB8A0", 5],
+      ["(123)", 5],
+    ];
+    for (const [sampleText, expectedComps] of checks) {
+      const zRes = computeWallArt(sampleText, f, 1.0, -45, 325, 2, false, true, false, 0, 0);
+      const comp4 = countComponents4(zRes.grid);
+      if (comp4 !== expectedComps) {
+        throw new Error(
+          `${fontId} "${sampleText}" zigzag continuity mismatch: comp4=${comp4}, expected=${expectedComps}`
+        );
+      }
+    }
+  }
+  const hLine = [[1, 1, 1, 1, 1, 1, 1]];
+  const vLine = [[1], [1], [1], [1], [1], [1], [1]];
+  if (countComponents4(placeBitmapInGrid(hLine, -45, 0.35).grid) !== 1) {
+    throw new Error("1px horizontal line at -45° must form a single 4-connected zigzag");
+  }
+  if (countComponents4(placeBitmapInGrid(vLine, -45, 0.35).grid) !== 1) {
+    throw new Error("1px vertical line at -45° must form a single 4-connected zigzag");
+  }
+  console.log("✓ Test 18: 1-wall-thick diagonal strokes form continuous 4-connected zigzags without fragmenting or merging components.");
+
   console.log("=== ALL BITMAP WALL ART (LOSSLESS 45° LATTICE) TESTS PASSED! ===");
 }
 
